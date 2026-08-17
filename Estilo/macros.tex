@@ -1,0 +1,73 @@
+% =====================================================================
+%  MACROS
+%  Símbolos que se repiten en todo el libro. Escribe SIEMPRE con macro,
+%  nunca a mano: si un día cambias el convenio, cambias solo esta hoja.
+% =====================================================================
+
+% --- Generales --------------------------------------------------------
+\usepackage{xspace}
+\newcommand{\FUSAL}{\textsc{FUSAL}\xspace}
+\newcommand{\etal}{\textit{et al.}\xspace}
+\newcommand{\dif}{\mathrm{d}}
+\newcommand{\deriv}[2]{\frac{\dif #1}{\dif #2}}
+\newcommand{\pderiv}[2]{\frac{\partial #1}{\partial #2}}
+\newcommand{\vect}[1]{\mathbf{#1}}
+\newcommand{\prom}[1]{\overline{#1}}
+% Texto guía dentro de los recuadros: qué hay que escribir ahí. Bórralo al redactar.
+\newcommand{\redactar}[1]{\textcolor{fusalGris}{\itshape #1}}
+
+% --- Dinámica vehicular ----------------------------------------------
+\newcommand{\Fz}{F_z}                       % carga vertical
+\newcommand{\Fy}{F_y}                       % fuerza lateral
+\newcommand{\Fx}{F_x}                       % fuerza longitudinal
+\newcommand{\Mz}{M_z}                       % par autoalineante
+\newcommand{\slipa}{\alpha}                 % ángulo de deriva
+\newcommand{\slipr}{\kappa}                 % deslizamiento longitudinal
+\newcommand{\camber}{\gamma}                % caída
+\newcommand{\muy}{\mu_y}
+\newcommand{\mux}{\mu_x}
+\newcommand{\ay}{a_y}
+\newcommand{\ax}{a_x}
+\newcommand{\CdG}{\mathrm{CdG}}             % centro de gravedad
+\newcommand{\hcg}{h_{\CdG}}
+\newcommand{\LLTD}{\mathrm{LLTD}}
+\newcommand{\Kus}{K_{us}}                   % gradiente de subviraje
+\newcommand{\batalla}{L}
+\newcommand{\via}{t}
+\newcommand{\Kroll}{K_{\phi}}               % rigidez a balanceo
+
+% --- Suspensión -------------------------------------------------------
+\newcommand{\MR}{\mathrm{MR}}               % relación de instalación
+\newcommand{\Kw}{K_w}                       % rigidez en rueda
+\newcommand{\Ks}{K_s}                       % rigidez del muelle
+\newcommand{\fr}{f_r}                       % frecuencia de suspensión
+
+% --- Aerodinámica -----------------------------------------------------
+\newcommand{\Cl}{C_L}
+\newcommand{\Cd}{C_D}
+\newcommand{\Cp}{C_p}
+\newcommand{\ClA}{C_L A}
+\newcommand{\CdA}{C_D A}
+\newcommand{\qdin}{q_{\infty}}              % presión dinámica
+\newcommand{\Vinf}{V_{\infty}}
+\newcommand{\Rey}{\mathit{Re}}
+\newcommand{\CoP}{\mathrm{CoP}}             % centro de presiones
+
+% --- Transferencia de calor ------------------------------------------
+\newcommand{\UA}{UA}
+\newcommand{\NTU}{\mathit{NTU}}
+\newcommand{\efec}{\varepsilon}             % eficacia del intercambiador
+\newcommand{\Nus}{\mathit{Nu}}
+\renewcommand{\Pr}{\mathit{Pr}}   % redefine el \Pr de LaTeX (probabilidad), aquí es Prandtl
+\newcommand{\Stan}{\mathit{St}}
+\newcommand{\jcol}{j}                       % factor de Colburn
+\newcommand{\ffan}{f}                       % factor de fricción
+\newcommand{\mdot}{\dot{m}}
+\newcommand{\Qdot}{\dot{Q}}
+\newcommand{\Dh}{D_h}                       % diámetro hidráulico
+\newcommand{\LMTD}{\Delta T_{\mathrm{ml}}}
+
+% --- Transmisión ------------------------------------------------------
+\newcommand{\itot}{i_{\mathrm{tot}}}        % relación total
+\newcommand{\Tmot}{T_{\mathrm{mot}}}
+\newcommand{\rdin}{r_{\mathrm{din}}}        % radio dinámico

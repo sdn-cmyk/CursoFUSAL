@@ -1,0 +1,67 @@
+% =====================================================================
+%  ENTORNOS PROPIOS
+%  Los seis cuadros que estructuran cada capítulo. Úsalos siempre igual:
+%  el lector debe poder hojear el libro buscando solo los recuadros.
+% =====================================================================
+\usepackage[most]{tcolorbox}
+\tcbuselibrary{breakable,skins}
+
+% --- Plantilla base ---------------------------------------------------
+\tcbset{
+  cursobase/.style={
+    breakable, enhanced, sharp corners=downhill,
+    boxrule=0pt, leftrule=3pt, toprule=0pt, bottomrule=0pt, rightrule=0pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt,
+    fonttitle=\sffamily\bfseries\small,
+    coltitle=black, attach title to upper=\par\medskip
+  }
+}
+
+% --- 1. Idea clave ----------------------------------------------------
+\newtcolorbox{clave}[1][]{cursobase,
+  colback=fusalClaro, colframe=fusalPrim,
+  title={IDEA CLAVE}, #1}
+
+% --- 2. Caso real del equipo -----------------------------------------
+\newtcolorbox{caso}[1][]{cursobase,
+  colback=fusalPrim!5, colframe=fusalPrim!70,
+  title={CASO FUSAL\ifx\relax#1\relax\else\ --- #1\fi}}
+
+% --- 3. Referencia al reglamento -------------------------------------
+\newtcolorbox{regla}[1][]{cursobase,
+  colback=gray!8, colframe=fusalGris,
+  title={DEL REGLAMENTO\ifx\relax#1\relax\else\ --- #1\fi}}
+
+% --- 4. Errores frecuentes -------------------------------------------
+\newtcolorbox{ojo}[1][]{cursobase,
+  colback=fusalSec!5, colframe=fusalSec,
+  title={OJO --- ERRORES FRECUENTES}, #1}
+
+% --- 5. Entregable de la sesión --------------------------------------
+\newtcolorbox{entregable}[1][]{cursobase,
+  colback=green!5, colframe=green!45!black,
+  title={ENTREGABLE}, #1}
+
+% --- 6. Preguntas de los jueces --------------------------------------
+\newtcolorbox{juez}[1][]{cursobase,
+  colback=orange!6, colframe=orange!70!black,
+  title={LO QUE TE VA A PREGUNTAR UN JUEZ}, #1}
+
+% --- Objetivos de aprendizaje (cabecera de cada capítulo) -------------
+\newenvironment{objetivos}
+  {\begin{tcolorbox}[cursobase, colback=white, colframe=fusalPrim,
+      title={AL TERMINAR ESTE CAPÍTULO DEBES SABER}]
+   \begin{itemize}[leftmargin=*,label=\textcolor{fusalPrim}{\textbullet}]}
+  {\end{itemize}\end{tcolorbox}}
+
+% --- Ficha de sesión (para impartir el capítulo como clase) -----------
+% Uso: \fichasesion{Duración}{Requisitos previos}{Material necesario}
+\newcommand{\fichasesion}[3]{%
+  \begin{tcolorbox}[cursobase, colback=gray!5, colframe=fusalGris,
+      title={FICHA DE SESIÓN}]
+  \begin{description}[leftmargin=!,labelwidth=2.6cm,font=\sffamily\bfseries\small]
+    \item[Duración] #1
+    \item[Requisitos] #2
+    \item[Material] #3
+  \end{description}
+  \end{tcolorbox}}

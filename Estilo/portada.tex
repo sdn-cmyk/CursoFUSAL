@@ -1,0 +1,72 @@
+% =====================================================================
+%  PORTADA
+%  Sustituye el rectángulo por el logo del equipo cuando lo tengas:
+%  \includegraphics[width=6cm]{Imagenes/logo_fusal.pdf}
+% =====================================================================
+\begin{titlepage}
+\centering
+\thispagestyle{empty}
+
+\vspace*{1.5cm}
+
+{\sffamily\Large\color{fusalGris} FORMULA STUDENT · UNIVERSIDAD DE SALAMANCA\par}
+
+\vspace{1.2cm}
+
+% --- Sustituir por el logo ---
+\begin{tikzpicture}
+  \draw[fusalGris!40,line width=0.8pt] (0,0) rectangle (6,2.2);
+  \node[fusalGris] at (3,1.1) {\sffamily\small LOGO FUSAL};
+\end{tikzpicture}
+
+\vspace{1.6cm}
+
+{\sffamily\bfseries\Huge\color{fusalPrim} Curso de Ingeniería \FUSAL\par}
+
+\vspace{0.6cm}
+
+{\sffamily\LARGE\color{fusalGris} Departamento de Mecánica\par}
+
+\vspace{0.4cm}
+{\color{fusalSec}\rule{9cm}{2pt}}
+\vspace{0.8cm}
+
+{\large\itshape Chasis · Aerodinámica · Refrigeración · Dinámica vehicular\\
+Suspensión · Transmisión · Costes y fabricación\par}
+
+\vfill
+
+{\sffamily\large Manual de formación y transferencia de conocimiento\par}
+\vspace{0.3cm}
+{\sffamily\normalsize\color{fusalGris} Temporada \temporada\ \textbar\ Versión \version\par}
+
+\vspace{1cm}
+{\small\color{fusalGris}\today\par}
+
+\end{titlepage}
+
+% --- Página de créditos ---------------------------------------------
+\thispagestyle{empty}
+\null\vfill
+\noindent
+\begin{minipage}{\textwidth}
+\small
+\textbf{Curso de Ingeniería \FUSAL{} --- Departamento de Mecánica}\\[0.4em]
+Documento interno del equipo Formula Student de la Universidad de Salamanca.\\[0.8em]
+
+\textbf{Cómo citar este documento:}\\
+Equipo \FUSAL. \textit{Curso de Ingeniería \FUSAL: Mechanical}. Versión \version, temporada \temporada.\\[0.8em]
+
+\textbf{Autores y revisores por capítulo:} véase la tabla de responsables en el
+apartado \textit{Cómo usar este libro}.\\[0.8em]
+
+\textbf{Aviso.} Los valores numéricos, reglas y procedimientos recogidos aquí
+corresponden a la temporada indicada. \emph{El reglamento cambia todos los años}:
+antes de aplicar cualquier requisito normativo de este libro, contrástalo con la
+versión vigente del reglamento.\\[0.8em]
+
+\textbf{Erratas y mejoras:} anótalas en el registro del equipo. Este libro se
+actualiza cada temporada; si detectas algo mal y no lo escribes, se pierde.
+\end{minipage}
+\vspace{2cm}
+\clearpage

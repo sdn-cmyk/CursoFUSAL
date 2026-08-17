@@ -1,0 +1,347 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Formula Student: el juego y sus reglas
+%  Responsable:
+%  Última revisión:
+% =====================================================================
+\chapter{Formula Student: el juego y sus reglas}
+\label{ch:formula_student}
+
+\begin{objetivos}
+  \item Enumerar los eventos de una competición y cuántos puntos vale cada uno.
+  \item Explicar por qué la fiabilidad da más puntos que las prestaciones.
+  \item Localizar en el reglamento el artículo que afecta a tu subsistema y saber
+        qué hacer cuando es ambiguo.
+  \item Reconocer los documentos de temporada y las consecuencias de entregarlos tarde.
+  \item Ordenar por prioridad el trabajo del equipo en función de dónde están los puntos.
+\end{objetivos}
+
+\fichasesion{90 minutos}{Ninguno. Es la primera sesión del curso}%
+{Reglamento vigente descargado y calendario de la temporada}
+
+Formula Student no es una carrera. Es una competición de \emph{ingeniería} en la
+que hay, además, unas pruebas en pista. Esta distinción no es un matiz retórico:
+determina cómo se reparten los puntos, y por tanto cómo debe repartir el equipo
+su tiempo. Un tercio de la puntuación se decide hablando con jueces, sin
+encender el coche.
+
+Este capítulo describe cómo se reparten los puntos y qué documentos hay que
+entregar durante la temporada. El resto del libro se apoya en ello: las
+decisiones de diseño de los capítulos siguientes se justifican, en última
+instancia, contra este reparto.
+
+% ---------------------------------------------------------------------
+\section{La competición y sus eventos}
+\label{sec:formula_student:01}
+\index{eventos}
+
+Una competición se divide en \textbf{eventos estáticos} y \textbf{eventos
+dinámicos}, con una barrera entre medias: la \textbf{revisión técnica}
+(\emph{scrutineering}).
+
+\subsection{Eventos estáticos}
+
+Se disputan con el coche parado, delante de un panel de jueces que son
+ingenieros del sector.
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[\textit{Business Plan Presentation}] El equipo presenta un plan de
+    negocio para el vehículo como si fuera un producto real. No se juzga la
+    ingeniería, sino la coherencia del modelo de negocio y la calidad de la
+    presentación.
+  \item[\textit{Cost and Manufacturing}] Se entrega un informe con el coste
+    completo del coche calculado según unas tablas comunes a todos los equipos, y
+    se defiende ante los jueces. Se evalúa la precisión del informe, el
+    conocimiento real de los procesos de fabricación y, en el \textit{Real Case
+    Scenario}, la capacidad de razonar sobre coste bajo un supuesto que dan en el
+    momento. Se trata en detalle en el capítulo \ref{ch:evento_costes}.
+  \item[\textit{Engineering Design}] El evento más importante de los tres y el
+    que más puntos reparte. Los jueces preguntan \emph{por qué} está diseñado así
+    cada subsistema. No buscan el coche más sofisticado: buscan decisiones
+    justificadas con datos y coherentes con los objetivos que el propio equipo se
+    ha fijado. Se prepara con el capítulo \ref{ch:design_event}.
+\end{description}
+
+\subsection{Revisión técnica}
+\index{revisión técnica}\index{scrutineering}
+
+No reparte puntos. Es una \emph{puerta}: hasta que el coche no la pasa, no puede
+salir a pista. Incluye, según el tipo de vehículo y la competición, la inspección
+mecánica y eléctrica, la prueba de vuelco, el ensayo de ruido o de estanqueidad,
+la prueba de salida del piloto (\emph{egress}) y el ensayo de frenada.
+
+\begin{clave}
+Superar la revisión técnica vale, en la práctica, los \textbf{675 puntos
+dinámicos}: sin la pegatina, todos ellos son cero. Es la actividad con mayor
+rentabilidad por hora invertida de toda la temporada.
+\end{clave}
+
+\subsection{Eventos dinámicos}
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[\textit{Acceleration}] Recta de \SI{75}{\meter} desde parado. Mide
+    tracción y relación de transmisión; el aerodinámico aquí solo estorba.
+  \item[\textit{Skidpad}] Un ocho de radio constante. Mide agarre lateral
+    estacionario y equilibrio del coche.
+  \item[\textit{Autocross}] Una vuelta rápida a un circuito estrecho y revirado.
+    Además de puntuar, fija el orden de salida de la resistencia.
+  \item[\textit{Endurance}] \SI{22}{\kilo\meter} con un cambio de piloto a
+    mitad. Es el evento decisivo: mide fiabilidad y, de paso, ritmo sostenido.
+  \item[\textit{Efficiency}] No se corre: se calcula con el consumo y el tiempo
+    de la resistencia. \emph{Solo puntúa si se termina la resistencia.}
+\end{description}
+
+% ---------------------------------------------------------------------
+\section{El reparto de puntos}
+\label{sec:formula_student:02}
+\index{puntuación}
+
+\begin{table}[H]
+\centering
+\caption{Reparto habitual de la puntuación. Verificar siempre contra el
+reglamento vigente: los valores cambian entre categorías y entre temporadas.}
+\label{tab:reparto_puntos}
+\begin{tabular}{@{}llS[table-format=3.0]@{}}
+\toprule
+\textbf{Evento} & \textbf{Tipo} & {\textbf{Puntos}} \\
+\midrule
+Business Plan Presentation & Estático & 75 \\
+Cost and Manufacturing     & Estático & 100 \\
+Engineering Design         & Estático & 150 \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Subtotal estáticos}} & \bfseries 325 \\
+\midrule
+Acceleration & Dinámico & 75 \\
+Skidpad      & Dinámico & 75 \\
+Autocross    & Dinámico & 100 \\
+Endurance    & Dinámico & 325 \\
+Efficiency   & Dinámico & 100 \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Subtotal dinámicos}} & \bfseries 675 \\
+\midrule
+\multicolumn{2}{@{}l}{\textbf{Total}} & \bfseries 1000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Conviene mirar esta tabla con atención, porque contiene casi toda la estrategia
+del equipo:
+
+\begin{itemize}
+  \item \textbf{Los estáticos son 325 puntos que no dependen de que el coche
+        funcione.} Se pueden preparar con el coche a medio montar, y de hecho es
+        lo que hacen los equipos que puntúan bien en ellos.
+  \item \textbf{\textit{Endurance} y \textit{Efficiency} suman 425 puntos}, más
+        que todos los estáticos juntos. Y están acoplados: sin terminar la
+        resistencia, ambos son cero.
+  \item \textbf{\textit{Acceleration} y \textit{Skidpad} suman 150 puntos.} Son
+        los eventos donde más se nota el rendimiento puro y, sin embargo, los que
+        menos pesan. Es un error clásico diseñar el coche para ellos.
+\end{itemize}
+
+Además, la puntuación de cada evento dinámico no es lineal: se reparte por
+comparación con el mejor equipo y con un tiempo máximo, de modo que
+\textbf{terminar despacio puntúa mucho más que no terminar}. La diferencia entre
+el primero y el último clasificado \emph{de los que terminan} es siempre menor
+que la diferencia entre terminar y no terminar.
+
+% ---------------------------------------------------------------------
+\section{Cómo se lee el reglamento}
+\label{sec:formula_student:03}
+\index{reglamento}
+
+El reglamento no es un anexo administrativo: es el primer documento de
+requisitos del proyecto, y llega escrito antes de que empieces a diseñar. Buena
+parte de las decisiones de arquitectura del coche están ya tomadas en él.
+
+\subsection{Estructura}
+
+Las normas están agrupadas por secciones identificadas con letras, y cada
+artículo se cita con la letra de su sección y una numeración jerárquica (por
+ejemplo, \texttt{T 2.1.1}). Las secciones habituales son:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Sección} & \textbf{Contenido} \\
+\midrule
+A  & Normas administrativas: inscripción, plazos, documentos, penalizaciones \\
+T  & Normas técnicas generales, aplicables a todos los vehículos \\
+C  & Específicas de vehículos de combustión \\
+EV & Específicas de vehículos eléctricos \\
+DV & Específicas de vehículos autónomos \\
+IN & Inspecciones y revisión técnica \\
+S  & Eventos estáticos \\
+D  & Eventos dinámicos \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{regla}[cómo citar]
+En este libro, y en cualquier documento del equipo, un requisito normativo se
+cita \emph{siempre} con su artículo y la versión del reglamento:
+«\textit{la distancia mínima entre el casco y la línea que une los arcos es de
+\SI{50}{\milli\meter} (T 1.4.2, FS Rules 2025 v1.1)}». Sin artículo no es un
+requisito: es una opinión.
+\end{regla}
+
+\subsection{Método de trabajo}
+
+\begin{enumerate}
+  \item \textbf{Léelo entero una vez, al principio de la temporada}, incluidas
+        las secciones que no son de tu subsistema. Muchos requisitos afectan a
+        varios a la vez.
+  \item \textbf{Extrae los artículos de tu subsistema a una tabla de
+        trazabilidad} con cuatro columnas: artículo, qué exige, cómo lo
+        cumplimos, dónde se demuestra. Esa tabla es simultáneamente la
+        preparación de la revisión técnica y media memoria de diseño.
+  \item \textbf{Distingue lo obligatorio de lo recomendado.} El reglamento usa un
+        lenguaje deliberadamente preciso; una frase con «\textit{must}» o
+        «\textit{shall}» no admite interpretación.
+  \item \textbf{Si algo es ambiguo, pregunta por el cauce oficial.} Las
+        competiciones tienen un sistema de consultas cuyas respuestas son
+        vinculantes. Una respuesta por escrito vale en la revisión técnica; la
+        interpretación de un compañero, no.
+  \item \textbf{No copies números de la temporada anterior.} El reglamento cambia
+        todos los años, y las cotas, espesores y materiales admisibles están
+        entre lo que más cambia.
+\end{enumerate}
+
+\begin{ojo}
+\begin{itemize}
+  \item Diseñar primero y buscar el artículo después, para «comprobar que
+        cumple». El orden correcto es el inverso.
+  \item Leer solo la sección propia. Los requisitos de accesibilidad,
+        protecciones y separaciones son transversales y se incumplen en las
+        \emph{fronteras} entre subsistemas.
+  \item Dar por bueno el diseño del coche anterior. Que pasara la revisión hace
+        dos temporadas no significa que la pase con el reglamento de esta.
+\end{itemize}
+\end{ojo}
+
+% ---------------------------------------------------------------------
+\section{Documentos y plazos de la temporada}
+\label{sec:formula_student:04}
+\index{documentos de temporada}
+
+Una parte importante de la competición se juega meses antes de llegar al
+circuito, entregando documentos. Casi todos tienen penalización por retraso, y
+algunos son excluyentes: sin ellos no se compite.
+
+\begin{table}[H]
+\centering
+\caption{Documentos habituales de temporada. Los plazos concretos y la lista
+exacta dependen de la competición: rellenar al inicio de cada temporada.}
+\label{tab:documentos_temporada}
+\begin{tabularx}{\textwidth}{@{}lXll@{}}
+\toprule
+\textbf{Documento} & \textbf{Qué es} & \textbf{Responsable} & \textbf{Fecha} \\
+\midrule
+Inscripción y cuestionario & Prueba de conocimiento del reglamento & & \\
+SES & Justificación de equivalencia estructural del chasis & & \\
+IAD & Diseño y ensayo del atenuador de impactos & & \\
+ESF & Formulario del sistema eléctrico (vehículos eléctricos) & & \\
+Cost Report y BOM & Coste completo del vehículo & & \\
+Engineering Design Report & Memoria de diseño & & \\
+Design Spec Sheet & Ficha resumen de características & & \\
+Business Plan & Documentación del evento de negocio & & \\
+Vídeo de estado del vehículo & Prueba de que el coche rueda & & \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\pendiente{Rellenar la tabla con los documentos, responsables y fechas reales de
+la temporada en curso, y colgarla donde se vea todos los días.}
+
+\begin{clave}
+Los plazos de documentación son la única parte de la competición donde se pierden
+puntos \emph{sin haber hecho nada mal técnicamente}. Cuestan cero horas de taller
+y solo exigen organización. Un equipo que pierde puntos aquí está regalando la
+parte más barata de la competición.
+\end{clave}
+
+% ---------------------------------------------------------------------
+\section{De dónde salen realmente los puntos}
+\label{sec:formula_student:05}
+
+Si se cruza el reparto de puntos con lo que ocurre de verdad en una competición,
+sale una lista de prioridades bastante distinta de la intuitiva. Un porcentaje
+muy alto de los equipos inscritos no termina la resistencia, y una parte
+importante ni siquiera llega a pasar la revisión técnica a tiempo de disputar
+todos los eventos.
+
+De ahí el orden de prioridad con el que debería trabajar cualquier equipo, y muy
+especialmente uno joven:
+
+\begin{enumerate}
+  \item \textbf{Pasar la revisión técnica.} Diseñar desde el primer día con la
+        lista de comprobación de la inspección delante, y hacer una inspección
+        interna simulada semanas antes de viajar.
+  \item \textbf{Terminar la resistencia.} Kilómetros de rodaje antes de la
+        competición, componentes con margen, repuestos y procedimientos de
+        montaje. La fiabilidad no se añade al final: se diseña.
+  \item \textbf{Preparar bien los estáticos.} 325 puntos que solo cuestan
+        organización, documentación y ensayo de la defensa.
+  \item \textbf{Y después, ir rápido.} Cuando lo anterior está resuelto, las
+        prestaciones deciden posiciones. Antes, no deciden nada.
+\end{enumerate}
+
+\begin{clave}
+El coche no tiene que ser rápido: tiene que \textbf{terminar}. Un coche lento que
+completa los cinco eventos dinámicos y defiende bien sus estáticos puntúa por
+encima de un coche brillante que rompe en la resistencia.
+\end{clave}
+
+Esta jerarquía tiene una consecuencia incómoda para un equipo de ingenieros: casi
+siempre, la decisión correcta es \emph{la más simple que cumple el objetivo}. La
+sofisticación solo se justifica cuando el equipo ya es capaz de fabricarla,
+validarla y repararla en el paddock. Los jueces del evento de diseño valoran
+exactamente eso, y penalizan la complejidad que el equipo no puede sostener.
+
+% ---------------------------------------------------------------------
+%  Cierre del capítulo
+% ---------------------------------------------------------------------
+
+\begin{caso}
+\redactar{Rellenar con nuestro historial: puntuación obtenida por evento en las
+últimas participaciones, en qué eventos no pudimos puntuar y por qué, y cuánto
+tiempo tardamos en pasar la revisión técnica. Es el punto de partida honesto
+para fijar los objetivos de esta temporada.}
+\end{caso}
+
+\begin{ojo}
+\begin{itemize}
+  \item Medir el éxito del equipo por el tiempo en \textit{acceleration}: 75 de
+        1000 puntos.
+  \item Empezar a preparar los estáticos cuando el coche ya rueda. Para entonces
+        no queda tiempo, y son 325 puntos.
+  \item Tratar la revisión técnica como un trámite del final en lugar de como un
+        requisito de diseño.
+  \item Fijar los objetivos de la temporada sin mirar la puntuación de la
+        anterior.
+\end{itemize}
+\end{ojo}
+
+\begin{entregable}
+\begin{enumerate}
+  \item La tabla \ref{tab:documentos_temporada} rellena con los plazos reales de
+        esta temporada y un responsable por documento.
+  \item Una tabla de trazabilidad de reglamento para tu subsistema: artículo,
+        qué exige, cómo lo cumplimos, dónde se demuestra.
+  \item Los objetivos de puntuación del equipo para esta temporada, evento a
+        evento, con su justificación.
+\end{enumerate}
+\end{entregable}
+
+\begin{juez}
+\begin{enumerate}
+  \item ¿Qué objetivos de puntuación se fijó el equipo esta temporada y por qué esos?
+  \item ¿Qué evento habéis priorizado en el diseño del coche, y qué habéis
+        sacrificado a cambio?
+  \item ¿Qué artículo del reglamento ha condicionado más el diseño de tu
+        subsistema? Cítalo.
+  \item ¿Cuántos kilómetros ha rodado el coche antes de venir aquí?
+  \item ¿Qué os impidió puntuar en algún evento la temporada pasada y qué habéis
+        cambiado para que no vuelva a pasar?
+\end{enumerate}
+\end{juez}

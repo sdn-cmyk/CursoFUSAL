@@ -1,0 +1,157 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Nomenclatura
+%  Toda magnitud que aparezca en el libro debe estar en esta tabla.
+%  Si añades un símbolo, añádelo también como macro en Estilo/macros.tex
+% =====================================================================
+\chapter*{Nomenclatura}
+\addcontentsline{toc}{chapter}{Nomenclatura}
+\markboth{Nomenclatura}{Nomenclatura}
+
+Convenio de ejes: sistema SAE (\(x\) hacia delante, \(y\) hacia la derecha del
+piloto, \(z\) hacia abajo), salvo indicación expresa en el capítulo
+correspondiente. \pendiente{Confirma el convenio que usa el equipo y elimina esta nota.}
+
+\section*{Dinámica vehicular}
+
+\begin{longtable}{@{}p{2.2cm}p{8.5cm}p{2.5cm}@{}}
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endhead
+$\Fz$      & Carga vertical sobre el neumático        & \si{\newton} \\
+$\Fy$      & Fuerza lateral                            & \si{\newton} \\
+$\Fx$      & Fuerza longitudinal                       & \si{\newton} \\
+$\Mz$      & Par autoalineante                         & \si{\newton\meter} \\
+$\slipa$   & Ángulo de deriva                          & \si{\degree} \\
+$\slipr$   & Deslizamiento longitudinal                & --- \\
+$\camber$  & Ángulo de caída                           & \si{\degree} \\
+$\muy$     & Coeficiente de agarre lateral             & --- \\
+$\ay$      & Aceleración lateral                       & \si{\meter\per\second\squared} \\
+$\ax$      & Aceleración longitudinal                  & \si{\meter\per\second\squared} \\
+$\hcg$     & Altura del centro de gravedad             & \si{\milli\meter} \\
+$\batalla$ & Batalla                                   & \si{\milli\meter} \\
+$\via$     & Ancho de vía                              & \si{\milli\meter} \\
+$\Kroll$   & Rigidez a balanceo                        & \si{\newton\meter\per\degree} \\
+$\LLTD$    & Reparto de transferencia de carga lateral & \si{\percent} \\
+$\Kus$     & Gradiente de subviraje                    & \si{\degree\per\gacc} \\
+\bottomrule
+\end{longtable}
+
+\section*{Suspensión}
+
+\begin{longtable}{@{}p{2.2cm}p{8.5cm}p{2.5cm}@{}}
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endhead
+$\MR$ & Relación de instalación (motion ratio) & --- \\
+$\Kw$ & Rigidez medida en rueda                 & \si{\newton\per\milli\meter} \\
+$\Ks$ & Rigidez del muelle                      & \si{\newton\per\milli\meter} \\
+$\fr$ & Frecuencia de suspensión                & \si{\hertz} \\
+\bottomrule
+\end{longtable}
+
+\section*{Aerodinámica}
+
+\begin{longtable}{@{}p{2.2cm}p{8.5cm}p{2.5cm}@{}}
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endhead
+$\Cl$    & Coeficiente de sustentación (negativo = carga)     & --- \\
+$\Cd$    & Coeficiente de resistencia                          & --- \\
+$\Cp$    & Coeficiente de presión                              & --- \\
+$\ClA$   & Producto coeficiente-área de carga                  & \si{\meter\squared} \\
+$\CdA$   & Producto coeficiente-área de resistencia            & \si{\meter\squared} \\
+$\qdin$  & Presión dinámica                                    & \si{\pascal} \\
+$\Vinf$  & Velocidad de la corriente libre                     & \si{\meter\per\second} \\
+$\Rey$   & Número de Reynolds                                  & --- \\
+$\CoP$   & Centro de presiones (\% de batalla desde el eje delantero) & \si{\percent} \\
+\bottomrule
+\end{longtable}
+
+\section*{Transferencia de calor}
+
+\begin{longtable}{@{}p{2.2cm}p{8.5cm}p{2.5cm}@{}}
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endhead
+$\Qdot$  & Potencia térmica a disipar                & \si{\watt} \\
+$\mdot$  & Gasto másico                              & \si{\kilogram\per\second} \\
+$\UA$    & Conductancia global del intercambiador    & \si{\watt\per\kelvin} \\
+$\NTU$   & Número de unidades de transferencia       & --- \\
+$\efec$  & Eficacia del intercambiador               & --- \\
+$\LMTD$  & Diferencia de temperatura media logarítmica & \si{\kelvin} \\
+$\jcol$  & Factor de Colburn                          & --- \\
+$\ffan$  & Factor de fricción                         & --- \\
+$\Nus$   & Número de Nusselt                          & --- \\
+$\Pr$    & Número de Prandtl                          & --- \\
+$\Dh$    & Diámetro hidráulico                        & \si{\milli\meter} \\
+\bottomrule
+\end{longtable}
+
+\section*{Transmisión}
+
+\begin{longtable}{@{}p{2.2cm}p{8.5cm}p{2.5cm}@{}}
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+\endhead
+$\itot$  & Relación de transmisión total & --- \\
+$\Tmot$  & Par motor                     & \si{\newton\meter} \\
+$\rdin$  & Radio dinámico del neumático  & \si{\milli\meter} \\
+\bottomrule
+\end{longtable}
+
+\section*{Acrónimos}
+
+\begin{longtable}{@{}p{2.6cm}p{10.5cm}@{}}
+\toprule
+\textbf{Acrónimo} & \textbf{Significado} \\
+\midrule
+\endfirsthead
+\toprule
+\textbf{Acrónimo} & \textbf{Significado} \\
+\midrule
+\endhead
+AMFE   & Análisis Modal de Fallos y Efectos (FMEA) \\
+BOM    & \textit{Bill of Materials}, lista de materiales \\
+CFD    & \textit{Computational Fluid Dynamics} \\
+CdG    & Centro de gravedad \\
+CoP    & \textit{Centre of Pressure}, centro de presiones \\
+DFM    & \textit{Design for Manufacturing} \\
+FEA    & \textit{Finite Element Analysis} \\
+GGV    & Envolvente de aceleraciones frente a velocidad \\
+IAD    & \textit{Impact Attenuator Data}, informe del atenuador de impactos \\
+KPI    & \textit{Kingpin Inclination}, inclinación del eje de pivote \\
+LLTD   & \textit{Lateral Load Transfer Distribution} \\
+LMTD   & \textit{Log Mean Temperature Difference} \\
+MMM    & \textit{Milliken Moment Method} \\
+NTU    & \textit{Number of Transfer Units} \\
+SES    & \textit{Structural Equivalency Spreadsheet} \\
+TTC    & \textit{Tire Test Consortium} \\
+YMD    & \textit{Yaw Moment Diagram} \\
+\bottomrule
+\end{longtable}

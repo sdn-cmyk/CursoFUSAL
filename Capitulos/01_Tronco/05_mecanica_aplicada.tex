@@ -1,0 +1,501 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Fundamentos de mecánica aplicada
+%  Responsable:
+%  Última revisión:
+% =====================================================================
+\chapter{Fundamentos de mecánica aplicada}
+\label{ch:mecanica_aplicada}
+
+\begin{objetivos}
+  \item Plantear el diagrama de sólido libre de una esquina del coche y sacar de
+        él las cargas de cada barra.
+  \item Identificar si una pieza está limitada por resistencia, por rigidez o por
+        pandeo, y dimensionarla en consecuencia.
+  \item Saber cuándo hay que comprobar fatiga y cuándo no merece la pena.
+  \item Calcular el par de apriete de un tornillo a partir de la precarga que se
+        quiere conseguir, y entender por qué la precarga es lo único que importa.
+  \item Elegir material con criterio, sabiendo qué diferencias entre materiales
+        son reales y cuáles son mitología.
+\end{objetivos}
+
+\fichasesion{90 minutos}{Resistencia de materiales de primer ciclo}%
+{Calculadora, hoja de cálculo, un tornillo y una llave dinamométrica}
+
+Este capítulo no sustituye a una asignatura de resistencia de materiales: da por
+sabido lo básico y se centra en las cinco cosas que un equipo de Formula Student
+usa constantemente y suele hacer mal. Para profundizar,
+\textcite{budynas_shigley_2020} cubre todo lo que hay aquí con mucho más detalle.
+
+% ---------------------------------------------------------------------
+\section{Diagramas de sólido libre}
+\label{sec:mecanica_aplicada:01}
+\index{diagrama de sólido libre}
+
+Todo cálculo estructural empieza aislando un trozo del coche y dibujando todo lo
+que actúa sobre él. Parece elemental, pero conviene hacerlo con cuidado: un
+diagrama mal planteado da un resultado coherente consigo mismo, y por eso el
+error no se detecta después.
+
+El método no tiene misterio:
+
+\begin{enumerate}
+  \item \textbf{Aísla} el cuerpo y dibújalo separado de todo lo demás.
+  \item \textbf{Sustituye} cada cosa que has quitado por las fuerzas y momentos
+        que ejercía.
+  \item \textbf{Aplica} equilibrio: $\sum \vect{F} = \vect{0}$ y
+        $\sum \vect{M} = \vect{0}$ respecto de un punto cualquiera.
+  \item \textbf{Comprueba}: la suma de reacciones debe dar la carga aplicada.
+\end{enumerate}
+
+\subsection{El caso canónico: una esquina del coche}
+
+El ejercicio que hay que saber hacer de memoria es este: dada una fuerza en la
+huella del neumático, obtener la carga axial de cada barra de la suspensión.
+
+La simplificación que lo hace tratable es que \textbf{los trapecios, el tirante
+de dirección y el push\-rod son barras biarticuladas}: rotuladas en ambos
+extremos, no pueden transmitir momento, así que solo trabajan a tracción o
+compresión pura. Por eso son tubos y por eso el cálculo se reduce a resolver un
+sistema de equilibrio de fuerzas concurrentes.
+
+La fuerza de entrada actúa en la \emph{huella de contacto}, no en el centro de
+rueda. La diferencia es el radio del neumático multiplicado por la fuerza
+lateral, y es un momento que hay que llevar hasta la mangueta.
+
+\begin{ojo}
+\begin{itemize}
+  \item Aplicar la carga en el centro de rueda en vez de en la huella.
+  \item Olvidar el equilibrio de momentos: con solo fuerzas, el sistema parece
+        resuelto y no lo está.
+  \item Suponer que una barra con casquillos rígidos (no rotulados) trabaja solo
+        a axial. Si el extremo no gira libremente, hay flexión.
+  \item No comprobar el resultado: si las reacciones no suman la carga aplicada,
+        hay un error. Esta comprobación cuesta treinta segundos.
+\end{itemize}
+\end{ojo}
+
+% ---------------------------------------------------------------------
+\section{Tensión, rigidez y pandeo}
+\label{sec:mecanica_aplicada:02}
+\index{pandeo}
+
+\subsection{Las tres preguntas}
+
+Antes de dimensionar cualquier pieza hay que saber qué la limita, porque cada
+límite se combate de forma distinta y a veces con soluciones opuestas:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Limitada por} & \textbf{Pregunta} & \textbf{Qué la mejora} \\
+\midrule
+Resistencia & ¿Rompe o plastifica? & Material más resistente, más sección \\
+Rigidez     & ¿Se deforma demasiado? & Más momento de inercia, mejor forma \\
+Pandeo      & ¿Colapsa a compresión? & Más diámetro, menos longitud libre \\
+Fatiga      & ¿Rompe tras muchos ciclos? & Radios, acabado, menos concentración \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+En un coche de Formula Student, \textbf{la mayoría de las piezas estructurales no
+están limitadas por resistencia}. Los trapecios los limita el pandeo, el chasis
+lo limita la rigidez torsional, y los elementos que giran los limita la fatiga.
+Dimensionar todo contra el límite elástico produce un coche pesado que además
+falla por donde no se miraba.
+
+\subsection{Tensiones básicas}
+
+\begin{align}
+  \sigma_{\text{axial}} &= \frac{N}{A} &
+  \sigma_{\text{flexión}} &= \frac{M\,y}{I} &
+  \tau_{\text{torsión}}  &= \frac{T\,r}{J}
+  \label{eq:tensiones_basicas}
+\end{align}
+
+Cuando actúan varias a la vez, se combinan con el criterio de von Mises, que es
+el que se compara con el límite elástico:
+
+\begin{equation}
+  \sigma_{VM} = \sqrt{\sigma_x^2 - \sigma_x\sigma_y + \sigma_y^2 + 3\tau_{xy}^2}
+  \label{eq:von_mises}
+\end{equation}
+
+\subsection{Pandeo: lo que gobierna los trapecios}
+
+Una barra esbelta a compresión no falla por aplastamiento: colapsa lateralmente
+mucho antes. La carga crítica de Euler es
+
+\begin{equation}
+  P_{cr} = \frac{\pi^2 E I}{(K L)^2}
+  \label{eq:euler}
+\end{equation}
+
+donde $L$ es la longitud entre apoyos y $K$ depende de cómo estén sujetos los
+extremos:
+
+\begin{center}
+\begin{tabular}{@{}lcl@{}}
+\toprule
+\textbf{Condición de extremos} & $K$ & \textbf{Caso típico} \\
+\midrule
+Articulado--articulado & 1{,}0 & \textbf{Barra de suspensión con rótulas} \\
+Empotrado--articulado  & 0{,}7 & Extremo soldado, otro rotulado \\
+Empotrado--empotrado   & 0{,}5 & Barra soldada en ambos extremos \\
+Empotrado--libre       & 2{,}0 & Voladizo \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Para el caso normal en suspensión --- rótula en los dos extremos --- $K = 1$, que
+es el peor caso razonable. Conviene usarlo aunque haya algo de empotramiento: la
+diferencia entre $K=1$ y $K=0{,}7$ duplica la carga crítica, y esa no es una
+apuesta que merezca la pena hacer.
+
+\begin{clave}
+Para un tubo de pared delgada de radio medio $r_m$ y espesor $t$:
+$A \approx 2\pi r_m t$ e $I \approx \pi r_m^3 t$. Sustituyendo en
+\eqref{eq:euler} con la \emph{masa constante} (es decir, $r_m t$ fijo), resulta
+$P_{cr} \propto r_m^2$.
+
+Traducido: \textbf{duplicar el diámetro de un tubo, adelgazando la pared para
+mantener el peso, multiplica por cuatro la carga de pandeo.} Por eso los
+trapecios son tubos de diámetro grande y pared fina, y por eso el límite práctico
+no lo pone el cálculo sino la pared mínima que se puede soldar, el pandeo local
+de la pared y lo que exija el reglamento.
+\end{clave}
+
+La fórmula de Euler solo vale para barras esbeltas. Para esbelteces bajas
+($\lambda = KL/r_g$ pequeño, con $r_g=\sqrt{I/A}$ el radio de giro) el fallo pasa
+a ser plastificación y hay que usar una curva de transición --- por ejemplo la
+parábola de Johnson. En la práctica: si la carga de Euler sale por encima de la
+carga de plastificación $A\,S_y$, el pandeo no es el modo crítico y hay que
+comprobar resistencia.
+
+% ---------------------------------------------------------------------
+\section{Fatiga}
+\label{sec:mecanica_aplicada:03}
+\index{fatiga}
+
+Una pieza sometida a carga cíclica puede romper con tensiones muy por debajo del
+límite elástico. La grieta nace en la superficie, casi siempre en un cambio de
+sección, y crece hasta que la sección restante no aguanta.
+
+\subsection{¿Importa la fatiga en un coche de Formula Student?}
+
+Depende de la pieza, y merece pensarlo antes de gastar tiempo:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Tipo de pieza} & \textbf{Por qué} & \textbf{¿Fatiga?} \\
+\midrule
+Palieres, bujes, tornillos de rueda & Giran: miles de ciclos por kilómetro & \textbf{Sí, siempre} \\
+Anclajes del chasis, trapecios & Carga variable, muchos km de test & Sí \\
+Uniones soldadas & El cordón concentra tensión & Sí \\
+Piezas que se reutilizan otra temporada & Acumulan historia desconocida & Sí \\
+Estructura cargada casi estáticamente & Pocos ciclos de amplitud alta & Normalmente no \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+La resistencia de \SI{22}{\kilo\meter} induce a pensar que la fatiga no importa.
+Es engañoso por tres motivos: la temporada de ensayos son cientos de kilómetros,
+las piezas que giran ven un ciclo completamente invertido por vuelta de rueda, y
+las piezas heredadas de temporadas anteriores llegan con un daño acumulado que
+nadie ha contabilizado.
+
+\subsection{Límite de fatiga}
+
+Para aceros, el límite de fatiga en probeta se estima como
+$S'_e \approx 0{,}5\,S_{ut}$ (con un techo en torno a \SI{700}{\mega\pascal}). Ese
+valor de laboratorio se corrige con los factores de Marin para llegar al de la
+pieza real:
+
+\begin{equation}
+  S_e = k_a\,k_b\,k_c\,k_d\,k_e\; S'_e
+  \label{eq:marin}
+\end{equation}
+
+donde $k_a$ recoge el acabado superficial, $k_b$ el tamaño, $k_c$ el tipo de
+carga, $k_d$ la temperatura y $k_e$ la fiabilidad exigida. El más castigador
+suele ser $k_a$: una superficie bruta de laminación puede reducir el límite de
+fatiga a menos de la mitad respecto de una pulida.
+
+\begin{ojo}
+El aluminio \textbf{no tiene límite de fatiga}: su curva S--N sigue bajando
+indefinidamente. Una pieza de aluminio no se puede diseñar «para vida infinita»;
+hay que fijar un número de ciclos objetivo y una vida en kilómetros, y retirarla
+o inspeccionarla al alcanzarla. Esto afecta directamente a manguetas, balancines
+y anclajes mecanizados.
+\end{ojo}
+
+\subsection{Concentración de tensiones y tensión media}
+
+El efecto de una entalla se recoge con el factor de concentración $K_t$
+(geométrico) corregido por la sensibilidad a la entalla $q$ del material:
+
+\begin{equation}
+  K_f = 1 + q\,(K_t - 1)
+  \label{eq:kf}
+\end{equation}
+
+Y cuando la carga cíclica se superpone a una carga media --- lo habitual --- se
+comprueba con un criterio como el de Goodman:
+
+\begin{equation}
+  \frac{\sigma_a}{S_e} + \frac{\sigma_m}{S_{ut}} = \frac{1}{n}
+  \label{eq:goodman}
+\end{equation}
+
+\begin{clave}
+En fatiga, la geometría manda sobre el material. Un radio de acuerdo generoso, un
+buen acabado superficial y evitar cambios bruscos de sección hacen más por la
+vida de una pieza que subir de grado de material --- que además, al ser más
+resistente, suele ser \emph{más} sensible a la entalla.
+\end{clave}
+
+% ---------------------------------------------------------------------
+\section{Uniones atornilladas y pares de apriete}
+\label{sec:mecanica_aplicada:04}
+\index{uniones atornilladas}\index{par de apriete}
+
+Buena parte de los fallos de un coche de competición aparecen en las uniones
+antes que en las piezas, y muchos de ellos se explican por una precarga
+incorrecta.
+
+\subsection{La precarga lo es todo}
+
+Un tornillo bien apretado no es un tornillo que sujeta: es un tornillo que
+\emph{comprime} las piezas entre sí con una fuerza mucho mayor que la carga
+externa. Mientras esa compresión no desaparezca, la unión no se mueve, no vibra y
+--- esto es lo importante --- el tornillo apenas ve la carga variable.
+
+La precarga recomendada es una fracción alta de la carga de prueba del tornillo:
+
+\begin{equation}
+  F_i = 0{,}75\, A_t\, S_p \quad\text{(uniones desmontables)}, \qquad
+  F_i = 0{,}90\, A_t\, S_p \quad\text{(uniones permanentes)}
+  \label{eq:precarga}
+\end{equation}
+
+con $A_t$ el área resistente a tracción y $S_p$ la carga de prueba del grado:
+
+\begin{center}
+\begin{tabular}{@{}lSS@{}}
+\toprule
+\textbf{Grado} & {$S_p$ (\si{\mega\pascal})} & {$S_{ut}$ (\si{\mega\pascal})} \\
+\midrule
+8.8  & 600 & 800 \\
+10.9 & 830 & 1040 \\
+12.9 & 970 & 1220 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\subsection{Del par de apriete a la precarga}
+
+La relación práctica es
+
+\begin{equation}
+  T = K\, d\, F_i
+  \label{eq:par_apriete}
+\end{equation}
+
+con $d$ el diámetro nominal y $K$ un coeficiente que vale aproximadamente
+\num{0.20} en seco y \num{0.15} lubricado.
+
+\begin{ojo}
+El coeficiente $K$ tiene una dispersión enorme --- fácilmente $\pm\SI{25}{\percent}$
+--- porque depende del rozamiento en la rosca y bajo la cabeza, que a su vez
+depende del acabado, la lubricación y si el tornillo es nuevo. Es decir:
+\textbf{una llave dinamométrica controla el par, no la precarga}. Es lo mejor que
+tenemos en el taller, pero hay que saber que el número real de precarga tiene esa
+incertidumbre encima, y no diseñar uniones que dependan de acertarla con precisión.
+\end{ojo}
+
+\subsection{Reparto de la carga externa}
+
+La rigidez relativa del tornillo $k_b$ y de las piezas $k_m$ determina qué parte
+de una carga externa $P$ ve el tornillo:
+
+\begin{equation}
+  C = \frac{k_b}{k_b + k_m}, \qquad
+  F_{\text{tornillo}} = F_i + C\,P, \qquad
+  F_{\text{unión}} = F_i - (1-C)\,P
+  \label{eq:reparto_carga}
+\end{equation}
+
+Como las piezas suelen ser mucho más rígidas que el tornillo, $C$ es pequeño
+(típicamente \numrange{0.1}{0.3}) y el tornillo apenas nota la carga variable. De
+ahí una regla de diseño poco intuitiva: \textbf{un tornillo largo (menos rígido)
+aguanta mejor a fatiga que uno corto}, porque reduce $C$.
+
+La unión se separa cuando $F_i - (1-C)P = 0$. Diseñar con margen frente a ese
+punto es más importante que comprobar la tensión del tornillo.
+
+\subsection{Reglas prácticas}
+
+\begin{itemize}
+  \item \textbf{Cortante: por aplastamiento, no por rozamiento.} Salvo que la
+        precarga esté controlada de verdad, se dimensiona suponiendo que el
+        tornillo trabaja a cortante contra el agujero. Y la rosca nunca debe
+        quedar en el plano de cortadura: se usa tornillo de vástago liso.
+  \item \textbf{Longitud de rosca engranada}: al menos $1\,d$ en acero y
+        $2\,d$ en aluminio. En aluminio, mejor inserto roscado.
+  \item \textbf{Arandelas} siempre bajo la cabeza que gira, y bajo cualquier
+        apoyo en aluminio.
+  \item \textbf{No reutilizar} tornillos apretados cerca del límite elástico, ni
+        tuercas autoblocantes de anillo plástico que ya hayan trabajado.
+  \item \textbf{Marcar el apriete}: una raya de pintura entre tornillo y pieza
+        permite ver de un vistazo si algo se ha aflojado, tanto en el taller como
+        en la revisión técnica.
+\end{itemize}
+
+\begin{regla}[frenado de tornillería]
+El reglamento exige \emph{frenado positivo} en los tornillos críticos: elementos
+que impidan mecánicamente el aflojamiento, como tuercas autoblocantes, tuerca
+almenada con pasador o alambre de frenado. Los adhesivos de bloqueo de roscas
+habitualmente \textbf{no} se aceptan por sí solos como frenado positivo.
+Compruébalo en el artículo correspondiente del reglamento vigente antes de
+diseñar la unión: es un motivo clásico de rechazo en la revisión técnica.
+\end{regla}
+
+% ---------------------------------------------------------------------
+\section{Selección de materiales}
+\label{sec:mecanica_aplicada:05}
+\index{selección de materiales}
+
+\subsection{El dato que casi nadie espera}
+
+La rigidez específica --- módulo elástico dividido por densidad --- de casi todos
+los metales estructurales es prácticamente la misma:
+
+\begin{center}
+\begin{tabular}{@{}lSSS@{}}
+\toprule
+\textbf{Material} & {$E$ (\si{\giga\pascal})} & {$\rho$ (\si{\gram\per\cubic\centi\meter})} & {$E/\rho$} \\
+\midrule
+Acero (cualquier aleación) & 210 & 7.85 & 26.8 \\
+Aluminio                   & 70  & 2.70 & 25.9 \\
+Titanio                    & 110 & 4.51 & 24.4 \\
+Magnesio                   & 45  & 1.74 & 25.9 \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\begin{clave}
+Dos consecuencias que ahorran muchas discusiones:
+
+\begin{enumerate}
+  \item \textbf{Un acero aleado no es más rígido que un acero normal.} Todos los
+        aceros tienen $E \approx \SI{210}{\giga\pascal}$. Se elige un acero
+        aleado por resistencia, no por rigidez.
+  \item \textbf{A igualdad de masa, y si la pieza trabaja a tracción pura, da
+        igual el metal.} La ventaja del aluminio aparece cuando la pieza trabaja a
+        \emph{flexión o pandeo}: como es menos denso, con la misma masa se hace
+        más voluminosa, y el momento de inercia crece mucho más deprisa que la
+        pérdida de módulo. Es un efecto de \emph{forma}, no de material.
+\end{enumerate}
+\end{clave}
+
+Donde sí hay diferencias enormes es en la resistencia específica, y ahí es donde
+la elección de aleación y tratamiento importa de verdad.
+
+\subsection{Paleta habitual en Formula Student}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Familia} & \textbf{Designación} & \textbf{Cuándo y avisos} \\
+\midrule
+Acero al carbono & S235, S355 & Utillaje, soportes poco cargados. Barato y disponible \\
+Acero aleado & 25CrMo4 & Tubos de chasis y piezas soldadas muy cargadas. Soldable \\
+Acero aleado & 42CrMo4 & Ejes y palieres. Requiere tratamiento térmico \\
+Aluminio & 6082-T6 & Uso general mecanizado. \textbf{Soldable}, buena corrosión \\
+Aluminio & 7075-T6 & Manguetas, balancines. Alta resistencia. \textbf{No soldable}, mala corrosión \\
+Titanio & Ti-6Al-4V & Solo si está justificado con números. Caro y difícil de mecanizar \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\pendiente{Ajustar esta tabla a lo que el equipo puede comprar y mecanizar de
+verdad, con proveedores y plazos. Un material que no se puede conseguir en dos
+semanas en el formato necesario no es una opción de diseño.}
+
+\subsection{Método de selección}
+
+\begin{enumerate}
+  \item \textbf{Identifica el modo limitante} (resistencia, rigidez, pandeo,
+        fatiga) y la geometría disponible. Este paso decide casi todo.
+  \item \textbf{Escribe el índice de material} que corresponde a ese modo
+        (\textcite{ashby_materials_2016} los tabula todos) y ordena candidatos.
+  \item \textbf{Filtra por fabricabilidad}: ¿se puede soldar, mecanizar, tratar
+        con lo que tenemos o con lo que nos pueden hacer?
+  \item \textbf{Filtra por disponibilidad y coste}: formatos comerciales, plazo de
+        entrega, y lo que costará en el informe del capítulo
+        \ref{ch:evento_costes}.
+  \item \textbf{Comprueba compatibilidad}: contacto galvánico entre metales
+        distintos, temperatura de servicio, y compatibilidad con adhesivos o
+        fluidos (capítulo \ref{ch:fabricacion_ii}).
+\end{enumerate}
+
+\begin{ojo}
+\begin{itemize}
+  \item Elegir el material antes que la forma. El material es la última decisión,
+        no la primera.
+  \item Usar 7075 y descubrir en el taller que hay que soldarlo.
+  \item Especificar un tratamiento térmico y no comprobar quién lo va a hacer,
+        cuánto tarda y cuánto deforma la pieza.
+  \item Poner aluminio y acero en contacto directo en una zona que se moja.
+  \item Copiar el material de la pieza equivalente de otro equipo sin saber qué
+        modo de fallo estaban combatiendo.
+\end{itemize}
+\end{ojo}
+
+% ---------------------------------------------------------------------
+%  Cierre del capítulo
+% ---------------------------------------------------------------------
+
+\begin{caso}
+\redactar{Rellenar con nuestros casos reales: qué se ha roto en el coche y por
+qué. Para cada fallo, indicar el modo (estático, pandeo, fatiga, unión floja), si
+se había calculado y con qué caso de carga. Es el recuadro más valioso del
+capítulo y solo se puede escribir mirando piezas rotas.}
+\end{caso}
+
+\begin{ojo}
+\begin{itemize}
+  \item Dimensionar todo contra el límite elástico sin preguntarse qué limita
+        realmente la pieza.
+  \item Aplicar un coeficiente de seguridad genérico a un caso de carga que nadie
+        ha definido: el coeficiente no arregla que la carga esté mal.
+  \item Apretar «a sensación». La diferencia entre un tornillo M8 bien apretado y
+        uno apretado con fuerza es de más del doble de precarga.
+  \item No documentar los pares de apriete: si no están en una tabla, en el
+        montaje cada uno usa el suyo.
+\end{itemize}
+\end{ojo}
+
+\begin{entregable}
+\begin{enumerate}
+  \item Una hoja de cálculo de \textbf{pandeo de tubos}: entradas diámetro,
+        espesor, longitud y condiciones de extremo; salida carga crítica y
+        coeficiente de seguridad.
+  \item Una hoja de cálculo de \textbf{uniones atornilladas}: entradas grado,
+        métrica y tipo de unión; salidas precarga, par de apriete y carga de
+        separación.
+  \item La \textbf{tabla de pares de apriete del coche}, por tipo de unión,
+        impresa y colgada en el taller.
+\end{enumerate}
+\end{entregable}
+
+\begin{juez}
+\begin{enumerate}
+  \item ¿Qué limita el dimensionado de este trapecio: resistencia, rigidez o pandeo?
+  \item ¿Por qué este tubo tiene este diámetro y este espesor y no otros?
+  \item ¿Con qué par se aprieta esto y de dónde sale ese número?
+  \item ¿Has comprobado fatiga en alguna pieza? ¿En cuáles y por qué en esas?
+  \item ¿Por qué esta pieza es de 7075 y no de 6082?
+\end{enumerate}
+\end{juez}

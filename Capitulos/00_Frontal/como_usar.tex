@@ -1,0 +1,150 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Cómo usar este libro
+% =====================================================================
+\chapter*{Cómo usar este libro}
+\addcontentsline{toc}{chapter}{Cómo usar este libro}
+\markboth{Cómo usar este libro}{Cómo usar este libro}
+
+\section*{Estructura}
+
+El libro se divide en ocho partes. La primera es \textbf{tronco común}: la lee
+todo el mundo, antes de tocar el CAD.
+Las partes II a VII son los \textbf{itinerarios de cada subsistema}. La VIII es
+\textbf{transversal} --- costes, fabricación, planificación --- y también es de
+lectura obligatoria, porque el coste y la fabricabilidad son restricciones de
+diseño, no un trámite del final de la temporada.
+
+Las partes no son independientes. Como mínimo:
+
+\begin{itemize}
+  \item Dinámica vehicular (parte II) va \emph{antes} que suspensión (parte III):
+        define los objetivos que la suspensión tiene que cumplir.
+  \item La simulación de vuelta (capítulo \ref{ch:simulacion_vuelta}) es la
+        herramienta con la que se justifican las decisiones de aerodinámica
+        (parte V) y de relación de transmisión (parte VII).
+  \item La refrigeración (parte VI) y la aerodinámica (parte V) comparten el
+        mismo aire: los capítulos \ref{ch:lado_aire} y
+        \ref{ch:elementos_aerodinamicos} se leen juntos.
+\end{itemize}
+
+\section*{Los recuadros}
+
+Todos los capítulos usan los mismos seis recuadros. Debes poder hojear el libro
+buscando solo un tipo de recuadro y sacar algo útil.
+
+\begin{objetivos}
+  \item Abre cada capítulo. Si al terminar no sabes hacer esto, vuelve atrás.
+\end{objetivos}
+
+\begin{clave}
+La idea que hay que retener aunque se olvide todo lo demás del apartado.
+\end{clave}
+
+\begin{caso}[cómo se usa]
+Lo que hicimos nosotros de verdad: la decisión, los datos de partida, el
+resultado en pista y qué haríamos distinto. Es la parte del libro que no puedes
+encontrar en ningún otro sitio, y por tanto la más importante.
+\end{caso}
+
+\begin{regla}[cómo se usa]
+Requisito del reglamento que condiciona el diseño, con el artículo citado.
+\textbf{Contrasta siempre con la versión vigente}: el reglamento cambia todos
+los años y este libro no.
+\end{regla}
+
+\begin{ojo}
+Los errores que se repiten cada temporada. Se escriben aquí precisamente para
+dejar de repetirlos.
+\end{ojo}
+
+\begin{entregable}
+Lo que produces al terminar el capítulo: plantilla, hoja de cálculo, checklist o
+apartado del informe. Sin entregable, el capítulo no se da por leído.
+\end{entregable}
+
+\begin{juez}
+Preguntas tipo del design event sobre el capítulo. Si no sabes contestarlas, no
+has entendido el capítulo, independientemente de lo que creas.
+\end{juez}
+
+\section*{Cómo se imparte como curso}
+
+Cada capítulo está pensado como una sesión de 90 minutos con este reparto:
+
+\begin{itemize}
+  \item \SI{20}{\minute} de teoría mínima --- solo lo necesario para entender el porqué.
+  \item \SI{35}{\minute} sobre nuestro caso real (el recuadro \textsc{caso fusal}).
+  \item \SI{30}{\minute} de ejercicio, produciendo el entregable.
+  \item \SI{5}{\minute} de \emph{qué no sabemos todavía}: la lista de incógnitas
+        abiertas que alimenta los TFG y los proyectos del año siguiente.
+\end{itemize}
+
+La sesión la imparten siempre \textbf{dos personas}: quien lo sabe y quien lo
+tendrá que impartir el año que viene. Se graba siempre.
+
+\section*{Responsables por capítulo}
+
+\pendiente{Rellena esta tabla. Un capítulo sin responsable no se actualiza nunca.}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Parte} & \textbf{Responsable} & \textbf{Revisor} & \textbf{Últ. revisión} \\
+\midrule
+I --- Tronco común       & & & \\
+II --- Dinámica vehicular & & & \\
+III --- Suspensión        & & & \\
+IV --- Chasis             & & & \\
+V --- Aerodinámica        & & & \\
+VI --- Refrigeración      & & & \\
+VII --- Transmisión       & & & \\
+VIII --- Transversal      & & & \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\section*{Qué leer además de esto}
+
+Este libro es el registro de nuestras decisiones, no un sustituto de la teoría.
+Estos son los libros a los que remite constantemente; conviene que el equipo
+tenga al menos un ejemplar de cada uno.
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[Dinámica vehicular] \textcite{milliken_rcvd_1995} es la referencia: densa,
+    cara y con diferencia el mejor libro del campo. \textcite{gillespie_fundamentals_1992}
+    es más asequible para empezar. Para el neumático,
+    \textcite{pacejka_tirevehicle_2012}. \textcite{smith_tunetowin_1978} no tiene
+    una sola ecuación y sigue explicando la puesta a punto mejor que casi nadie.
+  \item[Suspensión y estructuras] \textcite{staniforth_suspension_2006} para la
+    parte práctica y \textcite{smith_engineertowin_1984} para materiales y
+    uniones. El dimensionado, con \textcite{budynas_shigley_2020}.
+  \item[Aerodinámica] \textcite{katz_racecaraero_1995} está escrito justo para
+    esto. Los fundamentos, en \textcite{anderson_aerodynamics_2017}; el CFD, en
+    \textcite{versteeg_cfd_2007}.
+  \item[Refrigeración] \textcite{incropera_heat_2011} para los fundamentos y
+    \textcite{hesselgreaves_compact_2017} para intercambiadores compactos, que es
+    lo que realmente montamos. \textcite{kays_london_1984} sigue siendo la fuente
+    de los datos de superficie.
+  \item[Formula Student] \textcite{seward_racecardesign_2014} recorre el coche
+    entero con este nivel de detalle y es el mejor punto de partida para un
+    rookie. Las notas técnicas de \textcite{optimumg_tips} son cortas y muy
+    aplicables.
+\end{description}
+
+\section*{Cómo se edita}
+
+\begin{itemize}
+  \item Un fichero por capítulo, en \texttt{Capitulos/<parte>/}. No toques los
+        ficheros de otros sin avisar.
+  \item Mientras escribes un capítulo, descomenta \verb|\includeonly| en
+        \texttt{main.tex} y deja solo el tuyo: compila en segundos.
+  \item Las imágenes van en \texttt{Imagenes/<parte>/}, el código en
+        \texttt{Codigo/}, los planos en PDF en \texttt{Planos/}.
+  \item Símbolos: usa siempre las macros de \texttt{Estilo/macros.tex}
+        ($\Cl$, $\Kus$, $\NTU$\ldots). Nunca los escribas a mano.
+  \item Unidades: siempre con \texttt{siunitx} (\verb|\SI{85}{\celsius}|),
+        nunca a pelo.
+  \item Lo que falta se marca con \verb|\pendiente{}| o \verb|\falta{}| y sale
+        listado al compilar en modo borrador. Nada de dejarlo «para acordarse».
+\end{itemize}

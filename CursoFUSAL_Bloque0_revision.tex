@@ -1,0 +1,155 @@
+% =====================================================================
+%  EXTRACTO PARA REVISIÓN — PARTE I (TRONCO COMÚN)
+%
+%  Documento aparte para mandar a revisar solo lo que está escrito.
+%  NO duplica contenido: usa los mismos ficheros de capítulo que main.tex.
+%
+%  Compilar con:  exportar_revision.bat
+%
+%  CÓMO FUNCIONA:
+%  Los capítulos de la parte I se incluyen normalmente. De los demás solo se
+%  leen las etiquetas de su .aux con \includeref, para que las referencias
+%  cruzadas a la parte no escrita (cap. 53, 26, 13...) sigan saliendo bien en
+%  vez de «??».  \includeonly no sirve aquí: arrastra al índice las entradas
+%  de los capítulos excluidos y el índice acabaría listando los 60.
+%
+%  REQUIERE haber compilado main.tex antes: de ahí salen esos .aux.
+%  El .bat se encarga del orden.
+% =====================================================================
+\documentclass[11pt,a4paper,oneside,openany]{book}
+
+\input{Estilo/preambulo.tex}
+
+% ---- Datos del documento --------------------------------------------
+\newcommand{\temporada}{2025--2026}
+\newcommand{\version}{0.1 --- extracto para revisión}
+
+% Modo borrador ACTIVADO a propósito: los revisores deben ver qué falta.
+\borradortrue
+
+% ---------------------------------------------------------------------
+%  \includeref{fichero}
+%  Lee las etiquetas del .aux de un capítulo que NO se imprime, para que
+%  \ref{ch:evento_costes} siga dando 53 sin que el capítulo 53 aparezca en
+%  este extracto.
+%
+%  Tiene que llamarse EN EL PREÁMBULO, por dos motivos:
+%    - dentro del documento, «@» ya no es letra y el .aux no se puede leer;
+%    - en el preámbulo los índices aún no están abiertos, así que las
+%      entradas de índice de esos capítulos se descartan solas.
+% ---------------------------------------------------------------------
+\makeatletter
+\newcommand{\includeref}[1]{\begingroup\makeatletter\@input{#1.aux}\endgroup}
+\makeatother
+
+% ---------------------------------------------------------------------
+%  Partes II a VIII y anexos: NO se imprimen. Solo se leen sus etiquetas.
+%  Al añadir capítulos nuevos al libro, añádelos también a esta lista.
+% ---------------------------------------------------------------------
+\includeref{Capitulos/02_Dinamica/08_neumatico}
+\includeref{Capitulos/02_Dinamica/09_modelado_neumatico}
+\includeref{Capitulos/02_Dinamica/10_regimen_estacionario}
+\includeref{Capitulos/02_Dinamica/11_diagramas_ymd}
+\includeref{Capitulos/02_Dinamica/12_regimen_transitorio}
+\includeref{Capitulos/02_Dinamica/13_simulacion_vuelta}
+\includeref{Capitulos/02_Dinamica/14_puesta_a_punto}
+\includeref{Capitulos/02_Dinamica/15_piloto_ensayos_pista}
+
+\includeref{Capitulos/03_Suspension/16_cinematica_suspension}
+\includeref{Capitulos/03_Suspension/17_puntos_duros}
+\includeref{Capitulos/03_Suspension/18_muelles_amortiguadores}
+\includeref{Capitulos/03_Suspension/19_casos_carga}
+\includeref{Capitulos/03_Suspension/20_componentes_suspension}
+\includeref{Capitulos/03_Suspension/21_direccion}
+\includeref{Capitulos/03_Suspension/22_frenos}
+\includeref{Capitulos/03_Suspension/23_montaje_alineacion}
+
+\includeref{Capitulos/04_Chasis/24_chasis_reglamento}
+\includeref{Capitulos/04_Chasis/25_tubular_vs_monocasco}
+\includeref{Capitulos/04_Chasis/26_rigidez_torsional}
+\includeref{Capitulos/04_Chasis/27_caminos_carga_nodos}
+\includeref{Capitulos/04_Chasis/28_materiales_compuestos}
+\includeref{Capitulos/04_Chasis/29_fabricacion_tubular}
+\includeref{Capitulos/04_Chasis/30_estructuras_impacto}
+\includeref{Capitulos/04_Chasis/31_ergonomia_packaging}
+
+\includeref{Capitulos/05_Aerodinamica/32_fundamentos_aerodinamica}
+\includeref{Capitulos/05_Aerodinamica/33_merece_la_pena_aero}
+\includeref{Capitulos/05_Aerodinamica/34_elementos_aerodinamicos}
+\includeref{Capitulos/05_Aerodinamica/35_cfd_montaje_caso}
+\includeref{Capitulos/05_Aerodinamica/36_cfd_validacion}
+\includeref{Capitulos/05_Aerodinamica/37_ensayos_pista_aero}
+\includeref{Capitulos/05_Aerodinamica/38_fabricacion_aero}
+\includeref{Capitulos/05_Aerodinamica/39_interaccion_aero_suspension}
+
+\includeref{Capitulos/06_Refrigeracion/40_balance_termico}
+\includeref{Capitulos/06_Refrigeracion/41_fundamentos_intercambiadores}
+\includeref{Capitulos/06_Refrigeracion/42_superficies_compactas}
+\includeref{Capitulos/06_Refrigeracion/43_lado_aire}
+\includeref{Capitulos/06_Refrigeracion/44_lado_liquido}
+\includeref{Capitulos/06_Refrigeracion/45_validacion_termica}
+
+\includeref{Capitulos/07_Transmision/46_arquitectura_transmision}
+\includeref{Capitulos/07_Transmision/47_relacion_transmision}
+\includeref{Capitulos/07_Transmision/48_elementos_transmision}
+\includeref{Capitulos/07_Transmision/49_diferencial}
+\includeref{Capitulos/07_Transmision/50_palieres_juntas}
+\includeref{Capitulos/07_Transmision/51_soportes_seguridad}
+\includeref{Capitulos/07_Transmision/52_eficiencia_energetica}
+
+\includeref{Capitulos/08_Transversal/53_evento_costes}
+\includeref{Capitulos/08_Transversal/54_coste_real_compras}
+\includeref{Capitulos/08_Transversal/55_fabricacion_i}
+\includeref{Capitulos/08_Transversal/56_fabricacion_ii}
+\includeref{Capitulos/08_Transversal/57_dfm_dfa}
+\includeref{Capitulos/08_Transversal/58_planificacion_fiabilidad}
+\includeref{Capitulos/08_Transversal/59_design_event}
+\includeref{Capitulos/08_Transversal/60_documentacion_traspaso}
+
+\includeref{Capitulos/99_Anexos/A_plantillas}
+\includeref{Capitulos/99_Anexos/B_checklists}
+\includeref{Capitulos/99_Anexos/C_planos}
+\includeref{Capitulos/99_Anexos/D_codigo}
+
+\begin{document}
+
+% =====================================================================
+\frontmatter
+% =====================================================================
+\input{Estilo/portada.tex}
+
+\include{Capitulos/00_Frontal/nota_revision}
+\include{Capitulos/00_Frontal/prologo}
+\include{Capitulos/00_Frontal/como_usar}
+
+\cleardoublepage
+\tableofcontents
+
+\include{Capitulos/00_Frontal/nomenclatura}
+
+% =====================================================================
+\mainmatter
+% =====================================================================
+
+% ---------------------------------------------------------------------
+\part{Tronco común}
+% ---------------------------------------------------------------------
+\include{Capitulos/01_Tronco/01_formula_student}
+\include{Capitulos/01_Tronco/02_coche_como_sistema}
+\include{Capitulos/01_Tronco/03_proceso_diseno}
+\include{Capitulos/01_Tronco/04_herramientas_cad_datos}
+\include{Capitulos/01_Tronco/05_mecanica_aplicada}
+\include{Capitulos/01_Tronco/06_elementos_finitos}
+\include{Capitulos/01_Tronco/07_ensayo_adquisicion_datos}
+
+
+% =====================================================================
+\backmatter
+% =====================================================================
+\printbibliography[heading=bibintoc,title={Bibliografía}]
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Lo que ya sabemos que falta}
+\listoftodos[Lo que ya sabemos que falta]
+
+\end{document}

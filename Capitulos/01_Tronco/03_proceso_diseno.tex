@@ -1,0 +1,286 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Proceso de diseño y toma de decisiones
+%  Responsable: 
+%  Última revisión: 
+% =====================================================================
+\chapter{Proceso de diseño y toma de decisiones}
+\label{ch:proceso_diseno}
+
+\begin{objetivos}
+  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
+  \item \redactar{Objetivo 2.}
+  \item \redactar{Objetivo 3.}
+\end{objetivos}
+
+\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+
+\section{Fases del ciclo de diseño}
+\label{sec:proceso_diseno:01}
+\pendiente{Texto del apartado pendiente de redactar. Las figuras
+\ref{fig:proceso_diseno} y \ref{fig:subproceso_dimensionamiento} ya están
+puestas; falta el texto que las explica.}
+
+La figura \ref{fig:proceso_diseno} recoge el proceso que sigue el equipo para
+diseñar un componente, desde que se asigna la tarea hasta que el resultado se
+entrega al encargado de área. En trazo continuo está el proceso tal y como se
+planteó; en trazo discontinuo rojo, los pasos propuestos que todavía no se han
+acordado y que se justifican al final del apartado.
+
+Los triángulos numerados son enlaces a subprocesos que se desarrollan por
+separado. El único desarrollado hasta ahora es el \textsc{ii}, el
+dimensionamiento preliminar, que recoge la figura
+\ref{fig:subproceso_dimensionamiento}.
+
+% ---------------------------------------------------------------------
+\begin{figure}[p]
+\centering
+\resizebox{!}{0.90\textheight}{%
+\begin{tikzpicture}[
+    proceso/.append style={font=\sffamily\footnotesize},
+    decision/.append style={font=\sffamily\footnotesize},
+    terminal/.append style={font=\sffamily\footnotesize\bfseries,text width=44mm},
+    nota/.append style={font=\sffamily\scriptsize},
+    conector/.append style={font=\sffamily\scriptsize\bfseries,minimum size=9mm},
+    etiq/.append style={font=\sffamily\scriptsize},
+    cabecera/.style={proceso,text width=24mm}]
+
+% ---- Flujo principal ----
+\node[terminal] (t1)  at (0,0)      {Asignación de tareas};
+
+\node[cabecera] (b1) at (-4.65,-1.75) {Documentos aplicables};
+\node[cabecera] (b2) at (-1.55,-1.75) {Objetivos};
+\node[cabecera] (b3) at ( 1.55,-1.75) {Método de cálculo};
+\node[cabecera,propuesto] (b4) at ( 4.65,-1.75) {Interfaces y restricciones};
+
+\node[proceso]  (p1) at (0,-3.55)  {Dimensionamiento preliminar};
+\node[conector] (c2) at (2.7,-3.55) {II};
+\node[nota]     (n1) at (6.9,-3.55)
+      {\textbf{Pasos}\\[1pt]$\cdot$ Selección de material\\
+       $\cdot$ Método de fabricación\\$\cdot$ Ubicación de componentes};
+
+\node[decision] (d1) at (0,-5.35)  {¿Resultado válido?};
+\node[proceso,propuesto] (p2) at (0,-7.05) {Registro de decisión};
+
+\node[proceso]  (p3) at (0,-8.75)  {Diseño CAD};
+\node[conector] (c3) at (2.7,-8.75) {III};
+\node[nota]     (n2) at (6.9,-8.75)
+      {\textbf{Pasos}\\[1pt]$\cdot$ Ensamblaje\\$\cdot$ Fabricación\\
+       $\cdot$ Material\\$\cdot$ Normativa};
+
+\node[decision] (d2) at (0,-10.55) {¿CAD válido?};
+
+\node[proceso]  (p4) at (0,-12.25) {Simulación MEF};
+\node[conector] (c4) at (2.7,-12.25) {IV};
+\node[nota]     (n3) at (6.9,-12.25)
+      {\textbf{Pasos}\\[1pt]$\cdot$ Condiciones de contorno\\
+       $\cdot$ Tipo de vinculación\\$\cdot$ Mallado\\$\cdot$ Convergencia};
+
+\node[decision] (d3) at (0,-14.05) {¿Simulación válida?};
+\node[proceso]  (p5) at (0,-15.85) {Revisión de objetivos};
+\node[decision] (d4) at (0,-17.65) {¿Objetivos cumplidos?};
+\node[nota]     (n4) at (-5.2,-17.65)
+      {Revisión completa\\Detección de fallos\\Iteración};
+
+\node[proceso,text width=42mm] (p6) at (0,-19.75)
+      {Elaboración de BOM $\cdot$ Informe de diseño $\cdot$ Informe de coste
+       $\cdot$ Informe de simulaciones $\cdot$ Hoja de procesos};
+\node[conector] (c5) at (4.4,-19.75) {V};
+
+\node[decision,propuesto] (d5) at (0,-21.85) {¿Revisado por otra persona?};
+\node[terminal] (t2) at (0,-23.65) {Enviar al encargado de área};
+\node[proceso,propuesto,text width=34mm] (p7) at (0,-25.35)
+      {Fabricación y validación experimental};
+
+% ---- Flechas del tronco ----
+\draw[flujo] (t1.south) -- ++(0,-0.35) coordinate (r1);
+\draw[draw=fusalPrim!85,semithick] (b1.north|-r1) -- (b4.north|-r1);
+\foreach \n in {b1,b2,b3} \draw[flujo] (\n.north|-r1) -- (\n.north);
+\draw[flujoprop] (b4.north|-r1) -- (b4.north);
+
+\coordinate (r2) at (0,-2.65);
+\foreach \n in {b1,b2,b3} \draw[draw=fusalPrim!85,semithick] (\n.south) -- (\n.south|-r2);
+\draw[draw=fusalSec,dashed,dash pattern=on 2pt off 1.5pt] (b4.south) -- (b4.south|-r2);
+\draw[draw=fusalPrim!85,semithick] (b1.south|-r2) -- (b4.south|-r2);
+\draw[flujo] (r2) -- (p1.north);
+
+\draw[flujo] (p1) -- (d1);
+\draw[flujoprop] (d1) -- node[etiq,pos=0.45]{Sí} (p2);
+\draw[flujoprop] (p2) -- (p3);
+\draw[flujo] (d2) -- node[etiq,pos=0.45]{Sí} (p4);
+\draw[flujo] (p3) -- (d2);
+\draw[flujo] (d3) -- node[etiq,pos=0.45]{Sí} (p5);
+\draw[flujo] (p4) -- (d3);
+\draw[flujo] (p5) -- (d4);
+\draw[flujo] (d4) -- node[etiq,pos=0.40]{Sí} (p6);
+\draw[flujoprop] (p6) -- (d5);
+\draw[flujoprop] (d5) -- node[etiq,pos=0.45]{Sí} (t2);
+\draw[flujoprop] (t2) -- (p7);
+
+% ---- Conectores y notas ----
+\foreach \p/\c in {p1/c2,p3/c3,p4/c4} \draw[aviso] (\p.east) -- (\c.west);
+\draw[aviso] (p6.east) -- (c5.west);
+\foreach \c/\n in {c2/n1,c3/n2,c4/n3} \draw[aviso] (\c.east) -- (\n.west);
+\draw[aviso] (d4.west) -- node[etiq,pos=0.45]{No} (n4.east);
+
+% ---- Realimentaciones ----
+\draw[flujo] (d1.west) -- node[etiq,pos=0.3]{No} ++(-2.1,0) |- (p1.west);
+\draw[flujo] (d2.west) -- node[etiq,pos=0.3]{No} ++(-2.6,0) |- ([yshift=-1.2mm]p1.west);
+\draw[flujo] (d3.west) -- node[etiq,pos=0.3]{No} ++(-3.1,0) |- ([yshift=1.2mm]p1.west);
+\draw[flujoprop] (n4.west) -- ++(-1.1,0) |- ([yshift=-2.4mm]p1.west);
+\draw[flujoprop] (d5.east) -- node[etiq,pos=0.35]{No} ++(2.0,0) |- (p6.east);
+\draw[flujoprop] (p7.east) -- ++(3.9,0) |- (p5.east);
+
+\end{tikzpicture}}
+\caption[Proceso de diseño de un componente]{Proceso de diseño de un
+componente. Trazo continuo: el proceso tal y como se planteó. Trazo discontinuo
+rojo: pasos propuestos, pendientes de acordar. Los triángulos enlazan con
+subprocesos desarrollados aparte.}
+\label{fig:proceso_diseno}
+\end{figure}
+
+% ---------------------------------------------------------------------
+\begin{figure}[p]
+\centering
+\begin{tikzpicture}[
+    proceso/.append style={font=\sffamily\footnotesize},
+    decision/.append style={font=\sffamily\footnotesize},
+    terminal/.append style={font=\sffamily\footnotesize\bfseries,text width=40mm},
+    nota/.append style={font=\sffamily\scriptsize},
+    conector/.append style={font=\sffamily\scriptsize\bfseries,minimum size=9mm},
+    etiq/.append style={font=\sffamily\scriptsize}]
+
+\node[conector] (ci) at (0,0.9) {II};
+\node[proceso]  (s1) at (0,-0.5)  {Búsqueda de referencias};
+\node[nota]     (m1) at (4.6,-0.5) {$\cdot$ Libros\\$\cdot$ TFG y TFM\\
+       $\cdot$ Foros\\$\cdot$ Vídeos y documentación de otros equipos};
+
+\node[decision] (e1) at (0,-2.4)  {¿Método fiable?};
+\node[proceso]  (s2) at (0,-4.3)  {Desarrollo analítico};
+\node[proceso]  (s3) at (0,-6.2)  {Programar el cálculo};
+\node[nota]     (m2) at (-4.6,-6.2) {$\cdot$ Excel\\$\cdot$ MathCAD\\
+       $\cdot$ MATLAB\\$\cdot$ Programación};
+
+\node[proceso]  (s4) at (0,-8.1)  {Validación y comparación};
+\node[nota]     (m3) at (4.6,-8.1) {$\cdot$ Objetivos\\
+       $\cdot$ Referencias anteriores\\$\cdot$ Ensayo, cuando exista};
+
+\node[decision] (e2) at (0,-10.0) {¿Válido?};
+\node[proceso,propuesto,text width=34mm] (s5) at (0,-11.9)
+      {Documentar hipótesis y archivar el modelo};
+\node[terminal] (fin) at (0,-13.7) {Continuar: diseño CAD};
+
+\draw[flujo] (ci) -- (s1);
+\draw[flujo] (s1) -- (e1);
+\draw[flujo] (e1) -- node[etiq,pos=0.45]{Sí} (s2);
+\draw[flujo] (s2) -- (s3);
+\draw[flujo] (s3) -- (s4);
+\draw[flujo] (s4) -- (e2);
+\draw[flujoprop] (e2) -- node[etiq,pos=0.45]{Sí} (s5);
+\draw[flujoprop] (s5) -- (fin);
+
+\draw[flujo] (e1.east) -- node[etiq,pos=0.35]{No} ++(2.2,0) |- (s3.east);
+\draw[flujo] (e2.west) -- node[etiq,pos=0.25]{No} ++(-5.4,0) |- (s1.west);
+
+\draw[aviso] (s1.east) -- (m1.west);
+\draw[aviso] (s3.west) -- (m2.east);
+\draw[aviso] (s4.east) -- (m3.west);
+
+\end{tikzpicture}
+\caption[Subproceso \textsc{ii}: dimensionamiento preliminar]{Subproceso
+\textsc{ii}: dimensionamiento preliminar. Los subprocesos \textsc{iii} (diseño
+CAD), \textsc{iv} (simulación MEF) y \textsc{v} (documentación) están pendientes
+de desarrollar.}
+\label{fig:subproceso_dimensionamiento}
+\end{figure}
+
+\subsection{Qué falta en el proceso}
+
+Al revisar el diagrama aparecen seis huecos. Cuatro de ellos ---los números
+\ref{item:huecos:revision}, \ref{item:huecos:ddr}, \ref{item:huecos:validacion} y
+\ref{item:huecos:interfaces}--- están dibujados en rojo en la figura
+\ref{fig:proceso_diseno}. Los otros dos no, porque antes hay que decidir dónde
+encajan.
+
+\begin{enumerate}
+  \item \textbf{No hay salida de los bucles.} Las tres preguntas de validez
+        devuelven al dimensionamiento preliminar sin límite. Hace falta un
+        criterio de escalado: tras dos iteraciones sin converger, el problema
+        pasa al encargado de área. Si no, una tarea puede consumir media
+        temporada sin que nadie se entere.
+  \item\label{item:huecos:revision} \textbf{Nadie revisa el trabajo antes de
+        entregarlo.} El capítulo
+        \ref{ch:herramientas_cad_datos} exige que una pieza no se libere sin que
+        la revise alguien distinto del autor. Esa comprobación tiene que estar en
+        el proceso, no en la buena voluntad de cada uno.
+  \item\label{item:huecos:ddr} \textbf{El registro de decisión no aparece.} El diagrama recoge qué se
+        hace, pero no deja rastro de \emph{por qué} se eligió una alternativa y
+        no otra. Sin eso, el año que viene se vuelve a empezar --- que es
+        justamente lo que este libro intenta evitar.
+  \item \textbf{El coste entra demasiado tarde.} Aparece solo en la
+        documentación final, cuando ya no se puede cambiar nada. Debería ser un
+        criterio de la primera pregunta de validez, junto con la fabricabilidad.
+  \item\label{item:huecos:validacion} \textbf{No hay realimentación desde la fabricación ni desde la pista.}
+        El proceso termina al entregar los documentos. Lo que pasa después ---
+        que la pieza no se pueda fabricar como estaba prevista, o que rompa ---
+        no vuelve a entrar en ningún sitio.
+  \item\label{item:huecos:interfaces} \textbf{Las interfaces con otros subsistemas no se acuerdan.} El bloque
+        de partida recoge documentos, objetivos y método, pero no con quién hay
+        que hablar antes de fijar una cota compartida (capítulo
+        \ref{ch:coche_como_sistema}).
+\end{enumerate}
+
+\pendiente{Decidir con el equipo cuáles de estos seis pasos se incorporan, y
+actualizar la figura. Lo que se acuerde deja de ser trazo discontinuo.}
+
+\pendiente{Transcripción de la versión manuscrita: revisar las etiquetas
+«Desarrollo analítico» y «Validación y comparación», y el contenido del recuadro
+de herramientas de cálculo, que se han leído con dudas.}
+
+\pendiente{El boceto original incluye un recuadro hexagonal, enlazado al conector
+\textsc{i}, que dice «Aclaración: Coordinador, Encargado y Supervisor». No se ha
+llevado a la figura porque no está claro a qué paso del proceso se refiere.
+Decidir si es la definición de los tres papeles que intervienen ---y entonces va
+en el apartado \ref{sec:proceso_diseno:04}, junto al registro de decisiones--- o
+si marca los puntos del flujo en los que cada uno interviene, en cuyo caso hay
+que dibujarlo.}
+
+\section{Generación de conceptos}
+\label{sec:proceso_diseno:02}
+\pendiente{Pendiente de redactar.}
+
+\section{Matrices de decisión}
+\label{sec:proceso_diseno:03}
+\pendiente{Pendiente de redactar.}
+
+\section{Registro de decisiones}
+\label{sec:proceso_diseno:04}
+\pendiente{Pendiente de redactar.}
+
+\section{Congelación del diseño}
+\label{sec:proceso_diseno:05}
+\pendiente{Pendiente de redactar.}
+
+% ---------------------------------------------------------------------
+%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+% ---------------------------------------------------------------------
+
+\begin{caso}
+\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\end{caso}
+
+\begin{ojo}
+\begin{itemize}
+  \item \redactar{Error que repetimos cada temporada en este tema.}
+\end{itemize}
+\end{ojo}
+
+\begin{entregable}
+\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\end{entregable}
+
+\begin{juez}
+\begin{enumerate}
+  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+\end{enumerate}
+\end{juez}

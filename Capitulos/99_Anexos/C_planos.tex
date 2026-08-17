@@ -1,0 +1,40 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Anexo C — Planos
+%  Los PDF van en la carpeta Planos/ y se insertan con \includepdf.
+% =====================================================================
+\chapter{Planos}
+\label{ch:planos}
+
+\pendiente{Añade aquí los planos de referencia en PDF. Ejemplo de uso más abajo.}
+
+Los planos se guardan en \texttt{Planos/} en PDF vectorial (no imágenes
+escaneadas) y se insertan con \texttt{pdfpages}. Cada plano lleva su cajetín con
+número de pieza, revisión y fecha; la numeración debe coincidir con la del CAD
+(capítulo \ref{ch:herramientas_cad_datos}).
+
+\begin{verbatim}
+% Un plano completo, todas sus páginas, en apaisado:
+\includepdf[pages=-,landscape=true,
+            pagecommand={\thispagestyle{fancy}},
+            addtotoc={1,section,1,Trapecio delantero superior,plano:trap_ds}]
+           {Planos/FUSAL26-SUS-001_trapecio.pdf}
+
+% Solo la primera página, escalada y con marco:
+\includepdf[pages=1,scale=0.9,frame=true]{Planos/FUSAL26-CHS-000_conjunto.pdf}
+\end{verbatim}
+
+\section{Índice de planos}
+\label{sec:indice_planos}
+
+\begin{center}
+\begin{tabular}{@{}llll@{}}
+\toprule
+\textbf{Número} & \textbf{Denominación} & \textbf{Rev.} & \textbf{Fecha} \\
+\midrule
+ & & & \\
+ & & & \\
+ & & & \\
+\bottomrule
+\end{tabular}
+\end{center}

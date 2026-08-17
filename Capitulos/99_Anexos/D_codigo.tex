@@ -1,0 +1,43 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Anexo D — Código
+%  Los fuentes van en la carpeta Codigo/ y se insertan con \lstinputlisting.
+%  NUNCA pegues código a mano: se queda desactualizado en cuanto lo tocas.
+% =====================================================================
+\chapter{Código}
+\label{ch:codigo}
+
+Los programas del equipo se guardan en \texttt{Codigo/} y se insertan desde el
+fichero fuente, nunca copiados a mano: así el libro y el código no se separan.
+
+\begin{verbatim}
+\lstinputlisting[language=Matlab,
+                 caption={Cálculo de la eficacia del radiador (método NTU)},
+                 label={lst:ntu}]{refrigeracion/EvaluaConfiguracion.m}
+
+% Solo unas líneas concretas:
+\lstinputlisting[language=Matlab, firstline=40, lastline=75,
+                 caption={Bucle de barrido de configuraciones}]
+                {refrigeracion/MAIN.m}
+\end{verbatim}
+
+\noindent
+La ruta es relativa a \texttt{Codigo/} (está fijada con
+\verb|\lstset{inputpath=Codigo/}| en el preámbulo).
+
+\section{Refrigeración}
+\label{sec:codigo_refrigeracion}
+\pendiente{Modelo de radiador en MATLAB: MAIN, Config, EvaluaConfiguracion y test de regresión.}
+
+\section{Dinámica vehicular}
+\label{sec:codigo_dinamica}
+\pendiente{Ajuste de neumático, simulación de vuelta y generación del diagrama YMD.}
+
+\section{Suspensión}
+\label{sec:codigo_suspension}
+\pendiente{Cálculo de cinemática, relaciones de instalación y casos de carga.}
+
+\section{Utilidades}
+\label{sec:codigo_utilidades}
+\pendiente{Scripts de tratamiento de datos de ensayo.}
+

@@ -1,0 +1,40 @@
+% =====================================================================
+%  ESTILOS DE DIAGRAMA DE FLUJO
+%  Usados en los organigramas del libro. Convenio:
+%    proceso    rectángulo      una acción
+%    decision   rombo           una pregunta con salidas Sí/No
+%    terminal   elipse          principio o final del flujo
+%    nota       recuadro gris   detalle de lo que incluye un paso
+%    conector   triángulo       enlace a un subproceso desarrollado aparte
+%    propuesto  trazo discontinuo rojo: añadido, todavía no acordado
+% =====================================================================
+\usetikzlibrary{shapes.geometric}
+
+\tikzset{
+  proceso/.style={
+    draw=fusalPrim!75, fill=fusalPrim!6, rounded corners=2pt,
+    align=center, inner sep=4pt, minimum height=8mm, text width=26mm,
+    font=\sffamily\scriptsize},
+  decision/.style={
+    draw=fusalPrim!75, fill=white, diamond, aspect=1.7,
+    align=center, inner sep=0pt, text width=19mm,
+    font=\sffamily\scriptsize},
+  terminal/.style={
+    draw=fusalPrim, fill=fusalPrim!15, ellipse,
+    align=center, inner sep=3pt, text width=28mm,
+    font=\sffamily\scriptsize\bfseries},
+  nota/.style={
+    draw=fusalGris, fill=gray!7, align=left, inner sep=4pt,
+    text width=32mm, font=\sffamily\tiny},
+  conector/.style={
+    draw=fusalSec, fill=fusalSec!12, regular polygon,
+    regular polygon sides=3, inner sep=0pt, minimum size=7mm,
+    font=\sffamily\tiny\bfseries, text=fusalSec},
+  propuesto/.style={
+    draw=fusalSec, fill=fusalSec!5, dashed, dash pattern=on 2pt off 1.5pt},
+  flujo/.style={-{Latex[length=2mm,width=1.6mm]}, draw=fusalPrim!85, semithick},
+  flujoprop/.style={-{Latex[length=2mm,width=1.6mm]}, draw=fusalSec,
+    dashed, dash pattern=on 2pt off 1.5pt, semithick},
+  aviso/.style={-{Latex[length=1.6mm,width=1.3mm]}, draw=fusalGris},
+  etiq/.style={font=\sffamily\tiny, inner sep=1.5pt, fill=white}
+}

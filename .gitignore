@@ -1,0 +1,24 @@
+# --- Auxiliares de LaTeX ---
+*.aux
+*.log
+*.toc
+*.lof
+*.lot
+*.out
+*.bbl
+*.bcf
+*.blg
+*.run.xml
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.idx
+*.ind
+*.ilg
+*.tdo
+*.lol
+
+# --- Sistema ---
+Thumbs.db
+desktop.ini
+.DS_Store

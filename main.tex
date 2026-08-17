@@ -1,0 +1,161 @@
+% =====================================================================
+%  CURSO DE INGENIERÍA FUSAL — MECHANICAL
+%  Fichero maestro. Compilar con:   latexmk -pdf main.tex   (o compilar.bat)
+%
+%  NO metas paquetes aquí: van en Estilo/preambulo.tex
+% =====================================================================
+\documentclass[11pt,a4paper,oneside,openany]{book}
+% Para imprimir a doble cara: cambia a [11pt,a4paper,twoside,openright]
+
+\input{Estilo/preambulo.tex}
+
+% ---- Datos del documento --------------------------------------------
+\newcommand{\temporada}{2025--2026}
+\newcommand{\version}{0.1 (borrador)}
+
+% ---- Modo borrador ---------------------------------------------------
+% \borradortrue  -> muestra los \pendiente, \falta y \figpendiente
+% \borradorfalse -> versión limpia para repartir
+\borradortrue
+
+% =====================================================================
+%  SELECCIÓN DE CAPÍTULOS
+%  Descomenta \includeonly y deja solo el capítulo en el que trabajas:
+%  compila en 3 segundos en vez de 3 minutos (mantiene índices y refs).
+% =====================================================================
+% \includeonly{Capitulos/06_Refrigeracion/42_superficies_compactas}
+
+\begin{document}
+
+% =====================================================================
+\frontmatter
+% =====================================================================
+\input{Estilo/portada.tex}
+
+\include{Capitulos/00_Frontal/prologo}
+\include{Capitulos/00_Frontal/como_usar}
+
+\cleardoublepage
+\tableofcontents
+\cleardoublepage
+\listoffigures
+\cleardoublepage
+\listoftables
+
+\include{Capitulos/00_Frontal/nomenclatura}
+
+% =====================================================================
+\mainmatter
+% =====================================================================
+
+% ---------------------------------------------------------------------
+\part{Tronco común}
+% ---------------------------------------------------------------------
+\include{Capitulos/01_Tronco/01_formula_student}
+\include{Capitulos/01_Tronco/02_coche_como_sistema}
+\include{Capitulos/01_Tronco/03_proceso_diseno}
+\include{Capitulos/01_Tronco/04_herramientas_cad_datos}
+\include{Capitulos/01_Tronco/05_mecanica_aplicada}
+\include{Capitulos/01_Tronco/06_elementos_finitos}
+\include{Capitulos/01_Tronco/07_ensayo_adquisicion_datos}
+
+% ---------------------------------------------------------------------
+\part{Dinámica vehicular}
+% ---------------------------------------------------------------------
+\include{Capitulos/02_Dinamica/08_neumatico}
+\include{Capitulos/02_Dinamica/09_modelado_neumatico}
+\include{Capitulos/02_Dinamica/10_regimen_estacionario}
+\include{Capitulos/02_Dinamica/11_diagramas_ymd}
+\include{Capitulos/02_Dinamica/12_regimen_transitorio}
+\include{Capitulos/02_Dinamica/13_simulacion_vuelta}
+\include{Capitulos/02_Dinamica/14_puesta_a_punto}
+\include{Capitulos/02_Dinamica/15_piloto_ensayos_pista}
+
+% ---------------------------------------------------------------------
+\part{Suspensión, dirección y frenos}
+% ---------------------------------------------------------------------
+\include{Capitulos/03_Suspension/16_cinematica_suspension}
+\include{Capitulos/03_Suspension/17_puntos_duros}
+\include{Capitulos/03_Suspension/18_muelles_amortiguadores}
+\include{Capitulos/03_Suspension/19_casos_carga}
+\include{Capitulos/03_Suspension/20_componentes_suspension}
+\include{Capitulos/03_Suspension/21_direccion}
+\include{Capitulos/03_Suspension/22_frenos}
+\include{Capitulos/03_Suspension/23_montaje_alineacion}
+
+% ---------------------------------------------------------------------
+\part{Chasis y estructuras}
+% ---------------------------------------------------------------------
+\include{Capitulos/04_Chasis/24_chasis_reglamento}
+\include{Capitulos/04_Chasis/25_tubular_vs_monocasco}
+\include{Capitulos/04_Chasis/26_rigidez_torsional}
+\include{Capitulos/04_Chasis/27_caminos_carga_nodos}
+\include{Capitulos/04_Chasis/28_materiales_compuestos}
+\include{Capitulos/04_Chasis/29_fabricacion_tubular}
+\include{Capitulos/04_Chasis/30_estructuras_impacto}
+\include{Capitulos/04_Chasis/31_ergonomia_packaging}
+
+% ---------------------------------------------------------------------
+\part{Aerodinámica}
+% ---------------------------------------------------------------------
+\include{Capitulos/05_Aerodinamica/32_fundamentos_aerodinamica}
+\include{Capitulos/05_Aerodinamica/33_merece_la_pena_aero}
+\include{Capitulos/05_Aerodinamica/34_elementos_aerodinamicos}
+\include{Capitulos/05_Aerodinamica/35_cfd_montaje_caso}
+\include{Capitulos/05_Aerodinamica/36_cfd_validacion}
+\include{Capitulos/05_Aerodinamica/37_ensayos_pista_aero}
+\include{Capitulos/05_Aerodinamica/38_fabricacion_aero}
+\include{Capitulos/05_Aerodinamica/39_interaccion_aero_suspension}
+
+% ---------------------------------------------------------------------
+\part{Refrigeración y gestión térmica}
+% ---------------------------------------------------------------------
+\include{Capitulos/06_Refrigeracion/40_balance_termico}
+\include{Capitulos/06_Refrigeracion/41_fundamentos_intercambiadores}
+\include{Capitulos/06_Refrigeracion/42_superficies_compactas}
+\include{Capitulos/06_Refrigeracion/43_lado_aire}
+\include{Capitulos/06_Refrigeracion/44_lado_liquido}
+\include{Capitulos/06_Refrigeracion/45_validacion_termica}
+
+% ---------------------------------------------------------------------
+\part{Transmisión}
+% ---------------------------------------------------------------------
+\include{Capitulos/07_Transmision/46_arquitectura_transmision}
+\include{Capitulos/07_Transmision/47_relacion_transmision}
+\include{Capitulos/07_Transmision/48_elementos_transmision}
+\include{Capitulos/07_Transmision/49_diferencial}
+\include{Capitulos/07_Transmision/50_palieres_juntas}
+\include{Capitulos/07_Transmision/51_soportes_seguridad}
+\include{Capitulos/07_Transmision/52_eficiencia_energetica}
+
+% ---------------------------------------------------------------------
+\part{Costes, fabricación y gestión}
+% ---------------------------------------------------------------------
+\include{Capitulos/08_Transversal/53_evento_costes}
+\include{Capitulos/08_Transversal/54_coste_real_compras}
+\include{Capitulos/08_Transversal/55_fabricacion_i}
+\include{Capitulos/08_Transversal/56_fabricacion_ii}
+\include{Capitulos/08_Transversal/57_dfm_dfa}
+\include{Capitulos/08_Transversal/58_planificacion_fiabilidad}
+\include{Capitulos/08_Transversal/59_design_event}
+\include{Capitulos/08_Transversal/60_documentacion_traspaso}
+
+% =====================================================================
+\appendix
+\part{Anexos}
+% =====================================================================
+\include{Capitulos/99_Anexos/A_plantillas}
+\include{Capitulos/99_Anexos/B_checklists}
+\include{Capitulos/99_Anexos/C_planos}
+\include{Capitulos/99_Anexos/D_codigo}
+
+% =====================================================================
+\backmatter
+% =====================================================================
+\printbibliography[heading=bibintoc,title={Bibliografía}]
+
+\cleardoublepage
+\addcontentsline{toc}{chapter}{Índice alfabético}
+\printindex
+
+\end{document}

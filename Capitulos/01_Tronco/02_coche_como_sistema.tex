@@ -1,0 +1,287 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  El coche como sistema
+%  Responsable:
+%  Última revisión:
+%  NOTA: capítulo deliberadamente breve. Describe el método al que el equipo
+%  quiere llegar, no el que ha seguido esta temporada. Ver el recuadro CASO.
+% =====================================================================
+\chapter{El coche como sistema}
+\label{ch:coche_como_sistema}
+
+\begin{objetivos}
+  \item Distinguir un objetivo de vehículo de un deseo.
+  \item Explicar cómo un objetivo global se convierte en un requisito concreto de
+        una pieza.
+  \item Entender qué es un presupuesto de masa y para qué sirve un modelo de
+        centro de gravedad.
+  \item Explicar por qué la simulación de vuelta es el único árbitro razonable
+        entre subsistemas que compiten por lo mismo.
+\end{objetivos}
+
+\fichasesion{60 minutos}{Capítulo \ref{ch:formula_student}}%
+{Hoja de cálculo de masas del coche actual, si existe}
+
+Este capítulo es corto a propósito, y conviene decir por qué desde el principio:
+describe la forma de trabajar a la que el equipo quiere llegar, no la que ha
+seguido hasta ahora. Se incluye en el tronco común porque es el marco que da
+sentido a los capítulos de dinámica vehicular, aerodinámica y transmisión, y
+porque los jueces del evento de diseño preguntan por él antes que por cualquier
+detalle de una pieza.
+
+La idea de fondo es simple. Un coche de competición es un sistema en el que casi
+ningún subsistema puede mejorar sin empeorar otro: el aerodinámico añade carga y
+también masa y resistencia; el radiador necesita aire que la carrocería quería
+para otra cosa; una relación de transmisión corta gana en aceleración y pierde en
+velocidad punta. Si cada subsistema optimiza lo suyo por separado, el resultado no
+es un coche optimizado, sino un coche incoherente. Hace falta un criterio común
+--- unos objetivos de vehículo --- y una herramienta que traduzca cualquier
+decisión local a ese criterio.
+
+% ---------------------------------------------------------------------
+\section{Objetivos de vehículo}
+\label{sec:coche_como_sistema:01}
+\index{objetivos de vehículo}
+
+Un objetivo de vehículo es un número, con fecha y con responsable. «El coche tiene
+que ser ligero» no es un objetivo; «masa en orden de marcha sin piloto por debajo
+de \SI{230}{\kilogram}, verificada en báscula antes del 15 de mayo, responsable
+el jefe de chasis» sí lo es.
+
+Los objetivos típicos de un coche de Formula Student son media docena:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Objetivo} & \textbf{Por qué se fija} & \textbf{Unidad} \\
+\midrule
+Masa total & Afecta a todo: aceleración, frenada, curva, consumo & \si{\kilogram} \\
+Reparto de masas & Condiciona el equilibrio y la tracción & \si{\percent} \\
+Altura del centro de gravedad & Gobierna la transferencia de carga & \si{\milli\meter} \\
+Rigidez torsional del chasis & Determina si la suspensión hace lo que se diseñó & \si{\newton\meter\per\degree} \\
+Carga aerodinámica y resistencia & Prestaciones en curva frente a recta & \si{\meter\squared} \\
+Tiempo objetivo por vuelta & Integra todo lo anterior en un solo número & \si{\second} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Lo importante no es acertar el valor a la primera --- casi nunca se acierta ---
+sino que exista, que esté escrito y que cuando se incumpla \emph{se sepa}. Si un
+objetivo se revisa a la baja, la revisión se discute y se anota.
+
+\begin{clave}
+El valor de un objetivo de vehículo no está en el número, sino en que obliga a
+tener la discusión \emph{antes} de fabricar. Cuando dos subsistemas piden lo
+mismo, el objetivo es lo que permite decidir sin que gane el que más levanta la voz.
+\end{clave}
+
+% ---------------------------------------------------------------------
+\section{Cascada de requisitos}
+\label{sec:coche_como_sistema:02}
+\index{cascada de requisitos}
+
+Un objetivo de vehículo no se puede diseñar directamente: hay que descomponerlo
+hasta llegar a algo que una persona pueda dimensionar. Ese descenso es la cascada
+de requisitos, y tiene tres niveles:
+
+\begin{enumerate}
+  \item \textbf{Objetivo de vehículo.} Masa total por debajo de
+        \SI{230}{\kilogram}.
+  \item \textbf{Requisito de subsistema.} Suspensión completa (cuatro esquinas)
+        por debajo de \SI{28}{\kilogram}.
+  \item \textbf{Requisito de componente.} Trapecio delantero superior por debajo
+        de \SI{380}{\gram} cumpliendo los casos de carga del capítulo
+        \ref{ch:casos_carga}.
+\end{enumerate}
+
+La cascada funciona en los dos sentidos. Hacia abajo reparte el presupuesto; hacia
+arriba avisa. Si el trapecio se va a \SI{450}{\gram} y no hay forma de bajarlo,
+alguien tiene que decidir conscientemente si se acepta, si se compensa en otro
+sitio o si se cambia el objetivo. Lo que no puede pasar es que nadie se entere
+hasta la báscula.
+
+% ---------------------------------------------------------------------
+\section{Presupuesto de masa y centro de gravedad}
+\label{sec:coche_como_sistema:03}
+\index{presupuesto de masa}\index{centro de gravedad}
+
+El presupuesto de masa es una hoja de cálculo con una fila por pieza y tres
+columnas de masa: \textbf{estimada} (al fijar el objetivo), \textbf{de CAD}
+(cuando la pieza está modelada, con el material asignado de verdad) y
+\textbf{pesada} (cuando existe). La diferencia entre la primera y la última
+columna indica cómo de fiables son nuestras estimaciones, y sirve para ajustarlas
+la temporada siguiente.
+
+Si además se anota la posición del centro de gravedad de cada pieza, la misma
+hoja da el centro de gravedad del coche completo:
+
+\begin{equation}
+  x_{\CdG} = \frac{\sum_i m_i\, x_i}{\sum_i m_i}
+  \label{eq:cdg}
+\end{equation}
+
+y lo mismo para $y$ y $z$. No hace falta nada más sofisticado. Con eso se puede
+responder a preguntas del tipo «¿cuánto sube el centro de gravedad si monto el
+radiador aquí en vez de allí?» en el momento en que se plantean, que es cuando
+sirve de algo.
+
+La altura del centro de gravedad merece atención especial porque gobierna la
+transferencia de carga (capítulo \ref{ch:regimen_estacionario}) y, con ella, el
+agarre disponible. Suele recibir mucha menos atención que la masa total, y en un
+coche de Formula Student unos pocos centímetros de altura pesan tanto como varios
+kilogramos.
+
+\begin{ojo}
+\begin{itemize}
+  \item Actualizar el presupuesto de masa solo un par de veces al año: deja de
+        servir para decidir. Se actualiza cada vez que se libera una pieza.
+  \item Estimar masas «por experiencia» sin apuntar de dónde sale la estimación:
+        cuando falla, no se puede aprender nada.
+  \item Olvidar en la hoja lo que no es una pieza: cableado, líquidos, tornillería,
+        pintura, cinta. Suele ser bastante más de lo que nadie espera.
+  \item Medir el centro de gravedad solo en el plano y no en altura, que es lo
+        que realmente condiciona el comportamiento.
+\end{itemize}
+\end{ojo}
+
+% ---------------------------------------------------------------------
+\section{La simulación de vuelta como árbitro}
+\label{sec:coche_como_sistema:04}
+\index{simulación de vuelta}
+
+Supongamos la discusión clásica: el paquete aerodinámico añade
+\SI{0.9}{\meter\squared} de $\ClA$ y \SI{12}{\kilogram} de masa. ¿Compensa? No
+hay forma de contestar razonando: hay que calcularlo, porque una parte del efecto
+es favorable y otra no, y el resultado depende del trazado, de las velocidades y
+del agarre disponible.
+
+Eso es exactamente lo que hace una simulación de vuelta: convierte un cambio de
+diseño en segundos por vuelta y, a través de la tabla de puntos del capítulo
+\ref{ch:formula_student}, en puntos. Su valor real no está en predecir el tiempo
+absoluto --- eso casi nunca lo acierta --- sino en dar \textbf{sensibilidades}:
+
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+\textbf{Sensibilidad} & \textbf{Unidades} \\
+\midrule
+Segundos por vuelta por kilogramo & \si{\second\per\kilogram} \\
+Segundos por vuelta por unidad de $\ClA$ & \si{\second\per\meter\squared} \\
+Segundos por vuelta por milímetro de altura de $\CdG$ & \si{\second\per\milli\meter} \\
+Segundos por vuelta por punto de coeficiente de agarre & \si{\second} \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+Con esa tabla, la discusión anterior se resuelve con un número. Y, de cara al
+evento de diseño, la respuesta a «¿por qué lleváis alerón?» deja de ser una
+opinión.
+
+Estas sensibilidades son la entrada de los capítulos
+\ref{ch:merece_la_pena_aero} (aerodinámica) y \ref{ch:relacion_transmision}
+(relación de transmisión). Sin ellas, esos dos capítulos se quedan en criterio
+cualitativo.
+
+\begin{clave}
+La simulación de vuelta no sirve para saber cuánto se tarda: sirve para saber
+\textbf{cuánto cambia el tiempo} cuando cambias algo. Un modelo mediocre bien
+entendido da sensibilidades útiles; un modelo excelente sin validar da un número
+absoluto en el que nadie debería confiar.
+\end{clave}
+
+% ---------------------------------------------------------------------
+\section{Interfaces entre subsistemas}
+\label{sec:coche_como_sistema:05}
+\index{interfaces}
+
+Los fallos de integración no ocurren dentro de los subsistemas, sino en las
+fronteras, y aparecen tarde: en el montaje. Se previenen con una tabla de
+interfaces que se acuerda al principio de la temporada y en la que cada línea
+tiene un dueño único.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Interfaz} & \textbf{Dueño} & \textbf{Qué hay que acordar} \\
+\midrule
+Chasis--suspensión & Chasis & Posición y tolerancia de los anclajes \\
+Suspensión--freno--rueda & Suspensión & Espacio libre en la llanta, cotas de buje \\
+Refrigeración--aerodinámica & Aerodinámica & Caudal y superficie de entrada de aire \\
+Chasis--transmisión & Transmisión & Anclajes, alineación y resguardos \\
+Chasis--ergonomía & Ergonomía & Volumen de cockpit, plantillas de reglamento \\
+Electrónica--todos & Electrónica & Recorrido de mazos, sensores, masas \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+La regla práctica es que \textbf{ninguna interfaz puede tener dos dueños}. Si dos
+subsistemas comparten una cota, uno la fija y el otro la consume; y la cota vive
+en el esqueleto del CAD (capítulo \ref{ch:herramientas_cad_datos}), no en la
+cabeza de nadie.
+
+% ---------------------------------------------------------------------
+%  Cierre del capítulo
+% ---------------------------------------------------------------------
+
+\begin{caso}[dónde estamos de verdad]
+Esta temporada el equipo \textbf{no ha trabajado con objetivos de vehículo
+formales}: no se fijó un objetivo de masa, ni de altura de centro de gravedad, ni
+un tiempo por vuelta de referencia, y las decisiones de cada subsistema se han
+tomado con criterio local. Tampoco se ha usado una simulación de vuelta para
+arbitrar entre subsistemas.
+
+Conviene escribirlo tal cual, por dos razones. La primera es que este libro solo
+sirve si es honesto. La segunda es que \emph{es exactamente la pregunta que hacen
+los jueces de diseño}: cómo se decidió el reparto de prioridades del coche. Tener
+clara la respuesta ---incluso cuando la respuesta es «este año no lo hicimos
+así, y estas son las consecuencias que hemos visto»--- puntúa más que improvisar
+una justificación.
+
+El camino para la próxima temporada es el que describe este capítulo, en este orden:
+
+\begin{enumerate}
+  \item Montar el presupuesto de masa con lo que ya existe, aunque sea a
+        posteriori: pesar el coche actual pieza a pieza. Está comprometido y
+        pendiente de hacer; es la base de todo lo demás.
+  \item Medir el centro de gravedad del coche actual, en las tres direcciones.
+  \item Levantar una simulación de vuelta sencilla, aunque sea cuasi-estacionaria
+        (capítulo \ref{ch:simulacion_vuelta}), y sacar las cuatro sensibilidades
+        de la tabla anterior.
+  \item Con esos datos ya sí: fijar los objetivos de la temporada siguiente.
+\end{enumerate}
+
+\redactar{Actualizar este recuadro cuando se completen los pasos anteriores,
+dejando constancia de las cifras reales obtenidas.}
+\end{caso}
+
+\begin{ojo}
+\begin{itemize}
+  \item Fijar objetivos de vehículo copiando los de otro equipo. Un objetivo que
+        el equipo no sabe de dónde sale no se defiende ante un juez ni se cumple.
+  \item Poner objetivos tan holgados que se cumplen solos: no informan de nada.
+  \item Usar la simulación de vuelta para decidir y no validarla nunca contra
+        datos de pista.
+  \item Descubrir las interfaces en el montaje.
+\end{itemize}
+\end{ojo}
+
+\begin{entregable}
+\begin{enumerate}
+  \item La hoja de presupuesto de masa del coche actual, con las columnas de masa
+        estimada, de CAD y pesada.
+  \item La tabla de interfaces con un dueño por línea, acordada y firmada por los
+        responsables de subsistema.
+\end{enumerate}
+\end{entregable}
+
+\begin{juez}
+\begin{enumerate}
+  \item ¿Qué objetivos de vehículo os fijasteis y de dónde salieron esos valores?
+  \item ¿Cuánto pesa el coche y cuánto pensabais que iba a pesar al empezar a
+        diseñarlo?
+  \item ¿Dónde está el centro de gravedad y cómo lo habéis medido?
+  \item ¿Cuántos segundos por vuelta os cuesta cada kilogramo?
+  \item Cuando aerodinámica y refrigeración han pedido el mismo espacio, ¿quién
+        ha decidido y con qué criterio?
+\end{enumerate}
+\end{juez}

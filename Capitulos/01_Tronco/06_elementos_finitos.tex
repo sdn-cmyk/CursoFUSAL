@@ -1,0 +1,317 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Análisis por elementos finitos con criterio
+%  Responsable:
+%  Última revisión:
+% =====================================================================
+\chapter{Análisis por elementos finitos con criterio}
+\label{ch:elementos_finitos}
+
+\begin{objetivos}
+  \item Decidir si un problema merece un FEA o se resuelve más rápido y mejor a
+        mano.
+  \item Reconocer una singularidad numérica y no informar nunca de la tensión que
+        aparece en ella.
+  \item Justificar las condiciones de contorno de un análisis, que es de donde
+        salen la mayoría de los errores.
+  \item Hacer una comprobación manual que confirme o desmienta el resultado.
+  \item Redactar un informe de análisis que otra persona pueda revisar.
+\end{objetivos}
+
+\fichasesion{90 minutos}{Capítulo \ref{ch:mecanica_aplicada}}%
+{Ordenador con el software de simulación y una pieza real del coche}
+
+Un programa de elementos finitos siempre da un resultado, y el resultado siempre
+tiene el mismo aspecto convincente tanto si el modelo está bien planteado como si
+no. La habilidad que hay que adquirir, por tanto, no es hacer correr el análisis,
+sino \emph{saber cuándo el resultado no vale}. \textcite{cook_fea_2001} es la
+referencia de fondo si se quiere entender lo que hay debajo.
+
+% ---------------------------------------------------------------------
+\section{Qué puede y qué no puede decirte un FEA}
+\label{sec:elementos_finitos:01}
+
+\begin{clave}
+Un FEA no analiza tu pieza: analiza \textbf{el modelo que has construido de tu
+pieza}. Si la geometría está simplificada, si las cargas son inventadas o si los
+apoyos no se parecen a la realidad, el resultado es exacto \emph{para un problema
+que no es el tuyo}.
+\end{clave}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}XX@{}}
+\toprule
+\textbf{Bien, y de forma fiable} & \textbf{Mal, o solo con mucho cuidado} \\
+\midrule
+Rigidez y desplazamientos & Tensión máxima absoluta en una entalla \\
+Comparar dos diseños entre sí & Vida a fatiga \\
+Ver por dónde van las cargas & Uniones atornilladas y contactos \\
+Decidir dónde quitar material & Cordones de soldadura \\
+Modos y frecuencias propias & Pandeo, si solo se hace estático lineal \\
+Reacciones en los apoyos & Materiales compuestos \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Dos consecuencias prácticas. La primera: para \textbf{comparar} dos diseños, el
+FEA es excelente aunque el modelo tenga defectos, siempre que los defectos sean
+los mismos en ambos casos. La segunda: para dar un \textbf{número absoluto} que
+va a justificar un coeficiente de seguridad, el listón es mucho más alto y hay
+que verificar y validar.
+
+Y una regla previa a todo lo demás: \textbf{si no sabes aproximadamente qué va a
+salir, no lances el análisis}. Estima antes el orden de magnitud a mano; esa
+estimación es lo que después te permitirá detectar que el resultado es absurdo.
+
+% ---------------------------------------------------------------------
+\section{Mallado y convergencia}
+\label{sec:elementos_finitos:02}
+\index{mallado}\index{convergencia}
+
+\subsection{Elegir el tipo de elemento}
+
+\begin{itemize}
+  \item \textbf{Nunca uses tetraedros de primer orden para calcular tensiones.}
+        Son excesivamente rígidos y dan resultados sistemáticamente bajos. Si el
+        programa ofrece «borrador» o «rápido», normalmente es esto.
+  \item \textbf{Tetraedros de segundo orden} son la opción por defecto razonable
+        para piezas macizas.
+  \item \textbf{Elementos lámina} para todo lo que sea de pared delgada: chapas,
+        laminados, tubos si interesa el detalle local.
+  \item \textbf{Elementos viga} para estructuras tubulares. Un análisis de rigidez
+        torsional de un chasis tubular (capítulo \ref{ch:rigidez_torsional}) se
+        hace con vigas: es más rápido, más limpio de interpretar y más fácil de
+        comprobar a mano que un modelo sólido con cientos de miles de elementos.
+\end{itemize}
+
+\subsection{El estudio de convergencia}
+
+Un resultado sin estudio de convergencia no es un resultado. El procedimiento es
+mecánico:
+
+\begin{enumerate}
+  \item Elige la magnitud que te interesa: un desplazamiento, una tensión en un
+        punto concreto, una reacción.
+  \item Resuelve con tres o cuatro tamaños de malla decrecientes.
+  \item Representa esa magnitud frente al número de grados de libertad.
+  \item Si la curva se aplana, has convergido: quédate con la malla a partir de
+        la cual el cambio es menor que un umbral que tú fijas (por ejemplo
+        \SI{2}{\percent}).
+  \item \textbf{Si la curva no se aplana y sigue creciendo, no es un problema de
+        malla: es una singularidad.}
+\end{enumerate}
+
+\subsection{Singularidades}
+\index{singularidad}
+
+En una arista viva entrante, en una carga puntual o en un apoyo puntual, la
+tensión teórica es infinita. Al refinar la malla, la tensión que informa el
+programa crece sin parar y nunca converge. No es un fallo del programa: la
+solución exacta del \emph{modelo} es infinita ahí.
+
+\begin{ojo}
+Informar de la tensión máxima que aparece en una arista viva es un error que un
+juez detecta nada más ver la imagen. La respuesta correcta a «¿cuál es la tensión
+máxima?» empieza por «esa zona es una singularidad; el valor que doy es el de
+aquí, a esta distancia, y esta es la razón».
+\end{ojo}
+
+Qué hacer cuando aparece una:
+
+\begin{itemize}
+  \item \textbf{Modelar el radio de acuerdo real.} Casi siempre la pieza no tiene
+        una arista viva: la tiene el modelo, porque alguien la simplificó.
+  \item \textbf{Repartir la carga o el apoyo} en una superficie en lugar de en un
+        punto o una arista.
+  \item \textbf{Evaluar la tensión a una distancia} de la singularidad, indicando
+        cuál, si el detalle local no es lo que se está estudiando.
+  \item \textbf{Cambiar de magnitud}: si lo que importa es la rigidez, usa el
+        desplazamiento, que converge mucho antes y no tiene este problema.
+\end{itemize}
+
+% ---------------------------------------------------------------------
+\section{Condiciones de contorno}
+\label{sec:elementos_finitos:03}
+\index{condiciones de contorno}
+
+Aquí es donde se pierden los análisis. La geometría suele estar bien y el
+material también; lo que casi nunca se parece a la realidad es cómo se ha sujetado
+y cargado la pieza.
+
+\subsection{Sobrerrestricción}
+
+Empotrar una cara entera porque «ahí va atornillada» añade una rigidez que no
+existe y genera tensiones enormes justo en el borde del empotramiento, que además
+son falsas. La pieza real está sujeta por unos tornillos que permiten cierto giro
+y cierto deslizamiento.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}XX@{}}
+\toprule
+\textbf{En lugar de} & \textbf{Haz} \\
+\midrule
+Empotrar la cara de apoyo completa & Restringir solo lo necesario para evitar
+movimiento de sólido rígido \\
+Empotrar el agujero de un tornillo & Un punto remoto acoplado al agujero, o una
+carga tipo apoyo distribuida \\
+Fijar un nodo para «quitar el sólido rígido» & Alivio inercial, o tres
+restricciones mínimas bien colocadas \\
+Contacto pegado en toda la unión & Modelar el contacto real, o justificar por qué
+pegado es conservador \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Simetría}
+
+Solo se puede usar simetría cuando \textbf{son simétricas las tres cosas}:
+geometría, cargas y apoyos. Un caso de carga en curva no es simétrico. Un caso de
+frenada en recta sí puede serlo. Aprovechar la simetría cuando no la hay elimina
+del modelo justo la parte de la carga que descompensa la pieza.
+
+\subsection{Las cargas vienen de algún sitio}
+
+Las fuerzas de un análisis no se eligen: salen de los casos de carga definidos en
+el capítulo \ref{ch:casos_carga}, que a su vez salen de la dinámica del vehículo.
+Un análisis con cargas «razonables» inventadas por quien lo hace no demuestra
+nada, y en el evento de diseño la primera pregunta después de ver la imagen
+siempre es de dónde sale ese número.
+
+% ---------------------------------------------------------------------
+\section{Verificación con cálculo manual}
+\label{sec:elementos_finitos:04}
+\index{verificación}
+
+Antes de creerte un resultado, tres comprobaciones que cuestan poco:
+
+\begin{enumerate}
+  \item \textbf{Equilibrio.} La suma de las reacciones tiene que dar la suma de
+        las cargas aplicadas, en las tres direcciones. Si no cuadra, hay una carga
+        o un apoyo donde no debía.
+  \item \textbf{Orden de magnitud a mano.} Simplifica la pieza a una viga, un
+        tubo o una placa y aplica las fórmulas del capítulo
+        \ref{ch:mecanica_aplicada}. Si el FEA y la mano difieren en un factor 2,
+        puede ser la geometría; si difieren en un factor 10, hay un error.
+  \item \textbf{Un caso conocido con la misma configuración.} Resuelve una viga
+        en voladizo con tu mismo tipo de elemento, tu mismo mallado y tu mismo
+        tipo de apoyo, y compárala con la solución analítica. Si eso no sale, lo
+        demás tampoco.
+\end{enumerate}
+
+\begin{clave}
+Conviene distinguir dos cosas que se confunden constantemente:
+\textbf{verificación} es comprobar que estás resolviendo bien las ecuaciones
+(malla, convergencia, equilibrio); \textbf{validación} es comprobar que las
+ecuaciones que resuelves describen la realidad, y eso solo se hace midiendo la
+pieza real. El banco de rigidez torsional del capítulo
+\ref{ch:rigidez_torsional} es validación; un estudio de convergencia es
+verificación. Hacen falta las dos.
+\end{clave}
+
+% ---------------------------------------------------------------------
+\section{Cómo se documenta un análisis}
+\label{sec:elementos_finitos:05}
+
+Un análisis que no está documentado no se puede revisar, no se puede defender
+ante un juez y no sirve el año que viene. El formato es una página, y siempre la
+misma:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Apartado} & \textbf{Qué contiene} \\
+\midrule
+Objetivo & Qué decisión de diseño depende de este análisis \\
+Geometría & Modelo usado y \emph{qué se ha simplificado y por qué} \\
+Material & Designación y de dónde salen las propiedades \\
+Caso de carga & Valores y referencia al documento del que salen \\
+Contorno & Apoyos y cargas, con su justificación física \\
+Malla & Tipo de elemento, tamaño y \textbf{estudio de convergencia} \\
+Resultados & Magnitudes de interés, con leyenda y unidades \\
+Comprobación & El cálculo manual y su comparación \\
+Conclusión & Coeficiente de seguridad y \textbf{qué se cambia en el diseño} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Sobre las imágenes: llevan leyenda con escala y unidades, la escala no puede estar
+autoajustada al valor de una singularidad, y si el desplazamiento está amplificado
+hay que decir por cuánto. Sin esos tres datos, la imagen no se puede interpretar.
+
+% ---------------------------------------------------------------------
+%  Cierre del capítulo
+% ---------------------------------------------------------------------
+
+\begin{caso}[con qué calculamos]
+El equipo está aprendiendo \textbf{Ansys}, y hasta ahora los análisis se han
+hecho con los módulos de simulación integrados en \textbf{Fusion 360} y
+\textbf{SolidWorks}. Conviene saber qué implica cada opción:
+
+\begin{itemize}
+  \item Los módulos integrados en el CAD son cómodos porque la geometría ya está
+        ahí, pero dan poco control sobre el tipo de elemento, el mallado y los
+        apoyos, y aplican valores por defecto que no siempre se ven. Sirven para
+        comparar alternativas; cuesta más justificar con ellos un número absoluto.
+  \item Ansys da ese control, y es la razón por la que merece la pena el esfuerzo
+        de aprenderlo: permite elegir el orden del elemento y hacer de verdad el
+        estudio de convergencia del apartado
+        \ref{sec:elementos_finitos:02}.
+\end{itemize}
+
+Dos reglas mientras conviven las tres herramientas:
+
+\begin{enumerate}
+  \item \textbf{Cada persona resuelve el caso de referencia en la herramienta que
+        vaya a usar} antes de analizar nada del coche. Es la única forma de saber
+        qué hacen los valores por defecto de tu programa.
+  \item \textbf{No se comparan resultados obtenidos con programas distintos} para
+        decidir entre dos diseños: estarías comparando las herramientas, no los
+        diseños. Una comparación se hace siempre con el mismo montaje.
+\end{enumerate}
+
+\redactar{Añadir aquí, cuando exista, un análisis real completo siguiendo la
+plantilla del apartado \ref{sec:elementos_finitos:05}. Lo ideal es uno en el que
+el resultado obligara a cambiar el diseño, y mejor todavía si se pudo contrastar
+con una pieza rota o con una medida.}
+\end{caso}
+
+\begin{ojo}
+\begin{itemize}
+  \item Informar de la tensión máxima en una arista viva.
+  \item Decir «ha convergido» refiriéndose a que el solver terminó, no a que la
+        malla esté convergida. Son cosas distintas.
+  \item Comparar dos diseños con mallas diferentes: la diferencia que ves puede
+        ser solo la malla.
+  \item Dar un coeficiente de seguridad contra un caso de carga que nadie ha
+        definido por escrito.
+  \item Comprobar el límite elástico en una pieza cuyo problema real es la
+        rigidez o el pandeo.
+  \item Mallar más fino para «afinar el resultado» sin comprobar si lo que hay
+        debajo es una singularidad.
+  \item Enseñar la imagen deformada con factor \num{200} sin decirlo.
+\end{itemize}
+\end{ojo}
+
+\begin{entregable}
+\begin{enumerate}
+  \item La \textbf{plantilla de informe de análisis} del equipo, con los nueve
+        apartados de la tabla anterior.
+  \item Un \textbf{caso de referencia resuelto} (viga en voladizo) con la
+        configuración habitual del equipo, contrastado con la solución analítica,
+        guardado para que cualquiera pueda comprobar su montaje.
+  \item El \textbf{checklist de revisión de un FEA}, que usa el revisor antes de
+        dar por bueno un análisis ajeno.
+\end{enumerate}
+\end{entregable}
+
+\begin{juez}
+\begin{enumerate}
+  \item ¿De dónde salen las cargas de este análisis?
+  \item ¿Cómo has sujetado la pieza en el modelo y por qué se parece eso a la
+        realidad?
+  \item ¿Has hecho estudio de convergencia? Enséñamelo.
+  \item Esa tensión máxima está en una arista viva. ¿Qué significa ese número?
+  \item ¿Con qué has comprobado que este resultado es correcto?
+  \item ¿Qué has cambiado en el diseño después de este análisis?
+\end{enumerate}
+\end{juez}

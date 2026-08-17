@@ -1,0 +1,545 @@
+% !TeX root = ../../main.tex
+% =====================================================================
+%  Herramientas de trabajo: CAD, datos y versiones
+%  Responsable:
+%  Última revisión:
+% =====================================================================
+\chapter{Herramientas de trabajo: CAD, datos y versiones}
+\label{ch:herramientas_cad_datos}
+
+\begin{objetivos}
+  \item Montar el ensamblaje maestro del coche y explicar por qué ningún
+        subsistema referencia directamente a otro.
+  \item Definir el sistema de coordenadas del coche y la transformación al
+        convenio de dinámica vehicular.
+  \item Asignar correctamente un código a cualquier pieza, conjunto, componente
+        comercial o utillaje del coche.
+  \item Distinguir cuándo un cambio es una revisión y cuándo es una pieza nueva.
+  \item Preparar un paquete de fabricación que un taller externo pueda ejecutar
+        sin llamarte por teléfono.
+\end{objetivos}
+
+\fichasesion{90 minutos}{Capítulo \ref{ch:coche_como_sistema}}%
+{Ordenador con el CAD del equipo instalado y acceso al servidor}
+
+Este capítulo no va de aprender a usar el CAD. Va de las convenciones que hacen
+que el trabajo de quince personas durante nueve meses siga siendo utilizable
+cuando ninguna de esas quince siga en el equipo. Es, junto con el capítulo
+\ref{ch:documentacion_traspaso}, el que más directamente sirve al propósito de
+este libro.
+
+\subsection*{Nuestras herramientas}
+
+El equipo diseña en \textbf{Fusion 360}, con la intención de pasar a
+\textbf{SolidWorks} más adelante. Eso condiciona tres cosas de este capítulo:
+
+\begin{itemize}
+  \item \textbf{Las convenciones de este capítulo son independientes de la
+        herramienta, y eso es deliberado.} Los códigos viven en el campo
+        \emph{Part Number} del componente y en el nombre del fichero, no en una
+        función propia de un programa. Si un día se cambia de CAD, los códigos, la
+        estructura de carpetas y el registro de piezas siguen valiendo.
+  \item \textbf{Fusion resuelve por defecto parte del apartado
+        \ref{sec:herramientas_cad_datos:04}}: guarda el histórico de versiones de
+        cada fichero y centraliza los datos en la nube. Lo que \emph{no} resuelve
+        solo es la organización: los permisos por carpeta, quién es responsable de
+        qué y las congelaciones de hitos hay que montarlos igual.
+  \item \textbf{La migración no es gratis.} Al pasar geometría de un CAD a otro
+        por un formato neutro tipo STEP viaja el sólido, pero no el árbol de
+        operaciones: en el programa de destino aparece una pieza que no se puede
+        editar paramétricamente. Por eso una migración se hace al empezar un coche
+        nuevo, remodelando, y no a mitad de temporada.
+\end{itemize}
+
+\pendiente{Cuando se cierre la decisión sobre SolidWorks, añadir aquí las
+instrucciones concretas de cada programa: plantillas de pieza y de plano, cómo se
+rellenan las propiedades y cómo se exporta la lista de materiales.}
+
+% ---------------------------------------------------------------------
+\section{Estructura del ensamblaje maestro}
+\label{sec:herramientas_cad_datos:01}
+\index{ensamblaje maestro}
+
+Todo el coche cuelga de un único ensamblaje de nivel superior, y por debajo hay
+exactamente un nivel de conjuntos de subsistema:
+
+\begin{center}
+\begin{minipage}{0.8\textwidth}
+\ttfamily\small
+FS26-GEN-A000\quad coche completo\\
+\hspace*{1em}FS26-GEN-S001\quad esqueleto (referencia de todos)\\
+\hspace*{1em}FS26-CHS-A000\quad conjunto chasis\\
+\hspace*{1em}FS26-SUS-A000\quad conjunto suspensión\\
+\hspace*{2em}FS26-SUS-A001\quad esquina delantera izquierda\\
+\hspace*{2em}FS26-SUS-A002\quad esquina delantera derecha\\
+\hspace*{1em}FS26-AER-A000\quad conjunto aerodinámica\\
+\hspace*{1em}\ldots
+\end{minipage}
+\end{center}
+
+Y una única regla, que es la más importante de todo el capítulo:
+
+\begin{clave}
+\textbf{Ningún subsistema referencia geometría de otro subsistema.} Todas las
+referencias externas van contra el esqueleto, y solo contra el esqueleto. Si la
+mangueta necesita saber dónde está el anclaje del trapecio, ese punto está en el
+esqueleto; no se coge del chasis.
+\end{clave}
+
+El motivo es práctico: en cuanto un modelo referencia a otro, abrir una pieza
+obliga a cargar medio coche, un cambio en el chasis puede romper silenciosamente
+la suspensión, y dos personas no pueden trabajar a la vez. Con el esqueleto como
+único punto de contacto, cada subsistema es independiente y los cambios que
+afectan a todos pasan por un sitio en el que se ven.
+
+% ---------------------------------------------------------------------
+\section{Esqueleto y puntos duros}
+\label{sec:herramientas_cad_datos:02}
+\index{esqueleto}\index{puntos duros}
+
+El esqueleto (\texttt{FS26-GEN-S001}) es una pieza sin volumen que contiene solo
+geometría de referencia. Es el contrato entre subsistemas hecho fichero.
+
+\subsection{Sistema de coordenadas}
+
+Antes que nada hay que fijar el origen y la orientación de los ejes, escribirlo,
+y no volver a discutirlo:
+
+\begin{itemize}
+  \item \textbf{Origen}: intersección del plano de simetría del coche, el plano
+        del suelo y el eje delantero (centro de las ruedas delanteras proyectado
+        al suelo), con el coche a la altura de marcha de diseño.
+  \item \textbf{$X$} positivo hacia atrás. Así la batalla y las posiciones
+        longitudinales son números positivos crecientes hacia la cola.
+  \item \textbf{$Y$} positivo hacia la derecha del piloto.
+  \item \textbf{$Z$} positivo hacia arriba.
+\end{itemize}
+
+\begin{ojo}
+El convenio de ejes del CAD \textbf{no} coincide con el convenio SAE que se usa
+en dinámica vehicular (véase la nomenclatura), donde $Z$ apunta hacia abajo, lo
+que provoca errores de signo al pasar cargas de un sitio a otro.
+La transformación entre ambos se escribe \emph{una vez}, en la nomenclatura de
+este libro, y se aplica siempre desde ahí. Nunca «a ojo».
+\end{ojo}
+
+\subsection{Contenido del esqueleto}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Elemento} & \textbf{Qué incluye} \\
+\midrule
+Planos de referencia & Simetría, suelo, eje delantero, eje trasero \\
+Cotas maestras & Batalla, vías delantera y trasera, altura de marcha de diseño \\
+Centros de rueda & Los cuatro, en posición de diseño \\
+Puntos duros de suspensión & Todos los anclajes, chasis y mangueta (capítulo \ref{ch:puntos_duros}) \\
+Referencia del piloto & Punto del asiento, plantillas de reglamento \\
+Volúmenes reservados & Espacios que un subsistema no puede invadir \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Los volúmenes reservados merecen una mención: son cajas sin más significado que
+«aquí no entra nadie más». Reservar desde el principio el volumen del radiador,
+el del acumulador o el del recorrido del mazo evita la mitad de los conflictos
+de integración del capítulo \ref{ch:coche_como_sistema}.
+
+\subsection{Quién puede tocarlo}
+
+El esqueleto tiene \textbf{un único responsable} con permiso de escritura ---
+normalmente el responsable de integración o el de chasis. Cualquier cambio en él
+afecta a todo el coche, así que se comunica al equipo entero y se anota con
+fecha y motivo. Un cambio de punto duro que no se comunica se acaba descubriendo
+en el montaje, con las piezas ya fabricadas.
+
+% ---------------------------------------------------------------------
+\section{Nomenclatura y numeración de piezas}
+\label{sec:herramientas_cad_datos:03}
+\index{nomenclatura}\index{codificación de piezas}
+
+\subsection{Anatomía del código}
+
+Toda pieza, conjunto, componente comprado y utillaje del coche tiene un código
+con esta forma:
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[
+    font=\sffamily\footnotesize,
+    bloque/.style={anchor=west,inner xsep=0pt,inner ysep=2.5pt,outer sep=0pt,
+                   font=\ttfamily\LARGE},
+    etiq/.style={anchor=north,align=center,text width=2.2cm,fusalPrim},
+    guia/.style={fusalGris,thin}]
+  % El código, encadenado para que no haya huecos entre grupos
+  \node[bloque] (g1) at (0,0)      {FS26};
+  \node[bloque] (g2) at (g1.east)  {-};
+  \node[bloque] (g3) at (g2.east)  {SUS};
+  \node[bloque] (g4) at (g3.east)  {-};
+  \node[bloque] (g5) at (g4.east)  {P};
+  \node[bloque] (g6) at (g5.east)  {014};
+
+  % Etiquetas, repartidas para que no se solapen
+  \node[etiq] (e1) at (-0.9,-1.5) {\textbf{Proyecto}\\coche y temporada};
+  \node[etiq] (e2) at ( 1.4,-1.5) {\textbf{Subsistema}\\3 letras, lista cerrada};
+  \node[etiq] (e3) at ( 3.7,-1.5) {\textbf{Tipo}\\1 letra};
+  \node[etiq] (e4) at ( 6.0,-1.5) {\textbf{Secuencial}\\3 dígitos};
+
+  \draw[guia] (g1.south) -- ++(0,-0.35) -- (e1.north);
+  \draw[guia] (g3.south) -- ++(0,-0.35) -- (e2.north);
+  \draw[guia] (g5.south) -- ++(0,-0.35) -- (e3.north);
+  \draw[guia] (g6.south) -- ++(0,-0.35) -- (e4.north);
+\end{tikzpicture}
+\caption{Anatomía del código de pieza. Trece caracteres, legibles por teléfono y
+ordenables en el explorador de archivos.}
+\label{fig:anatomia_codigo}
+\end{figure}
+
+\begin{clave}
+El código \textbf{identifica}, no describe. Nunca se codifica en él nada que
+pueda cambiar sin que cambie la pieza: material, proveedor, masa, autor o fecha.
+Todo eso vive en las propiedades del modelo, donde se puede corregir sin
+renumerar medio coche.
+\end{clave}
+
+\subsection{Códigos de subsistema}
+
+Lista cerrada. Si hace falta uno nuevo, se añade aquí y se comunica; no se
+improvisa.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Código} & \textbf{Subsistema} & \textbf{Alcance} \\
+\midrule
+\ttfamily GEN & General        & Esqueleto, conjunto general, tornillería propia, misceláneo \\
+\ttfamily CHS & Chasis         & Estructura primaria, anclajes, atenuador, mamparos \\
+\ttfamily SUS & Suspensión     & Trapecios, manguetas, bujes, balancines, tirantes, muelles, amortiguadores, barras \\
+\ttfamily DIR & Dirección      & Cremallera, columna, volante, bieletas \\
+\ttfamily FRE & Frenos         & Discos, pinzas, bombas, pedalera de freno, conductos \\
+\ttfamily RUE & Ruedas         & Llantas, neumáticos, tuercas y centros de rueda \\
+\ttfamily AER & Aerodinámica   & Alerones, fondo, difusor, carrocería, soportes \\
+\ttfamily REF & Refrigeración  & Radiadores, ventiladores, conductos, bomba, circuito \\
+\ttfamily TRA & Transmisión    & Reductora, diferencial, palieres, cadena o correa, resguardos \\
+\ttfamily MOT & Motor          & Grupo motopropulsor y sus soportes \\
+\ttfamily ACU & Acumulador     & Celdas, contenedor, refrigeración de batería (vehículos eléctricos) \\
+\ttfamily ELE & Electrónica    & Placas, cajas, sensores, mazos \\
+\ttfamily ERG & Ergonomía      & Asiento, pedalera, reposacabezas, arneses, cockpit \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\pendiente{Revisar esta lista con los responsables de subsistema y cerrarla antes
+de empezar a modelar. Cambiarla a mitad de temporada cuesta mucho más de lo que parece.}
+
+\subsection{Letras de tipo}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}clX@{}}
+\toprule
+\textbf{Letra} & \textbf{Tipo} & \textbf{Uso} \\
+\midrule
+\ttfamily A & Conjunto & Ensamblajes. El \ttfamily A000 \normalfont de cada subsistema es su conjunto principal \\
+\ttfamily P & Pieza    & Piezas que fabricamos nosotros o encargamos fabricar según plano \\
+\ttfamily C & Comercial & Componentes comprados de catálogo \\
+\ttfamily U & Utillaje & Moldes, plantillas, útiles de soldadura, bancos de ensayo \\
+\ttfamily S & Simulación & Geometría de referencia, maquetas y volúmenes reservados. No se fabrica \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+El secuencial son tres dígitos, empieza en \texttt{001} y es independiente para
+cada combinación de subsistema y tipo. Es decir, pueden coexistir
+\texttt{FS26-SUS-P014} y \texttt{FS26-SUS-C014}: son cosas distintas y no se
+confunden porque la letra los separa.
+
+\subsection{Las seis reglas de numeración}
+
+\begin{enumerate}
+  \item \textbf{Un número no se reutiliza nunca}, ni aunque la pieza se abandone.
+        Reutilizarlo hace que dos documentos distintos digan cosas distintas del
+        mismo código.
+  \item \textbf{Izquierda y derecha son dos códigos distintos.} Aunque sean
+        espejo, son dos piezas que se fabrican, se compran y se cuestan por
+        separado, y así deben aparecer en el BOM. La relación de simetría se anota
+        en las propiedades.
+  \item \textbf{Los componentes comerciales también llevan código nuestro}, del
+        tipo \texttt{C}. La referencia del fabricante va en las propiedades: así,
+        cambiar de proveedor no obliga a tocar el diseño.
+  \item \textbf{Si la pieza nueva es intercambiable con la vieja, es una
+        revisión.} Si no lo es, es un código nuevo. Esta es la única prueba que
+        hay que aplicar, y se aplica preguntando: ¿puedo montar la nueva donde
+        estaba la vieja y que el coche funcione igual?
+  \item \textbf{El código se asigna al crear el fichero}, no al terminarlo. Una
+        pieza sin código no existe y no se puede referenciar.
+  \item \textbf{El registro de códigos es único y compartido.} Una hoja con una
+        fila por código, y quien asigna el siguiente lo anota en el momento. Sin
+        ese registro aparecen números duplicados en cuanto trabajan dos personas
+        a la vez.
+\end{enumerate}
+
+\subsection{Nombres de fichero}
+
+El nombre del fichero es el código, un guion bajo, y una descripción corta:
+
+\begin{center}
+\ttfamily\large FS26-SUS-P014\_trapecio-del-sup-izq.\textrm{\itshape ext}
+\end{center}
+
+Reglas de la parte descriptiva:
+
+\begin{itemize}
+  \item Minúsculas, sin acentos, sin eñes, sin espacios. Separador: guion.
+  \item Corta: unos 30 caracteres. Es una etiqueta, no una frase.
+  \item Abreviaturas fijas para la posición: \texttt{del}/\texttt{tra},
+        \texttt{sup}/\texttt{inf}, \texttt{izq}/\texttt{der}, en ese orden.
+\end{itemize}
+
+\begin{ojo}
+Lo que \textbf{nunca} aparece en el nombre de un fichero:
+
+\begin{center}
+\ttfamily\small
+trapecio\_v2.ext \quad trapecio\_FINAL.ext \quad trapecio\_final\_bueno.ext\\
+trapecio\_2026-03-14.ext \quad trapecio\_JL.ext \quad trapecio\_OK\_este\_si.ext
+\end{center}
+
+\noindent
+La versión, la fecha y el autor los guarda el sistema de archivos y el control de
+versiones, y los guarda bien. Escritos en el nombre, lo único que consiguen es que
+dentro de unos meses nadie sepa cuál es el fichero bueno.
+\end{ojo}
+
+\subsection{Revisiones y estados}
+\index{revisiones}
+
+La revisión es una letra: \texttt{A} para la primera versión liberada,
+\texttt{B} para la siguiente, y así. \textbf{Solo hay revisiones después de la
+primera liberación}: mientras la pieza se está diseñando no se revisa, se
+modifica.
+
+Cada pieza tiene además un estado, y el estado decide qué se puede hacer con ella:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Estado} & \textbf{Significado} & \textbf{¿Se fabrica?} \\
+\midrule
+En diseño   & Trabajo en curso. Puede cambiar en cualquier momento & No \\
+En revisión & Terminada, pendiente de que la revise otra persona & No \\
+Liberada    & Revisada y aprobada. Plano firmado & \textbf{Sí} \\
+Obsoleta    & Sustituida o abandonada. Se conserva, no se borra & No \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+Al taller solo va material \textbf{liberado}, y liberar exige que lo haya revisado
+alguien que no sea el autor. Cuesta unos minutos y detecta errores que el autor ya
+no ve.
+\end{clave}
+
+Cuando una pieza liberada cambia, la revisión sube una letra, se anota en la
+tabla de revisiones del plano (qué cambió y por qué) y \emph{se avisa a quien
+tenga la revisión anterior en la mano}: si no, seguirá trabajando con un plano
+obsoleto sin saberlo.
+
+\subsection{Propiedades obligatorias del modelo}
+\index{propiedades del modelo}
+
+Cada pieza lleva rellenas estas propiedades personalizadas. No es burocracia: son
+las que alimentan automáticamente el cajetín del plano, la lista de materiales y
+el informe de costes del capítulo \ref{ch:evento_costes}. Rellenarlas al crear la
+pieza cuesta un minuto; reconstruirlas en junio para el informe de costes cuesta
+semanas.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Propiedad} & \textbf{Contenido} & \textbf{Obligatoria} \\
+\midrule
+\ttfamily CODIGO        & Código completo de la pieza. En Fusion, el campo
+                          \emph{Part Number} del componente & Sí \\
+\ttfamily DENOMINACION  & Nombre en castellano, como aparece en el plano.
+                          En Fusion, \emph{Description} & Sí \\
+\ttfamily ESTADO        & En diseño / en revisión / liberada / obsoleta & Sí \\
+\ttfamily REVISION      & Letra de revisión & Sí \\
+\ttfamily AUTOR         & Quien la diseña & Sí \\
+\ttfamily REVISOR       & Quien la aprueba al liberarla & Al liberar \\
+\ttfamily FECHA         & Fecha de liberación & Al liberar \\
+\ttfamily MATERIAL      & Designación normalizada, no «aluminio» & Sí \\
+\ttfamily MASA          & Calculada por el CAD & Automática \\
+\ttfamily PROCESO       & Mecanizado, soldadura, laminado, impresión\ldots & Sí \\
+\ttfamily CANTIDAD      & Unidades por coche & Sí \\
+\ttfamily PROVEEDOR     & Solo para comerciales y subcontratados & Si aplica \\
+\ttfamily REF\_PROVEEDOR & Referencia de catálogo del fabricante & Si aplica \\
+\ttfamily TRATAMIENTO   & Térmico o superficial, si lo lleva & Si aplica \\
+\ttfamily SUBSISTEMA    & Para agrupar el BOM & Sí \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Carpetas}
+
+\begin{center}
+\begin{minipage}{0.8\textwidth}
+\ttfamily\small
+FS26\_CAD/\\
+\hspace*{1em}00\_GEN/\quad esqueleto, conjunto general, biblioteca de tornillería\\
+\hspace*{1em}01\_CHS/\\
+\hspace*{2em}Piezas/\\
+\hspace*{2em}Conjuntos/\\
+\hspace*{2em}Comerciales/\\
+\hspace*{2em}Planos/\\
+\hspace*{2em}Fabricacion/\quad paquetes listos para taller (PDF + STEP + DXF)\\
+\hspace*{1em}02\_SUS/\quad\textrm{(misma estructura)}\\
+\hspace*{1em}\ldots\\
+\hspace*{1em}98\_Obsoleto/\quad nada se borra, todo se mueve aquí\\
+\hspace*{1em}99\_Congelaciones/\quad copias de solo lectura de cada hito
+\end{minipage}
+\end{center}
+
+% ---------------------------------------------------------------------
+\section{Control de versiones y copias de seguridad}
+\label{sec:herramientas_cad_datos:04}
+\index{copias de seguridad}
+
+El CAD de un coche es el activo más valioso que produce el equipo y el más fácil
+de perder. Las reglas son pocas y no admiten excepción:
+
+\begin{enumerate}
+  \item \textbf{Hay un único original, y está en el servidor del equipo.} Lo que
+        hay en un portátil es una copia de trabajo, nunca la referencia. Un
+        proyecto que vive en el ordenador de alguien se pierde el día que esa
+        persona se va, y se va siempre.
+  \item \textbf{Una carpeta, un responsable con permiso de escritura.} Los demás
+        leen. Si alguien necesita modificar una pieza que no es suya, se la pide
+        a su responsable.
+  \item \textbf{Nadie abre el mismo fichero desde dos sitios.} Si el CAD no tiene
+        gestor de datos que bloquee ficheros, se suple con una hoja compartida de
+        control: quién tiene qué abierto y desde cuándo. Es rudimentario y funciona.
+  \item \textbf{Copia de seguridad automática diaria}, conservando al menos
+        treinta días. Automática: lo que depende de que alguien se acuerde no es
+        una copia de seguridad.
+  \item \textbf{Congelación en cada hito.} Al cerrar el diseño de un subsistema se
+        guarda una copia completa de \emph{solo lectura} en
+        \texttt{99\_Congelaciones/}, con el nombre
+        \texttt{FS26\_congelacion\_2026-02-15}. Es la única forma de poder
+        contestar dentro de un año a «¿qué mandamos a fabricar exactamente?».
+  \item \textbf{Al terminar la temporada, archivo completo del coche tal y como
+        se fabricó}, incluyendo planos, paquetes de fabricación y el registro de
+        códigos. Ese archivo es el que se consultará dentro de tres años, y por
+        entonces no quedará nadie a quien preguntar.
+\end{enumerate}
+
+\begin{ojo}
+\begin{itemize}
+  \item Trabajar con el CAD en una carpeta sincronizada a la nube y abierta desde
+        dos ordenadores a la vez. Las herramientas de sincronización resuelven los
+        conflictos duplicando ficheros, y en un ensamblaje eso rompe las
+        referencias sin avisar.
+  \item Confundir sincronización con copia de seguridad. Si borras una carpeta,
+        la nube sincroniza el borrado obedientemente.
+  \item Guardar las congelaciones con permiso de escritura. Acaban modificadas.
+\end{itemize}
+\end{ojo}
+
+% ---------------------------------------------------------------------
+\section{Planos, acotación y entrega a taller}
+\label{sec:herramientas_cad_datos:05}
+\index{planos}
+
+\subsection{El plano es el contrato}
+
+Lo que no está en el plano no existe. El taller no sabe lo que tenías en la
+cabeza, no va a abrir tu modelo y, si algo es ambiguo, elegirá la interpretación
+más barata de fabricar --- que es lo correcto por su parte.
+
+\begin{itemize}
+  \item \textbf{Formato A3} por defecto, con cajetín rellenado automáticamente
+        desde las propiedades del modelo.
+  \item \textbf{Acotación funcional}: se acota desde la superficie que define la
+        función de la pieza, no desde la esquina que resultaba cómoda. Las
+        referencias de acotación deben coincidir con las de montaje.
+  \item \textbf{Tolerancia general} indicada en el cajetín (por ejemplo
+        ISO 2768-mK) y tolerancias estrechas \emph{solo} donde importan. Cada
+        tolerancia apretada es dinero y tiempo de máquina; si están todas
+        apretadas, en realidad no has decidido ninguna.
+  \item \textbf{Acabado superficial} solo donde tenga función.
+  \item \textbf{Tabla de revisiones} en el plano, con fecha y motivo de cada una.
+\end{itemize}
+
+\subsection{Paquete de fabricación}
+
+Cada pieza que va a taller se entrega como un paquete completo en
+\texttt{Fabricacion/}, con el código y la revisión en el nombre:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Fichero} & \textbf{Para qué} \\
+\midrule
+\ttfamily \ldots\_planoB.pdf  & El plano firmado. Es el documento contractual \\
+\ttfamily \ldots\_revB.step   & Geometría neutra para programar la máquina \\
+\ttfamily \ldots\_revB.dxf    & Solo para corte plano: láser, agua, plegado \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+A un proveedor externo se le envía \textbf{siempre} STEP y PDF, nunca el fichero
+nativo del CAD. El nativo lleva el histórico de operaciones, las relaciones con el
+resto del coche y a menudo información que no queremos repartir; además obliga al
+proveedor a tener nuestro mismo programa y versión.
+\end{clave}
+
+% ---------------------------------------------------------------------
+%  Cierre del capítulo
+% ---------------------------------------------------------------------
+
+\begin{caso}
+\redactar{Rellenar con la situación real: qué CAD usamos, dónde vive el modelo
+hoy, si existe esqueleto, qué convenio de códigos veníamos usando y qué se ha
+perdido de temporadas anteriores. Conviene ser explícito sobre lo que no
+tenemos: es lo que justifica adoptar este capítulo.}
+\end{caso}
+
+\begin{ojo}
+\begin{itemize}
+  \item Empezar a modelar antes de tener el esqueleto. Se acaba rehaciendo todo.
+  \item Referenciar geometría de otro subsistema «solo esta vez».
+  \item Dejar las propiedades del modelo para el final: en junio, cuando hay que
+        entregar el informe de costes, ya no hay quien las reconstruya.
+  \item Numerar por orden de fabricación en lugar de por subsistema y tipo.
+  \item Enviar a taller un plano de una pieza que no está liberada.
+  \item Tolerar en el plano cotas que no se pueden medir con lo que hay en el
+        equipo. Si no la puedes verificar, no la puedes exigir.
+\end{itemize}
+\end{ojo}
+
+\begin{entregable}
+La \textbf{guía de estándares CAD del equipo}, que es este capítulo con las
+decisiones concretas tomadas:
+
+\begin{enumerate}
+  \item Tabla de códigos de subsistema cerrada y aprobada por los responsables.
+  \item Fichero de esqueleto creado, con el sistema de coordenadas documentado y
+        la transformación al convenio SAE escrita.
+  \item Plantilla de pieza y de plano con las propiedades obligatorias y el
+        cajetín ya enlazado.
+  \item Estructura de carpetas creada en el servidor, con permisos asignados.
+  \item Registro de códigos abierto, con un responsable de asignación.
+\end{enumerate}
+\end{entregable}
+
+\begin{juez}
+\begin{enumerate}
+  \item ¿Cómo os aseguráis de que el modelo que está en el taller es el mismo que
+        el que habéis analizado?
+  \item Enséñame el plano de esta pieza. ¿Por qué está acotada desde ahí?
+  \item ¿Por qué esta tolerancia es tan estrecha? ¿Cómo la verificáis?
+  \item ¿Qué pasa cuando cambiáis un punto duro de la suspensión? ¿Quién se entera?
+  \item Si tu compañero de subsistema deja el equipo mañana, ¿podrías seguir su
+        trabajo?
+\end{enumerate}
+\end{juez}

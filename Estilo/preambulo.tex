@@ -1,0 +1,156 @@
+% =====================================================================
+%  PREÁMBULO — Curso de Ingeniería FUSAL
+%  Todo lo que configura el documento vive aquí. main.tex se queda limpio.
+% =====================================================================
+
+% ---- Idioma y codificación -------------------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noshorthands]{babel}   % es-noshorthands evita choques con listings/tikz/siunitx
+\usepackage{csquotes}
+
+% ---- Tipografía ------------------------------------------------------
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{newtxtext}          % Texto tipo Times
+\usepackage{newtxmath}          % Matemáticas a juego
+\usepackage{microtype}
+% Para cambiar de fuente: sustituye las dos líneas newtx por
+%   \usepackage{XCharter}\usepackage[charter]{mathdesign}   (Charter, más legible en pantalla)
+%   \usepackage{palatino}                                    (Palatino)
+
+% ---- Geometría de página --------------------------------------------
+\usepackage[a4paper,left=3cm,right=2.5cm,top=3cm,bottom=3cm,headheight=15pt]{geometry}
+\usepackage{setspace}
+\onehalfspacing
+\setlength{\parskip}{0.4em}
+
+% ---- Colores del equipo ---------------------------------------------
+\usepackage{xcolor}
+\definecolor{fusalPrim}{HTML}{1F3864}   % azul oscuro  <- cambia aquí el color corporativo
+\definecolor{fusalSec}{HTML}{C00000}    % rojo acento
+\definecolor{fusalGris}{HTML}{6E6E6E}
+\definecolor{fusalClaro}{HTML}{EEF2F8}
+
+% ---- Figuras y tablas ------------------------------------------------
+\usepackage{graphicx}
+\graphicspath{{Imagenes/}{Imagenes/dinamica/}{Imagenes/suspension/}%
+              {Imagenes/chasis/}{Imagenes/aero/}{Imagenes/refrigeracion/}%
+              {Imagenes/transmision/}{Imagenes/transversal/}}
+\usepackage{float}
+\usepackage{subcaption}
+\usepackage[font=small,labelfont=bf,labelsep=period]{caption}
+\usepackage{booktabs,tabularx,longtable,multirow,array}
+\usepackage{rotating}
+\usepackage{pdfpages}
+\usepackage{enumitem}
+\setlist{itemsep=2pt,topsep=4pt}
+
+% ---- Unidades --------------------------------------------------------
+\usepackage{siunitx}
+\sisetup{
+  output-decimal-marker = {,},   % coma decimal (convenio español)
+  per-mode              = symbol,
+  separate-uncertainty  = true,
+  range-phrase          = {--},
+  range-units           = single,
+  detect-weight         = true
+}
+\DeclareSIUnit{\rpm}{rpm}
+\DeclareSIUnit{\bar}{bar}
+\DeclareSIUnit{\gacc}{g}
+
+% ---- Encabezados y pies ---------------------------------------------
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{fusalGris}{\nouppercase{\leftmark}}}
+\fancyhead[R]{\small\textcolor{fusalGris}{\thepage}}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\small\thepage}\renewcommand{\headrulewidth}{0pt}}
+
+% ---- Estilo de títulos ----------------------------------------------
+\usepackage{titlesec}
+\titleformat{\chapter}[hang]
+  {\normalfont\sffamily\huge\bfseries\color{fusalPrim}}
+  {\thechapter\hspace{10pt}\textcolor{fusalGris}{\textbar}\hspace{10pt}}{0pt}{\huge}
+\titlespacing*{\chapter}{0pt}{-15pt}{28pt}
+\titleformat{\section}
+  {\normalfont\sffamily\Large\bfseries\color{fusalPrim}}{\thesection}{1em}{}
+\titleformat{\subsection}
+  {\normalfont\sffamily\large\bfseries\color{fusalGris}}{\thesubsection}{1em}{}
+
+% ---- Índices ---------------------------------------------------------
+\usepackage{makeidx}
+\makeindex
+\setcounter{tocdepth}{1}      % en el índice general, solo hasta \section
+\setcounter{secnumdepth}{3}
+
+% ---- Código fuente (carpeta Codigo/) ---------------------------------
+\usepackage{listings}
+\definecolor{codekw}{HTML}{0033B3}
+\definecolor{codecmt}{HTML}{5C8A4A}
+\definecolor{codestr}{HTML}{A31515}
+\definecolor{codebg}{HTML}{F7F7F7}
+\definecolor{codenum}{HTML}{999999}
+\lstdefinestyle{cursocode}{
+    basicstyle=\ttfamily\scriptsize,
+    keywordstyle=\color{codekw}\bfseries,
+    commentstyle=\color{codecmt}\itshape,
+    stringstyle=\color{codestr},
+    numbers=left, numberstyle=\tiny\color{codenum}, numbersep=7pt,
+    backgroundcolor=\color{codebg},
+    frame=single, rulecolor=\color{codenum!60},
+    breaklines=true, breakatwhitespace=false, showstringspaces=false,
+    tabsize=4, columns=fullflexible, keepspaces=true,
+    extendedchars=true, inputencoding=utf8, literate=%
+        {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+        {ñ}{{\~n}}1 {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1
+        {Ú}{{\'U}}1 {Ñ}{{\~N}}1 {¿}{{?`}}1 {¡}{{!`}}1 {°}{{\textdegree}}1
+        {²}{{\textsuperscript{2}}}1 {³}{{\textsuperscript{3}}}1
+        {µ}{{\textmu}}1 {·}{{\textperiodcentered}}1 {×}{{\texttimes}}1
+        {–}{{--}}1 {—}{{---}}1 {•}{{\textbullet}}1
+}
+\lstset{style=cursocode,inputpath=Codigo/}
+\renewcommand{\lstlistingname}{Código}
+\renewcommand{\lstlistlistingname}{Índice de códigos}
+
+% ---- Dibujo ----------------------------------------------------------
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,calc,positioning,patterns,decorations.pathmorphing,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+
+% ---- Bibliografía ----------------------------------------------------
+\usepackage[style=numeric-comp,backend=biber,sorting=none,maxbibnames=99]{biblatex}
+\addbibresource{bibliografia.bib}
+
+% ---- Notas de trabajo (modo borrador) --------------------------------
+% Con \borradortrue (en main.tex) se muestran los \todo y los avisos.
+\newif\ifborrador
+\usepackage[colorinlistoftodos,prependcaption,textsize=footnotesize,spanish]{todonotes}
+\setlength{\marginparwidth}{2cm}   % silencia el aviso de todonotes (solo usamos todos en línea)
+\newcommand{\pendiente}[1]{\ifborrador\todo[inline,color=yellow!40]{#1}\fi}
+\newcommand{\falta}[1]{\ifborrador\todo[inline,color=red!25]{FALTA: #1}\fi}
+\newcommand{\figpendiente}[1]{\ifborrador\missingfigure{#1}\fi}
+
+% ---- Hiperenlaces (siempre lo último salvo cleveref) -----------------
+\usepackage[hidelinks,bookmarksnumbered]{hyperref}
+\hypersetup{
+  colorlinks = true,
+  linkcolor  = fusalPrim,
+  citecolor  = fusalSec,
+  urlcolor   = fusalPrim,
+  pdftitle   = {Curso de Ingeniería FUSAL — Mechanical},
+  pdfauthor  = {Formula Student USAL}
+}
+\usepackage[nameinlink]{cleveref}
+\crefname{figure}{figura}{figuras}
+\crefname{table}{tabla}{tablas}
+\crefname{equation}{ecuación}{ecuaciones}
+\crefname{chapter}{capítulo}{capítulos}
+\crefname{section}{apartado}{apartados}
+
+% ---- Entornos propios y macros --------------------------------------
+\input{Estilo/entornos.tex}
+\input{Estilo/macros.tex}
+\input{Estilo/diagramas.tex}
