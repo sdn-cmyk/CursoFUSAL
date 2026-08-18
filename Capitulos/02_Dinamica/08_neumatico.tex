@@ -1,60 +1,844 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  El neumático: origen de todas las fuerzas
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{El neumático: origen de todas las fuerzas}
 \label{ch:neumatico}
 
+% Las curvas de este capítulo usan la función mf(x,B,C,D,E) (Magic Formula),
+% declarada una sola vez en Estilo/preambulo.tex.
+
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Explicar de dónde sale el agarre de un neumático y por qué su
+        coeficiente puede pasar de 1, cosa que el rozamiento de Coulomb prohíbe.
+  \item Definir ángulo de deriva y deslizamiento longitudinal con el convenio de
+        signos del equipo, y leer una curva $\Fy(\slipa)$: zona lineal, pico y
+        caída.
+  \item Usar la elipse de fricción para calcular cuánta fuerza lateral queda
+        disponible mientras se frena.
+  \item Cuantificar la sensibilidad a la carga vertical y estimar cuánto agarre
+        pierde un eje por transferencia de carga.
+  \item Explicar el efecto de caída, presión y temperatura, y saber diagnosticar
+        los tres con un pirómetro.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{90 minutos}{Capítulos \ref{ch:coche_como_sistema} y
+\ref{ch:mecanica_aplicada}}%
+{Manómetro de precisión, pirómetro de aguja, un neumático desmontado y, si se
+tienen, las curvas del neumático propio}
 
+Todo lo que hace el coche ---acelerar, frenar, girar--- lo hacen cuatro huellas
+de contacto del tamaño de la palma de una mano. El motor no mueve el coche: el
+neumático lo hace, y el motor solo le da un par. La aerodinámica no gira el
+coche: cambia la carga vertical del neumático para que él gire más. Por eso
+este capítulo abre el bloque de dinámica vehicular, y por eso todas las
+decisiones de suspensión, aerodinámica y transmisión de los bloques siguientes
+se justifican, en última instancia, por lo que le hacen al neumático.
+
+\begin{clave}
+\textbf{Las curvas de este capítulo son sintéticas.} Están generadas con un juego
+de coeficientes de Pacejka plausible para un neumático de Formula Student, no son
+datos medidos de ningún neumático concreto. Sirven para explicar \emph{la forma}
+de las curvas y los órdenes de magnitud, nunca para diseñar. Los números con los
+que se diseña salen del capítulo \ref{ch:modelado_neumatico}.
+\end{clave}
+
+\pendiente{Sustituir las curvas sintéticas por las del neumático que montamos en
+cuanto existan, aunque sean de un neumático parecido del TTC. Mientras tanto, la
+advertencia de arriba se queda.}
+
+% ---------------------------------------------------------------------
 \section{Mecanismos de agarre}
 \label{sec:neumatico:01}
-\pendiente{Pendiente de redactar.}
+\index{agarre}\index{adhesión}\index{histéresis}
 
+\subsection{Por qué el rozamiento de Coulomb no sirve aquí}
+
+En primero se aprende que $F = \mu N$, que $\mu$ es una constante del par de
+materiales, que no depende del área de contacto y que vale menos que 1. Las tres
+cosas son falsas para un neumático:
+
+\begin{itemize}
+  \item $\mu$ \textbf{no es constante}: baja al aumentar la carga vertical
+        (apartado \ref{sec:neumatico:04}), depende de la temperatura, de la
+        presión, de la velocidad de deslizamiento y del acabado del asfalto.
+  \item $\mu$ \textbf{sí depende del área}: por eso un neumático ancho agarra
+        más, aunque la carga sea la misma.
+  \item $\mu$ \textbf{puede pasar de 1} con holgura. Un neumático de competición
+        blando da entre \num{1.4} y \num{1.8} en pista, y sobre la banda de
+        ensayo de un laboratorio llega a \numrange{2.4}{2.9}.
+\end{itemize}
+
+La razón es que la goma no roza: se deforma. El agarre de un neumático nace de
+dos mecanismos distintos que trabajan a la vez.
+
+\subsection{Adhesión e histéresis}
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[Adhesión] Enlaces moleculares que se forman y se rompen continuamente
+    entre la goma y la superficie. Es el mecanismo dominante sobre asfalto
+    liso y limpio, y es el que \emph{escala con el área real de contacto}: de
+    ahí que la anchura del neumático importe. También es el que desaparece
+    cuando hay agua, polvo o goma vieja entre medias.
+  \item[Histéresis] La goma se mete en los huecos entre los granos del asfalto,
+    se comprime por delante de cada grano y no recupera del todo por detrás.
+    Esa asimetría es una fuerza neta que se opone al deslizamiento. Es el
+    mecanismo dominante sobre superficies rugosas y el que sigue funcionando
+    en mojado, porque no necesita contacto molecular limpio.
+\end{description}
+
+Hay dos más ---desgaste (arranque de material) y cohesión--- pero en un coche
+que funciona bien aportan poco: si el neumático agarra por desgaste, se está
+destrozando.
+
+\begin{clave}
+La goma es un material \textbf{viscoelástico}: su rigidez y su amortiguamiento
+dependen de la temperatura y de la frecuencia a la que se la excita. De ahí salen
+dos consecuencias que gobiernan todo lo demás:
+
+\begin{enumerate}
+  \item El agarre tiene una \textbf{ventana de temperatura}. Frío o caliente de
+        más, el mismo neumático da bastante menos.
+  \item El agarre depende de la \textbf{velocidad de deslizamiento}, es decir, de
+        cuánto y cómo se está deslizando la huella. Por eso el neumático necesita
+        deslizar un poco para dar su máximo, que es justo lo que explica el
+        apartado siguiente.
+\end{enumerate}
+\end{clave}
+
+\subsection{Órdenes de magnitud}
+
+La huella de contacto se estima, en primera aproximación, dividiendo la carga
+vertical por la presión de inflado:
+
+\begin{equation}
+  A_{\text{huella}} \approx \frac{\Fz}{\pneu}
+  \label{eq:area_huella}
+\end{equation}
+
+Con \SI{800}{\newton} sobre la rueda y \SI{0.83}{\bar} de presión salen unos
+\SI{96}{\centi\meter\squared}, es decir, algo así como \num{12} por
+\SI{8}{\centi\meter}. La estimación se queda corta porque parte de la carga la
+lleva la carcasa y no el aire, pero da el orden de magnitud correcto y sirve para
+discutir: \textbf{el coche entero apoya en cuatro rectángulos que caben en un
+folio}.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Superficie} & \textbf{Situación} & \textbf{$\muy$ típico} \\
+\midrule
+Asfalto seco, neumático de calle & Coche de serie & \numrange{0.8}{1.0} \\
+Asfalto seco, neumático semi-slick & Neumático duro de FS & \numrange{1.1}{1.4} \\
+Asfalto seco, slick de competición & Neumático blando de FS & \numrange{1.4}{1.8} \\
+Banda de ensayo (3M Safety Walk) & Datos brutos del TTC & \numrange{2.4}{2.9} \\
+Asfalto mojado & Cualquiera & la mitad, o menos \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+La última fila de la tabla es la que más disgustos da: los datos de laboratorio
+no son datos de pista, y usarlos sin escalar produce un coche diseñado para un
+agarre que nunca va a tener. El capítulo \ref{ch:modelado_neumatico} se ocupa de
+eso en detalle.
+
+% ---------------------------------------------------------------------
 \section{Ángulo de deriva y deslizamiento longitudinal}
 \label{sec:neumatico:02}
-\pendiente{Pendiente de redactar.}
+\index{ángulo de deriva}\index{deslizamiento longitudinal}\index{modelo de cepillo}
 
+\subsection{Definiciones y convenio de signos}
+
+El \textbf{ángulo de deriva} $\slipa$ es el ángulo entre la dirección en la que
+apunta la rueda y la dirección en la que realmente se mueve:
+
+\begin{equation}
+  \slipa = \arctan\!\left(\frac{v_y}{v_x}\right)
+  \label{eq:slip_angle}
+\end{equation}
+
+El \textbf{deslizamiento longitudinal} $\slipr$ compara la velocidad periférica
+de la rueda con la velocidad de avance:
+
+\begin{equation}
+  \slipr = \frac{\omega\, r_e - v_x}{|v_x|}
+  \label{eq:slip_ratio}
+\end{equation}
+
+donde $r_e$ es el radio efectivo de rodadura. Con este convenio, $\slipr > 0$ es
+tracción (la rueda gira más deprisa que el suelo), $\slipr < 0$ es frenada, y
+$\slipr = -1$ es la rueda bloqueada.
+
+\begin{ojo}
+El convenio de signos es la primera fuente de errores del bloque, y siempre
+aparece tarde: en la simulación de vuelta, cuando el coche gira al revés.
+Fíjalo una vez ---sistema SAE, según la nomenclatura de este libro--- y
+compruébalo en cada modelo que uses: los datos del TTC, la herramienta de
+cinemática y el simulador no tienen por qué coincidir entre sí. El error clásico
+es un $\Fy$ con el signo cambiado respecto de $\slipa$.
+\end{ojo}
+
+\subsection{Qué pasa dentro de la huella}
+
+La imagen mental correcta es el \textbf{modelo de cepillo}: la banda de rodadura
+es una fila de cerdas elásticas que entran en la huella por delante y salen por
+detrás. Una cerda entra sin deformar y, mientras avanza por la huella, el suelo
+la arrastra lateralmente; se va estirando y genera fuerza. Puede seguir
+estirándose mientras la fuerza elástica no supere el límite de rozamiento local,
+que es proporcional a la presión de contacto: alta en el centro de la huella y
+nula en los bordes. Cuando lo supera, la cerda desliza.
+
+De ahí sale toda la forma de la curva (\cref{fig:neumatico:cepillo}):
+
+\begin{itemize}
+  \item Con $\slipa$ pequeño casi toda la huella está \textbf{adherida}: la
+        fuerza crece proporcionalmente al ángulo. Es la zona lineal.
+  \item Al aumentar $\slipa$, la zona de \textbf{deslizamiento} crece desde la
+        parte trasera de la huella hacia delante.
+  \item El \textbf{pico} de fuerza se alcanza cuando una fracción grande de la
+        huella ya desliza, no cuando toda está adherida.
+  \item Pasado el pico, casi toda la huella desliza, la fuerza cae y el
+        neumático se calienta y se desgasta muy deprisa.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm]
+
+% ---- Panel izquierdo: ángulo de deriva pequeño ----
+\begin{scope}
+  \fill[fusalPrim!6] (0,-1.1) rectangle (6,1.1);
+  \draw[fusalGris] (0,-1.1) rectangle (6,1.1);
+  % límite de rozamiento (parábola de presión)
+  \draw[fusalGris,densely dashed]
+       plot[domain=0:6,samples=40] (\x,{0.9*\x*(6-\x)/9});
+  % zona adherida
+  \fill[fusalPrim!25] (0,0) -- plot[domain=0:4.8,samples=2] (\x,{0.12*\x})
+       -- (4.8,0) -- cycle;
+  % zona deslizante
+  \fill[fusalSec!25] (4.8,0) -- plot[domain=4.8:6,samples=30]
+       (\x,{0.9*\x*(6-\x)/9}) -- (6,0) -- cycle;
+  \draw[fusalPrim,very thick] plot[domain=0:4.8,samples=2] (\x,{0.12*\x});
+  \draw[fusalSec,very thick] plot[domain=4.8:6,samples=30]
+       (\x,{0.9*\x*(6-\x)/9});
+  \draw[fusalGris,-{Latex[length=1.6mm]}] (0,0) -- (6.4,0);
+  \node[cursonota,anchor=north] at (3,-1.25) {huella, $\slipa$ pequeño};
+  \node[cursonota,anchor=south,text=fusalPrim] at (2.2,0.32) {adherida};
+  \node[cursonota,anchor=north east,text=fusalSec] at (5.9,-0.15) {desliza};
+  \node[cursonota,anchor=east] at (-0.15,0) {entra};
+  \node[cursonota,anchor=west] at (6.55,0) {sale};
+\end{scope}
+
+% ---- Panel derecho: ángulo de deriva grande ----
+\begin{scope}[xshift=8.4cm]
+  \fill[fusalPrim!6] (0,-1.1) rectangle (6,1.1);
+  \draw[fusalGris] (0,-1.1) rectangle (6,1.1);
+  \draw[fusalGris,densely dashed]
+       plot[domain=0:6,samples=40] (\x,{0.9*\x*(6-\x)/9});
+  \fill[fusalPrim!25] (0,0) -- plot[domain=0:1.0,samples=2] (\x,{0.5*\x})
+       -- (1.0,0) -- cycle;
+  \fill[fusalSec!25] (1.0,0) -- plot[domain=1.0:6,samples=40]
+       (\x,{0.9*\x*(6-\x)/9}) -- (6,0) -- cycle;
+  \draw[fusalPrim,very thick] plot[domain=0:1.0,samples=2] (\x,{0.5*\x});
+  \draw[fusalSec,very thick] plot[domain=1.0:6,samples=40]
+       (\x,{0.9*\x*(6-\x)/9});
+  \draw[fusalGris,-{Latex[length=1.6mm]}] (0,0) -- (6.4,0);
+  \node[cursonota,anchor=north] at (3,-1.25) {huella, $\slipa$ grande};
+  \node[cursonota,anchor=south,text=fusalPrim] at (0.9,0.5) {adh.};
+  \node[cursonota,anchor=south,text=fusalSec] at (3.6,0.55) {desliza};
+\end{scope}
+
+\end{tikzpicture}
+\caption[Modelo de cepillo: zonas de adherencia y deslizamiento]{Modelo de
+cepillo. La línea gruesa es la deformación lateral de la banda de rodadura a lo
+largo de la huella; la discontinua gris, el límite que impone el rozamiento
+local (proporcional a la presión de contacto, nula en los bordes). Al crecer el
+ángulo de deriva la zona de deslizamiento avanza desde la salida hacia la
+entrada. El pico de fuerza lateral se produce con buena parte de la huella ya
+deslizando.}
+\label{fig:neumatico:cepillo}
+\end{figure}
+
+\begin{clave}
+\textbf{No hay fuerza sin deslizamiento.} Un neumático que rueda perfectamente
+alineado no genera fuerza lateral ninguna. Para que empuje hay que deformarlo, y
+deformarlo significa que la rueda apunta a un sitio y se mueve hacia otro. Lo
+mismo en longitudinal: para acelerar o frenar, la rueda tiene que girar a una
+velocidad distinta de la que le correspondería. Un neumático de Formula Student
+da su máximo lateral entre \num{5} y \SI{8}{\degree} de deriva, y su máximo
+longitudinal entre el \num{5} y el \SI{15}{\percent} de deslizamiento.
+\end{clave}
+
+\subsection{Las dos curvas fundamentales}
+
+La \cref{fig:neumatico:curvas} recoge las dos curvas que hay que tener en la
+cabeza. La pendiente de $\Fy(\slipa)$ en el origen es la \textbf{rigidez de
+deriva}:
+
+\begin{equation}
+  \Calpha = \left.\pderiv{\Fy}{\slipa}\right|_{\slipa=0}
+  \label{eq:cornering_stiffness}
+\end{equation}
+
+Es el parámetro que gobierna el comportamiento del coche lejos del límite ---o
+sea, el \SI{95}{\percent} del tiempo que el piloto pasa conduciendo--- y el que
+entra en el gradiente de subviraje del capítulo \ref{ch:regimen_estacionario}.
+Un neumático de Formula Student anda entre \num{500} y
+\SI{1400}{\newton\per\degree} según la carga.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\Fy$ (\si{\newton})},
+  xmin=0, xmax=13, ymin=0, ymax=3000,
+  xtick={0,2,...,12}, ytick={0,500,...,3000},
+  title={(a) Fuerza lateral},
+  legend pos=south east]
+\addplot[curvaA,domain=0:13,samples=140]{mf(x,0.3448,1.5,880,0.3)};
+  \addlegendentry{$\Fz=\SI{500}{\newton}$}
+\addplot[curvaB,domain=0:13,samples=140]{mf(x,0.3226,1.5,1620,0.3)};
+  \addlegendentry{$\Fz=\SI{1000}{\newton}$}
+\addplot[curvaC,domain=0:13,samples=140]{mf(x,0.3030,1.5,2220,0.3)};
+  \addlegendentry{$\Fz=\SI{1500}{\newton}$}
+\addplot[curvaD,domain=0:13,samples=140]{mf(x,0.2857,1.5,2680,0.3)};
+  \addlegendentry{$\Fz=\SI{2000}{\newton}$}
+% tangente en el origen: rigidez de deriva de la curva de 1000 N
+\addplot[fusalGris,densely dotted,domain=0:3.2,samples=2]{784*x};
+\node[cursonota,anchor=south east] at (axis cs:3.4,2380) {pendiente $\Calpha$};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\slipr$ (\si{\percent})}, ylabel={$\Fx$ (\si{\newton})},
+  xmin=0, xmax=30, ymin=0, ymax=3000,
+  xtick={0,5,...,30}, ytick={0,500,...,3000},
+  title={(b) Fuerza longitudinal}]
+\addplot[curvaA,domain=0:30,samples=140]{mf(x,0.1567,1.65,930,0.3)};
+\addplot[curvaB,domain=0:30,samples=140]{mf(x,0.1425,1.65,1700,0.3)};
+\addplot[curvaC,domain=0:30,samples=140]{mf(x,0.1306,1.65,2320,0.3)};
+\addplot[curvaD,domain=0:30,samples=140]{mf(x,0.1200,1.65,2800,0.3)};
+\node[cursonota,anchor=north east] at (axis cs:29,900)
+     {mismas cargas y\\mismos colores que (a)};
+\end{axis}
+\end{tikzpicture}
+\caption[Curvas de fuerza lateral y longitudinal]{Las dos curvas fundamentales
+del neumático, para cuatro cargas verticales. (a) Fuerza lateral frente a ángulo
+de deriva; la recta punteada es la tangente en el origen, cuya pendiente es la
+rigidez de deriva $\Calpha$. (b) Fuerza longitudinal frente a deslizamiento; el
+pico aparece en torno al \SI{10}{\percent}, y en frenada la curva es la simétrica
+respecto del origen. Curvas sintéticas: sirven para la forma, no como dato de
+diseño.}
+\label{fig:neumatico:curvas}
+\end{figure}
+
+\subsection{Par autoalineante: por dónde se entera el piloto}
+
+La resultante lateral no se aplica en el centro de la huella, sino algo por
+detrás, porque la deformación es mayor en la parte trasera. Esa distancia es el
+\textbf{avance neumático} $\tneu$, y el momento que produce es el par
+autoalineante:
+
+\begin{equation}
+  \Mz = -\Fy\,(\tneu + t_m)
+  \label{eq:mz}
+\end{equation}
+
+donde $t_m$ es el avance mecánico que da la geometría de la dirección
+(capítulo \ref{ch:direccion}). Lo interesante es cómo evolucionan las dos
+magnitudes (\cref{fig:neumatico:mz}): a medida que la parte trasera de la huella
+empieza a deslizar, el centro de presiones se adelanta, $\tneu$ cae y llega a
+anularse justo cuando $\Fy$ alcanza su máximo.
+
+\begin{clave}
+$\Mz$ hace pico \textbf{mucho antes} que $\Fy$, y se desploma justo cuando el
+neumático llega a su máximo. Eso es exactamente lo que el piloto nota como
+«se me ha ido el volante ligero»: es el aviso natural de que se está en el
+límite. Cualquier decisión de dirección que borre esa señal ---demasiado avance
+mecánico, demasiada desmultiplicación, una servoasistencia mal ajustada--- le
+quita al piloto el único sensor de límite que lleva puesto.
+\end{clave}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={fracción del máximo},
+  xmin=0, xmax=10, ymin=0, ymax=1.1,
+  xtick={0,2,...,10}, ytick={0,0.2,...,1.0},
+  title={(a) Fuerza y par, normalizados},
+  legend pos=south east]
+% modelo de cepillo: lambda = alpha/10 (10 grados = deslizamiento total)
+\addplot[curvaA,domain=0:10,samples=120]
+   {3*(x/10) - 3*(x/10)^2 + (x/10)^3};
+  \addlegendentry{$\Fy/\muy\Fz$}
+\addplot[curvaB,domain=0:10,samples=120]
+   {(x/10)*(1-x/10)^3/0.10547};
+  \addlegendentry{$\Mz/\Mz^{\max}$}
+\draw[cursomarca] (axis cs:2.5,0) -- (axis cs:2.5,1.0);
+\node[cursonota,anchor=west] at (axis cs:2.7,0.28)
+     {pico de $\Mz$};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\tneu$ (\si{\milli\meter})},
+  xmin=0, xmax=10, ymin=0, ymax=30,
+  xtick={0,2,...,10}, ytick={0,5,...,30},
+  title={(b) Avance neumático}]
+\addplot[curvaC,domain=0:9.98,samples=120]
+   {75*(1-x/10)^3/(3 - 3*(x/10) + (x/10)^2)};
+\node[cursonota,anchor=north east] at (axis cs:9.7,18)
+     {$\tneu \to 0$ en el\\pico de $\Fy$};
+\end{axis}
+\end{tikzpicture}
+\caption[Par autoalineante y avance neumático]{Par autoalineante y avance
+neumático según el modelo de cepillo, con deslizamiento total a
+\SI{10}{\degree}. (a) El par autoalineante hace pico en torno a un cuarto del
+ángulo de deslizamiento total, mucho antes que la fuerza lateral. (b) El avance
+neumático parte de aproximadamente un tercio de la semilongitud de huella y se
+anula en el pico de $\Fy$. El modelo de cepillo satura en lugar de caer: un
+neumático real pierde fuerza pasado el pico, como en la
+\cref{fig:neumatico:curvas}.}
+\label{fig:neumatico:mz}
+\end{figure}
+
+% ---------------------------------------------------------------------
 \section{Elipse de fricción}
 \label{sec:neumatico:03}
-\pendiente{Pendiente de redactar.}
+\index{elipse de fricción}
 
+Hasta aquí se han tratado por separado la fuerza lateral y la longitudinal. En
+el coche real nunca lo están: se frena entrando en curva y se acelera saliendo.
+Y el neumático tiene \textbf{un solo presupuesto de rozamiento} que repartir
+entre las dos.
+
+La aproximación habitual es la elipse de fricción:
+
+\begin{equation}
+  \left(\frac{\Fx}{\Fx^{\max}}\right)^{2} +
+  \left(\frac{\Fy}{\Fy^{\max}}\right)^{2} \le 1
+  \label{eq:elipse}
+\end{equation}
+
+La consecuencia práctica está en el panel (b) de la
+\cref{fig:neumatico:elipse}, y no es intuitiva: gastar la mitad del agarre
+longitudinal solo cuesta un \SI{13}{\percent} del lateral, pero gastar el
+\SI{90}{\percent} deja apenas el \SI{44}{\percent}. Es decir, \textbf{se puede
+frenar bastante fuerte mientras se gira, pero los últimos gramos de frenada
+salen carísimos}. Ahí está la técnica del \emph{trail braking} y ahí está
+también la diferencia entre un piloto rápido y uno que no lo es: el lento frena
+recto, suelta el freno, gira y luego acelera ---recorriendo los ejes de la
+elipse--- mientras que el rápido recorre el borde.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\Fy/\Fz$}, ylabel={$\Fx/\Fz$},
+  xmin=-2, xmax=2, ymin=-2, ymax=2,
+  xtick={-1.5,-1,...,1.5}, ytick={-1.5,-1,...,1.5},
+  title={(a) Presupuesto de agarre}]
+% elipse límite
+\addplot[curvaA,domain=0:360,samples=200,variable=\t]
+  ({1.62*sin(\t)},{1.70*cos(\t)});
+% elipses interiores
+\addplot[fusalGris,densely dotted,domain=0:360,samples=120,variable=\t]
+  ({0.81*sin(\t)},{0.85*cos(\t)});
+\addplot[fusalGris,densely dotted,domain=0:360,samples=120,variable=\t]
+  ({1.215*sin(\t)},{1.275*cos(\t)});
+% punto de trabajo: 70 % de frenada
+\addplot[only marks,mark=*,mark size=1.6pt,fusalSec]
+  coordinates {(1.157,-1.19)};
+\node[cursonota,anchor=north east,text=fusalSec] at (axis cs:1.05,-1.30)
+     {\SI{70}{\percent} freno\\\SI{71}{\percent} lateral};
+\node[cursonota,anchor=south] at (axis cs:-1.0,1.5) {tracción};
+\node[cursonota,anchor=north] at (axis cs:-1.0,-1.5) {frenada};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\Fx$ usado (\si{\percent} del máximo)},
+  ylabel={$\Fy$ disponible (\si{\percent})},
+  xmin=0, xmax=100, ymin=0, ymax=105,
+  xtick={0,20,...,100}, ytick={0,20,...,100},
+  title={(b) Lo que queda para girar}]
+\addplot[curvaB,domain=0:100,samples=120]{100*sqrt(1-(x/100)^2)};
+\draw[cursomarca] (axis cs:50,0) -- (axis cs:50,86.6) -- (axis cs:0,86.6);
+\draw[cursomarca] (axis cs:90,0) -- (axis cs:90,43.6) -- (axis cs:0,43.6);
+\node[cursonota,anchor=south west] at (axis cs:52,88) {87};
+\node[cursonota,anchor=south west] at (axis cs:60,45) {44};
+\end{axis}
+\end{tikzpicture}
+\caption[Elipse de fricción]{Elipse de fricción de un neumático a carga
+constante. (a) La frontera es el límite de lo que el neumático puede dar; el
+interior es lo que el piloto está usando. (b) La misma información en la forma
+en que se usa para diseñar: fracción de fuerza lateral que queda disponible
+según cuánta longitudinal se esté gastando. Curvas sintéticas.}
+\label{fig:neumatico:elipse}
+\end{figure}
+
+\begin{ojo}
+La elipse es una \textbf{aproximación cómoda, no una ley}. En un neumático real
+$\Fx^{\max}$ y $\Fy^{\max}$ no coinciden, la frontera no es exactamente
+elíptica, y la combinación depende además de la caída y de la carga. Para
+dimensionar frenos o repartir par entre ejes es más que suficiente; para un
+simulador de vuelta que se quiera creer, hay que usar el modelo combinado del
+capítulo \ref{ch:modelado_neumatico}.
+
+El diagrama equivalente a nivel de \emph{coche} ---el diagrama g-g--- no es
+simétrico: la frenada llega mucho más lejos que la aceleración, que está
+limitada por la potencia y por la tracción del eje motriz. Ese diagrama es el
+que sale del capítulo \ref{ch:simulacion_vuelta}, y no debe confundirse con
+este.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Sensibilidad a la carga vertical}
 \label{sec:neumatico:04}
-\pendiente{Pendiente de redactar.}
+\index{sensibilidad a la carga}\index{transferencia de carga}
 
+Este es, con diferencia, el apartado más rentable del capítulo: explica por qué
+la transferencia de carga es mala, por qué las barras estabilizadoras cambian el
+balance del coche y por qué bajar el centro de gravedad da más de lo que parece.
+
+\subsection{El agarre no es proporcional a la carga}
+
+Si se dibuja el pico de fuerza lateral frente a la carga vertical, no sale una
+recta: sale una curva que se dobla (\cref{fig:neumatico:carga}a). Dicho de otra
+forma, el coeficiente de agarre \emph{baja} al aumentar la carga
+(\cref{fig:neumatico:carga}b). En el rango de un coche de Formula Student la
+caída se aproxima bien por una recta:
+
+\begin{equation}
+  \muy(\Fz) \approx \mu_0 - k\,\Fz
+  \label{eq:sensibilidad_carga}
+\end{equation}
+
+con valores del orden de $\mu_0 \approx \num{1.9}$ y
+$k \approx \SI{2.8e-4}{\per\newton}$ para el juego de curvas de este capítulo.
+
+\subsection{Lo que cuesta la transferencia de carga}
+
+Considérese un eje con carga total $2\prom{\Fz}$ repartida entre las dos ruedas,
+y una transferencia de carga $\Delta\Fz$ que descarga la interior y carga la
+exterior. Sustituyendo \eqref{eq:sensibilidad_carga} en la suma de las dos
+ruedas:
+
+\begin{align}
+  \Fy^{\text{eje}}
+  &= \muy(\prom{\Fz}-\Delta\Fz)(\prom{\Fz}-\Delta\Fz)
+   + \muy(\prom{\Fz}+\Delta\Fz)(\prom{\Fz}+\Delta\Fz) \notag \\
+  &= \underbrace{2\,\prom{\Fz}\,\bigl(\mu_0 - k\,\prom{\Fz}\bigr)}
+     _{\text{sin transferencia}} \;-\; 2\,k\,\Delta\Fz^{2}
+  \label{eq:perdida_transferencia}
+\end{align}
+
+\begin{clave}
+La pérdida de agarre de un eje crece con el \textbf{cuadrado} de la
+transferencia de carga, y no depende de cómo se reparta entre muelles, barras o
+geometría: solo de cuánta hay. De aquí salen las tres consecuencias que gobiernan
+el diseño del coche:
+
+\begin{enumerate}
+  \item \textbf{Toda transferencia de carga resta agarre.} Solo se reduce
+        bajando el centro de gravedad, ensanchando la vía o quitando masa
+        ---nunca tocando muelles o barras---.
+  \item \textbf{El reparto entre ejes no cambia el total, pero sí el balance.}
+        El eje que se lleva más transferencia pierde más agarre, y por eso el
+        $\LLTD$ es la herramienta principal de ajuste de subviraje
+        (capítulo \ref{ch:regimen_estacionario}).
+  \item \textbf{Quitar masa vale doble.} Menos masa es menos carga vertical
+        ---y por tanto más $\muy$--- y además menos transferencia.
+\end{enumerate}
+\end{clave}
+
+Con los números de la figura y un eje cargado a \SI{1000}{\newton} por rueda, una
+transferencia de \SI{500}{\newton} cuesta un \SI{4}{\percent} del agarre del eje;
+una de \SI{1000}{\newton} ---justo la que levanta la rueda interior--- cuesta un
+\SI{17}{\percent}. Merece la pena tener ese número a mano cuando alguien proponga
+subir el radiador \SI{50}{\milli\meter} para que quepa mejor.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\Fz$ (\si{\newton})}, ylabel={$\Fy^{\max}$ (\si{\newton})},
+  xmin=0, xmax=2400, ymin=0, ymax=3200,
+  xtick={0,500,...,2000}, ytick={0,500,...,3000},
+  title={(a) Pico de fuerza lateral}]
+\addplot[curvaA,domain=0:2400,samples=80]{x*(1.90-0.00028*x)};
+\addplot[fusalGris,densely dotted,domain=0:2400,samples=2]{1.76*x};
+\node[cursonota,anchor=west,rotate=42] at (axis cs:1250,2500)
+     {proporcional};
+\node[cursonota,anchor=north west] at (axis cs:1450,2100) {real};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\Delta\Fz/\prom{\Fz}$}, ylabel={$\Fy^{\text{eje}}$ (\si{\percent})},
+  xmin=0, xmax=1, ymin=80, ymax=101,
+  xtick={0,0.2,...,1}, ytick={80,85,...,100},
+  title={(b) Coste de la transferencia}]
+\addplot[curvaB,domain=0:1,samples=80]{100*(1-0.1728*x^2)};
+\draw[cursomarca] (axis cs:0.5,80) -- (axis cs:0.5,95.7) -- (axis cs:0,95.7);
+\draw[cursomarca] (axis cs:1,80) -- (axis cs:1,82.7) -- (axis cs:0,82.7);
+\node[cursonota,anchor=north east] at (axis cs:0.97,88.5)
+     {rueda interior\\en el aire};
+\end{axis}
+\end{tikzpicture}
+\caption[Sensibilidad a la carga vertical]{Sensibilidad a la carga vertical.
+(a) El pico de fuerza lateral crece menos que proporcionalmente con la carga: la
+recta punteada es lo que daría un rozamiento de Coulomb ideal. (b) Consecuencia
+directa: la fuerza lateral que puede dar un eje cae con el cuadrado de la
+transferencia de carga, referida a la carga media por rueda. Curvas sintéticas.}
+\label{fig:neumatico:carga}
+\end{figure}
+
+\begin{ojo}
+La sensibilidad a la carga es también la razón por la que \textbf{la carga
+aerodinámica rinde cada vez menos}: cada newton de carga vertical adicional
+llega con un $\muy$ algo menor que el anterior. En el capítulo
+\ref{ch:merece_la_pena_aero} eso se convierte en números; aquí basta con no
+suponer que el agarre y la carga vertical van de la mano.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Caída, presión y temperatura}
 \label{sec:neumatico:05}
-\pendiente{Pendiente de redactar.}
+\index{caída}\index{presión de inflado}\index{temperatura del neumático}
+
+Los tres parámetros de este apartado tienen algo en común: son baratos, se
+cambian en el pit lane en cinco minutos y mueven el agarre más que la mitad de
+las decisiones de diseño que ocupan la temporada entera.
+
+\subsection{Caída}
+
+Una caída negativa moderada aumenta la fuerza lateral por dos motivos: aparece un
+empuje de caída (\emph{camber thrust}) que se suma al de deriva, y compensa el
+vuelco de la huella cuando el coche balancea y el neumático se deforma. Pero hay
+un óptimo (\cref{fig:neumatico:cpt}a): pasado ese punto, la huella apoya de
+canto, el hombro interior se sobrecarga y se recalienta, y la fuerza cae.
+
+\begin{ojo}
+La caída que importa es la \textbf{dinámica en la huella}, con el coche
+balanceado, comprimido y con el neumático deformado, no la estática que se mide
+en el taller con el coche parado. Un coche con \SI{-2}{\degree} estáticos puede
+estar trabajando a \SI{+0.5}{\degree} en el exterior de la curva si la
+cinemática no acompaña. Ese es justamente el trabajo del capítulo
+\ref{ch:cinematica_suspension}, y la razón de que la curva de ganancia de caída
+sea un objetivo de diseño y no una consecuencia.
+\end{ojo}
+
+\subsection{Presión de inflado}
+
+La presión cambia a la vez la forma de la huella, la rigidez de deriva, la
+rigidez vertical del neumático y el coeficiente de agarre, y todas tienen su
+óptimo en sitios distintos:
+
+\begin{itemize}
+  \item \textbf{Poca presión}: huella más larga y más flexible, hombros
+        sobrecargados, más deformación y más temperatura, respuesta perezosa.
+  \item \textbf{Mucha presión}: huella corta y abombada en el centro, menos
+        superficie efectiva, respuesta más rápida y menos agarre de pico.
+\end{itemize}
+
+Además, la presión sube al calentarse el neumático ---típicamente entre
+\num{0.2} y \SI{0.4}{\bar} entre frío y caliente---, así que lo que se ajusta en
+el taller no es lo que hay en pista. Lo correcto es fijar la \textbf{presión en
+caliente} objetivo y calcular la de frío hacia atrás con los datos de los
+primeros entrenamientos.
+
+\begin{clave}
+La presión es la variable de puesta a punto \textbf{con mejor relación entre lo
+que cuesta y lo que da}: es gratis, se cambia en un minuto y mueve el agarre
+varios puntos porcentuales. Si el equipo solo puede permitirse instrumentar y
+documentar una variable de setup, que sea esta. Y se mide con un manómetro
+bueno: los de gasolinera tienen un error del orden de la magnitud que se intenta
+ajustar.
+\end{clave}
+
+\begin{regla}[neumáticos]
+El reglamento limita lo que se puede hacer con los neumáticos, y algunas de esas
+limitaciones condicionan directamente este capítulo: se declaran los juegos de
+seco y de lluvia y hay que competir con los declarados; los neumáticos de lluvia
+tienen requisitos propios de dibujo o de compuesto; y \textbf{el
+acondicionamiento térmico y químico ---mantas térmicas, calentadores,
+tratamientos de la goma--- suele estar prohibido}. Eso último no es un detalle
+administrativo: significa que el coche tiene que funcionar con el neumático frío
+en la primera vuelta, y que la ventana de temperatura del apartado siguiente hay
+que alcanzarla conduciendo.
+
+Comprueba los artículos correspondientes del reglamento vigente antes de decidir
+neumático, y anota la versión que has consultado: cambian entre temporadas.
+\end{regla}
+
+\subsection{Temperatura}
+
+El agarre tiene una ventana (\cref{fig:neumatico:cpt}c). Fuera de ella el
+neumático da bastante menos, y en Formula Student casi siempre se está por
+debajo: las mangas son cortas, no hay mantas térmicas y las primeras vueltas del
+autocross se corren con el neumático frío.
+
+El diagnóstico se hace con un pirómetro de aguja, midiendo tres puntos por
+neumático ---interior, centro y exterior--- nada más entrar en boxes:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Lo que mide el pirómetro} & \textbf{Qué significa} \\
+\midrule
+Interior mucho más caliente que exterior & Demasiada caída negativa \\
+Exterior mucho más caliente que interior & Falta caída negativa, o el neumático vuelca \\
+Centro más caliente que los dos hombros & Presión demasiado alta \\
+Hombros más calientes que el centro & Presión demasiado baja \\
+Todo el neumático frío & No se le está pidiendo trabajo, o el reparto está mal \\
+Un eje mucho más caliente que el otro & Reparto de transferencia desequilibrado \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+El pirómetro de infrarrojos mide la temperatura \emph{superficial}, que se enfría
+en segundos: entre parar el coche y medir se pierde buena parte de la
+información. El de aguja llega al interior de la goma y es el que sirve para
+comparar entre tandas. Y hay que medir siempre en el mismo orden y a la misma
+distancia del box; si no, los números no son comparables entre sesiones.
+\end{ojo}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursotercio,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\Fy$ (\si{\newton})},
+  xmin=0, xmax=10, ymin=0, ymax=2000,
+  xtick={0,2,...,10}, ytick={0,500,...,2000},
+  title={(a) Caída}, legend pos=south east]
+\addplot[curvaA,domain=0:10,samples=100]{mf(x,0.3226,1.5,1620,0.3)};
+  \addlegendentry{$\camber=0$}
+\addplot[curvaB,domain=0:10,samples=100]{mf(x+0.4,0.3226,1.5,1700,0.3)};
+  \addlegendentry{$\camber=\SI{-2}{\degree}$}
+\addplot[curvaC,domain=0:10,samples=100]{mf(x+0.7,0.3226,1.5,1560,0.3)};
+  \addlegendentry{$\camber=\SI{-4}{\degree}$}
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursotercio,
+  xlabel={$\pneu$ (\si{\bar})}, ylabel={$\muy$ de pico},
+  xmin=0.5, xmax=1.2, ymin=1.45, ymax=1.68,
+  xtick={0.5,0.7,...,1.1}, ytick={1.45,1.50,...,1.65},
+  title={(b) Presión}]
+\addplot[curvaB,domain=0.5:1.2,samples=80]{1.62-1.0*(x-0.83)^2};
+\draw[cursomarca] (axis cs:0.83,1.45) -- (axis cs:0.83,1.62);
+\node[cursonota,anchor=south] at (axis cs:0.95,1.63) {óptimo};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursotercio,
+  xlabel={$\Tneu$ (\si{\celsius})}, ylabel={$\muy/\muy^{\max}$},
+  xmin=30, xmax=130, ymin=0.5, ymax=1.05,
+  xtick={30,50,...,130}, ytick={0.5,0.6,...,1.0},
+  title={(c) Temperatura}]
+\addplot[fusalPrim!12,draw=none,domain=65:95,samples=2,
+         fill=fusalPrim!12] {1} \closedcycle;
+\addplot[curvaC,domain=30:130,samples=100]{1-((x-78)/85)^2};
+\node[cursonota,anchor=south] at (axis cs:80,0.55) {ventana\\de trabajo};
+\end{axis}
+\end{tikzpicture}
+\caption[Efecto de caída, presión y temperatura]{Los tres parámetros que se
+tocan en el pit lane. (a) Una caída negativa moderada sube la fuerza lateral;
+pasado el óptimo la pierde. (b) El agarre de pico tiene un óptimo de presión.
+(c) La goma solo da su máximo dentro de una ventana de temperatura. Los tres
+paneles son \textbf{cualitativos}: el óptimo concreto es distinto para cada
+neumático y cada compuesto, y solo se encuentra midiendo.}
+\label{fig:neumatico:cpt}
+\end{figure}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Pirelli 185/40 R13]
+Montamos un Pirelli \texttt{185/40 R13} de compuesto duro. La decisión no fue de
+prestaciones sino de \textbf{flujo de trabajo}: renunciamos a un
+\SIrange{5}{10}{\percent} de agarre lateral frente a un slick típico de
+Formula Student a cambio de que dure muchísimo más, porque lo que este equipo
+necesita ahora mismo no son décimas, son kilómetros de rodaje para instrumentar
+el coche y aprender a conducirlo. Quemar neumáticos blandos en entrenamientos no
+tiene sentido cuando todavía no se sabe qué se está midiendo.
+
+Consecuencias que hay que asumir y saber defender:
+
+\begin{itemize}
+  \item \textbf{No tenemos datos de este neumático} ---no está en el TTC---, así
+        que en el modelo tratamos el agarre de forma conservadora. Cómo se hace
+        eso y cuánto error se arrastra es el capítulo
+        \ref{ch:modelado_neumatico}.
+  \item La caída estática ---\SI{-1.5}{\degree} delante y \SI{-1.0}{\degree}
+        detrás--- se fijó con la curva de ganancia de la herramienta de
+        cinemática y experiencia de otros equipos, \emph{no} con datos de agarre.
+        Es una base razonable, no un óptimo.
+  \item El soporte de mangueta es intercambiable justamente para poder probar
+        otros valores en cuanto podamos medir agarre de verdad.
+\end{itemize}
+
+\pendiente{Completar con: presión en frío y en caliente de trabajo, temperaturas
+medidas con el pirómetro por tanda, y desgaste observado a lo largo de la
+temporada. Sin estos tres datos este recuadro sigue siendo una intención, no un
+caso.}
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Usar directamente el $\muy$ de los datos de banco. Sale un coche
+        diseñado para un agarre que en pista no existe.
+  \item Hablar de «agarre» sin decir a qué carga vertical: sin $\Fz$, un
+        coeficiente de agarre no significa nada.
+  \item Ajustar la caída estática con el coche parado y no comprobar nunca la
+        dinámica.
+  \item Inflar en frío al valor que se quiere en caliente.
+  \item Medir temperaturas con el infrarrojo tres minutos después de parar y
+        sacar conclusiones de esos números.
+  \item Suponer que un neumático más ancho agarra proporcionalmente más: gana
+        por área de contacto y por menor sensibilidad a la carga, pero también
+        pesa más, tiene más inercia y más resistencia.
+  \item Cambiar dos cosas a la vez entre tandas y no poder atribuir la mejora a
+        ninguna.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{ficha del neumático} en una página: medida, compuesto, llanta
+        recomendada, radio de rodadura, presiones de trabajo en frío y en
+        caliente, caída objetivo y ventana de temperatura. Es la primera hoja de
+        la carpeta de dinámica vehicular.
+  \item La \textbf{hoja de registro de tanda}: presiones en frío y en caliente y
+        temperaturas en tres puntos por neumático, con hueco para lo que se
+        cambió y qué dijo el piloto. Impresa, con pinza, en el box.
+  \item Una \textbf{hoja de cálculo de sensibilidad a la carga} que, dados
+        $\mu_0$ y $k$, dé la pérdida de agarre de un eje frente a la
+        transferencia de carga según \eqref{eq:perdida_transferencia}.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Por qué habéis elegido este neumático y qué habéis sacrificado?
+  \item ¿Cuál es el coeficiente de agarre que usáis en vuestros cálculos y de
+        dónde sale?
+  \item ¿Cuánta transferencia de carga tenéis en el eje delantero a
+        \SI{1.4}{\gacc} y cuánto agarre os cuesta?
+  \item ¿Cuál es la caída dinámica en la rueda exterior a máximo balanceo?
+  \item ¿A qué presión rodáis y cómo habéis llegado a ese número?
+  \item ¿Qué temperatura alcanzan vuestros neumáticos y cómo lo sabéis?
 \end{enumerate}
 \end{juez}

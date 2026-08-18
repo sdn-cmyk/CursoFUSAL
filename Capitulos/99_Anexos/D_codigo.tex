@@ -31,7 +31,19 @@ La ruta es relativa a \texttt{Codigo/} (está fijada con
 
 \section{Dinámica vehicular}
 \label{sec:codigo_dinamica}
-\pendiente{Ajuste de neumático, simulación de vuelta y generación del diagrama YMD.}
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[\texttt{dinamica/ajuste\_mf.py}] Ajuste de la Magic Formula a datos de
+    ensayo de neumático: agrupa por carga, ajusta escalón a escalón, comprueba
+    que el resultado tenga sentido físico y dibuja ajuste y residuos. Sin
+    fichero de entrada genera datos sintéticos, de modo que el flujo se puede
+    probar antes de tener datos reales. Se explica en el capítulo
+    \ref{ch:modelado_neumatico} (códigos \ref{lst:mf_modelo} y
+    \ref{lst:mf_ajuste}). Requiere \texttt{numpy}, \texttt{scipy} y
+    \texttt{matplotlib}.
+\end{description}
+
+\pendiente{Faltan la simulación de vuelta y la generación del diagrama YMD.}
 
 \section{Suspensión}
 \label{sec:codigo_suspension}

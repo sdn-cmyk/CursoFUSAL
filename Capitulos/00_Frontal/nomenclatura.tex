@@ -31,6 +31,12 @@ $\slipa$   & Ángulo de deriva                          & \si{\degree} \\
 $\slipr$   & Deslizamiento longitudinal                & --- \\
 $\camber$  & Ángulo de caída                           & \si{\degree} \\
 $\muy$     & Coeficiente de agarre lateral             & --- \\
+$\mux$     & Coeficiente de agarre longitudinal        & --- \\
+$\Calpha$  & Rigidez de deriva                         & \si{\newton\per\degree} \\
+$\Ckappa$  & Rigidez de deslizamiento longitudinal     & \si{\newton} \\
+$\tneu$    & Avance neumático                          & \si{\milli\meter} \\
+$\pneu$    & Presión de inflado                        & \si{\bar} \\
+$\Tneu$    & Temperatura del neumático                 & \si{\celsius} \\
 $\ay$      & Aceleración lateral                       & \si{\meter\per\second\squared} \\
 $\ax$      & Aceleración longitudinal                  & \si{\meter\per\second\squared} \\
 $\hcg$     & Altura del centro de gravedad             & \si{\milli\meter} \\
@@ -41,6 +47,28 @@ $\LLTD$    & Reparto de transferencia de carga lateral & \si{\percent} \\
 $\Kus$     & Gradiente de subviraje                    & \si{\degree\per\gacc} \\
 \bottomrule
 \end{longtable}
+
+\section*{Modelo de neumático (Magic Formula)}
+
+% Tabla corta: cabe entera en una página, así que va en tabular y no en
+% longtable. Si crece, pásala a longtable como las demás.
+\begin{center}
+\begin{tabular}{@{}p{2.2cm}p{8.5cm}p{2.5cm}@{}}
+\toprule
+\textbf{Símbolo} & \textbf{Magnitud} & \textbf{Unidad} \\
+\midrule
+$\MFB$     & Factor de rigidez                          & --- \\
+$\MFC$     & Factor de forma                            & --- \\
+$\MFD$     & Valor de pico                              & \si{\newton} \\
+$\MFE$     & Factor de curvatura                        & --- \\
+$\MFSh$    & Desplazamiento horizontal (deriva residual) & \si{\degree} \\
+$\MFSv$    & Desplazamiento vertical (empuje residual)   & \si{\newton} \\
+$\Fzo$     & Carga vertical de referencia del modelo     & \si{\newton} \\
+$\dfz$     & Variación normalizada de carga, $(\Fz-\Fzo)/\Fzo$ & --- \\
+$\lamu$    & Factor de escala de agarre (banco a pista)  & --- \\
+\bottomrule
+\end{tabular}
+\end{center}
 
 \section*{Suspensión}
 

@@ -1,60 +1,704 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Modelado del neumático
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Modelado del neumático}
 \label{ch:modelado_neumatico}
 
+% Las curvas de este capítulo usan la función mf(x,B,C,D,E) (Magic Formula),
+% declarada una sola vez en Estilo/preambulo.tex.
+
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Saber qué es el Tire Test Consortium, qué se compra al entrar y qué
+        contiene un fichero de ensayo.
+  \item Convertir datos brutos de banco en curvas utilizables: agrupar por
+        condición, quitar la histéresis del barrido y corregir los residuos.
+  \item Escribir la Magic Formula, explicar qué controla cada coeficiente y
+        deducir de ellos la rigidez de deriva.
+  \item Ajustar el modelo con un procedimiento repetible y, sobre todo, saber
+        detectar un ajuste que sale bien numéricamente y mal físicamente.
+  \item Calibrar el factor de escala de agarre con el skidpad y explicar por qué
+        el modelo sirve para comparar opciones y no para predecir tiempos.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{90 minutos}{Capítulo \ref{ch:neumatico} y manejo básico de
+Python o MATLAB}{Ordenador con \texttt{Codigo/dinamica/ajuste\_mf.py} y, si los
+hay, datos de ensayo}
 
+El capítulo anterior explica cómo se comporta un neumático. Este trata de
+convertir ese comportamiento en \emph{números} que se puedan meter en una hoja de
+cálculo o en un simulador. Sin ese paso, la dinámica vehicular se queda en
+conversación de bar: se puede discutir si conviene más barra delante o detrás,
+pero no se puede calcular.
+
+\begin{clave}
+El modelo de neumático es el \textbf{cimiento numérico de todo el bloque}. El
+reparto de rigideces del capítulo \ref{ch:regimen_estacionario}, los diagramas
+del \ref{ch:diagramas_ymd} y la simulación de vuelta del
+\ref{ch:simulacion_vuelta} no son más fiables que él. Por eso conviene decidir
+pronto cuánto esfuerzo merece: un modelo malo con el que se sabe convivir es
+mucho mejor que uno bueno en el que se cree a ciegas.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{El Tire Test Consortium}
 \label{sec:modelado_neumatico:01}
-\pendiente{Pendiente de redactar.}
+\index{Tire Test Consortium}\index{TTC}
 
+\subsection{Qué es y qué se compra}
+
+El \textbf{Formula SAE Tire Test Consortium} (TTC) es un consorcio de equipos
+que financia entre todos campañas de ensayo de los neumáticos que se usan en la
+competición \cite{ttc_data,kasprzak_ttc_2006}. Los ensayos se hacen en la
+instalación de Calspan, sobre una banda continua recubierta de un abrasivo
+(3M Safety Walk), con el neumático montado en un cabezal que controla carga
+vertical, ángulo de deriva, caída, presión y velocidad.
+
+Al entrar en el consorcio ---cuota por ronda y acuerdo de confidencialidad--- se
+obtiene acceso a los datos de esa ronda. Los datos \textbf{no se pueden publicar
+ni compartir}, lo cual tiene una consecuencia práctica para este libro y para el
+informe de diseño: se pueden enseñar las conclusiones y el método, no los
+ficheros.
+
+\subsection{Tipos de ensayo}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Ensayo} & \textbf{Qué se barre} & \textbf{Qué sale} \\
+\midrule
+\emph{Cornering} & Ángulo de deriva, a carga y caída fijas & $\Fy(\slipa)$, $\Mz(\slipa)$ \\
+\emph{Drive/brake} & Deslizamiento longitudinal, sin deriva & $\Fx(\slipr)$ \\
+Combinado & Deslizamiento a varios ángulos de deriva & Elipse de fricción \\
+Relajación & Escalones de deriva & Longitud de relajación \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+La estructura de un ensayo de \emph{cornering} es la de la
+\cref{fig:modelado:ensayo}: se fija una combinación de presión y caída, se
+escalona la carga vertical y, dentro de cada escalón, se barre el ángulo de
+deriva de un extremo a otro varias veces. El fichero es la concatenación de todos
+esos tramos, y el primer trabajo consiste en volver a separarlos.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={tiempo (\si{\second})}, ylabel={$\slipa$ (\si{\degree})},
+  xmin=0, xmax=100, ymin=-14, ymax=14,
+  xtick={0,25,...,100}, ytick={-12,-6,...,12},
+  title={(a) Barrido de ángulo de deriva}]
+\addplot[curvaA,domain=0:99.9,samples=500]{12*sin(360*x/12.5)};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={tiempo (\si{\second})}, ylabel={$\Fz$ (\si{\newton})},
+  xmin=0, xmax=100, ymin=0, ymax=2300,
+  xtick={0,25,...,100}, ytick={0,500,...,2000},
+  title={(b) Escalones de carga vertical}]
+\addplot[curvaB,domain=0:99.9,samples=500]{250+550*floor(x/25)};
+\node[cursonota,anchor=north west] at (axis cs:4,2250)
+     {cada escalón,\\un bloque de datos};
+\end{axis}
+\end{tikzpicture}
+\caption[Estructura de un ensayo de neumático]{Estructura de un ensayo de
+\emph{cornering}. El ángulo de deriva se barre en ciclos continuos (a) mientras
+la carga vertical se mantiene por escalones (b); presión y caída son constantes
+dentro de cada corrida. Reconstruir esta estructura a partir del fichero es el
+primer paso del tratamiento de datos.}
+\label{fig:modelado:ensayo}
+\end{figure}
+
+\subsection{Y si tu neumático no está}
+
+Es el caso más frecuente en un equipo que empieza, y el nuestro. Las salidas
+posibles, de mejor a peor:
+
+\begin{enumerate}
+  \item \textbf{Cambiar de neumático} a uno que sí esté ensayado. Es la opción
+        que más se subestima: elegir el neumático \emph{por sus datos} es una
+        decisión de ingeniería perfectamente defendible ante un juez.
+  \item \textbf{Usar los datos de un neumático parecido} ---misma medida, mismo
+        tipo de construcción, compuesto comparable--- como forma de curva, y
+        ajustar la escala con medidas propias en pista (apartado
+        \ref{sec:modelado_neumatico:05}).
+  \item \textbf{Modelo mínimo con dos números}: un $\muy$ de pico conservador y
+        una rigidez de deriva estimada. Da para calcular transferencia de carga
+        y balance; no da para una simulación de vuelta creíble.
+  \item \textbf{Ensayar uno mismo.} Un remolque instrumentado o un banco casero
+        es un proyecto de temporada completo, pero es la única vía si se quiere
+        independencia real.
+\end{enumerate}
+
+\begin{ojo}
+Lo que \textbf{no} vale es coger la curva de un neumático cualquiera de internet,
+meterla en el simulador y no volver a mencionarlo. El error no está en usar datos
+ajenos ---todos empezamos así--- sino en no dejar escrito en el informe de qué
+neumático son, en qué se parece al nuestro y qué incertidumbre añade eso a todo
+lo que sale después. Un juez perdona un modelo pobre; no perdona que no sepas
+cómo de pobre es.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Tratamiento de los datos brutos}
 \label{sec:modelado_neumatico:02}
-\pendiente{Pendiente de redactar.}
+\index{tratamiento de datos}
 
+\subsection{Los canales y sus trampas}
+
+Un fichero de ensayo trae del orden de veinte canales. Los que se usan casi
+siempre:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Canal} & \textbf{Magnitud} & \textbf{Para qué} \\
+\midrule
+\texttt{ET} & Tiempo transcurrido & Separar corridas y tramos \\
+\texttt{SA} & Ángulo de deriva & Variable independiente lateral \\
+\texttt{SR} & Deslizamiento longitudinal & Variable independiente longitudinal \\
+\texttt{IA} & Ángulo de caída & Condición de ensayo \\
+\texttt{FZ} & Carga vertical & Condición de ensayo; nunca es constante del todo \\
+\texttt{FY}, \texttt{FX} & Fuerzas & Lo que se quiere modelar \\
+\texttt{MZ} & Par autoalineante & Modelo de par y avance neumático \\
+\texttt{P} & Presión & Condición de ensayo; sube al calentarse \\
+\texttt{RL}, \texttt{RE} & Radio cargado y efectivo & Radio de rodadura, cinemática \\
+\texttt{TSTI/TSTC/TSTO} & Temperaturas de superficie & Diagnóstico y descarte \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+Antes de tocar nada, comprobar dos cosas y dejarlas escritas:
+
+\begin{enumerate}
+  \item \textbf{Unidades.} Hay ficheros en unidades imperiales (libras,
+        pulgadas) y en SI. Un factor \num{4.448} olvidado da un coche que agarra
+        el doble.
+  \item \textbf{Convenio de signos.} Comprobar que $\Fy$ y $\slipa$ crecen a la
+        vez. Si tienen signos opuestos, el fichero está en otro convenio: hay que
+        cambiar el signo, no seguir adelante.
+\end{enumerate}
+\end{ojo}
+
+\subsection{Los seis pasos}
+
+\begin{enumerate}
+  \item \textbf{Separar por condición}: presión, caída y carga nominal. Cada
+        combinación es un conjunto de datos independiente.
+  \item \textbf{Descartar el calentamiento}: el primer barrido de cada corrida se
+        hace con el neumático todavía frío y no representa nada. Se tira.
+  \item \textbf{Promediar barridos de ida y de vuelta.} Es lo que quita el bucle
+        de histéresis de la \cref{fig:modelado:brutos}.
+  \item \textbf{Normalizar por carga}: la carga real oscila alrededor de la
+        nominal. O se trabaja con $\Fy/\Fz$, o se agrupa en ventanas estrechas.
+  \item \textbf{Corregir los residuos}: a $\slipa = 0$ la fuerza lateral medida
+        no es cero. Esa diferencia es la conicidad y el \emph{ply steer} del
+        neumático, y en la Magic Formula se recoge con $\MFSh$ y $\MFSv$.
+  \item \textbf{Agrupar y promediar} en intervalos de ángulo. El resultado es la
+        curva limpia sobre la que se ajusta.
+\end{enumerate}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot,height=6.4cm,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\Fy$ (\si{\newton})},
+  xmin=-13, xmax=13, ymin=-2100, ymax=2100,
+  xtick={-12,-8,...,12}, ytick={-2000,-1000,...,2000},
+  legend pos=south east]
+\addplot[fusalGris,line width=0.5pt,domain=0:12.5,samples=500,variable=\t]
+  ( {12*sin(360*\t/12.5)},
+    {mf( 12*sin(360*\t/12.5) - 0.9*cos(360*\t/12.5),
+         0.3226,1.5,1620*(1-0.05*\t/12.5),0.3 )} );
+  \addlegendentry{dato bruto de un barrido}
+\addplot[curvaB,domain=-13:13,samples=200]{mf(x,0.3226,1.5,1580,0.3)};
+  \addlegendentry{curva promediada}
+\node[cursonota,anchor=north west] at (axis cs:-12.5,2000)
+     {el bucle es transitorio térmico y de\\relajación, no comportamiento};
+\end{axis}
+\end{tikzpicture}
+\caption[Dato bruto frente a curva promediada]{Un barrido completo de ángulo de
+deriva tal como sale del banco (línea fina) y la curva que se obtiene al
+promediar ida y vuelta (línea gruesa). El bucle no es una propiedad del
+neumático: es el retraso con que responde a un ángulo que está cambiando, más el
+calentamiento a lo largo del barrido. Ajustar el modelo sobre el dato bruto sin
+promediar mete ese bucle dentro de los coeficientes. Curvas sintéticas.}
+\label{fig:modelado:brutos}
+\end{figure}
+
+% ---------------------------------------------------------------------
 \section{La Magic Formula de Pacejka}
 \label{sec:modelado_neumatico:03}
-\pendiente{Pendiente de redactar.}
+\index{Magic Formula}\index{Pacejka}
 
+\subsection{La fórmula}
+
+La Magic Formula \cite{bakker_tiremodel_1987,pacejka_tirevehicle_2012} es una
+expresión empírica ---no se deduce de la física del contacto, se ajusta a los
+datos--- que reproduce muy bien la forma de las curvas del neumático con muy
+pocos parámetros:
+
+\begin{equation}
+  y(x) = \MFD \sin\Bigl(\MFC \arctan\bigl(\MFB x -
+         \MFE(\MFB x - \arctan \MFB x)\bigr)\Bigr) + \MFSv,
+  \qquad x = X + \MFSh
+  \label{eq:magic_formula}
+\end{equation}
+
+donde $X$ es $\slipa$ o $\slipr$ e $y$ es $\Fy$, $\Fx$ o $\Mz$. El nombre viene
+de que nadie sabe explicar por qué funciona tan bien; lo que sí se puede explicar
+es qué hace cada coeficiente (\cref{fig:modelado:coeficientes}):
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Coef.} & \textbf{Nombre} & \textbf{Qué controla} \\
+\midrule
+$\MFD$ & Valor de pico & La altura de la curva: $\MFD = \muy \Fz$ \\
+$\MFC$ & Factor de forma & Cuánto cae la curva después del pico \\
+$\MFB$ & Factor de rigidez & Dónde está el pico, y con él la pendiente inicial \\
+$\MFE$ & Factor de curvatura & La forma justo alrededor del pico \\
+$\MFSh$, $\MFSv$ & Desplazamientos & Conicidad, \emph{ply steer}, resistencia a la rodadura \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+La relación más útil de todo el capítulo:
+
+\begin{equation}
+  \Calpha = \MFB\,\MFC\,\MFD
+  \label{eq:bcd}
+\end{equation}
+
+El producto de los tres primeros coeficientes es la \textbf{rigidez de deriva},
+es decir, la pendiente en el origen. Sirve para dos cosas: comprobar de un
+vistazo si un ajuste es razonable ---si $\MFB\MFC\MFD$ da
+\SI{4000}{\newton\per\degree}, el ajuste está mal--- y alimentar directamente los
+modelos lineales de balance del capítulo \ref{ch:regimen_estacionario}, que no
+necesitan la curva entera.
+\end{clave}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,height=5.2cm,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\Fy$ (\si{\newton})},
+  xmin=0, xmax=12, ymin=0, ymax=2400, ytick={0,500,...,2000},
+  title={$\MFD$: altura del pico}]
+\addplot[curvaA,domain=0:12,samples=100]{mf(x,0.3226,1.5,1200,0.3)};
+\addplot[curvaB,domain=0:12,samples=100]{mf(x,0.3226,1.5,1620,0.3)};
+\addplot[curvaC,domain=0:12,samples=100]{mf(x,0.3226,1.5,2040,0.3)};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,height=5.2cm,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\Fy$ (\si{\newton})},
+  xmin=0, xmax=12, ymin=0, ymax=2400, ytick={0,500,...,2000},
+  title={$\MFB$: posición del pico}]
+\addplot[curvaA,domain=0:12,samples=100]{mf(x,0.2200,1.5,1620,0.3)};
+\addplot[curvaB,domain=0:12,samples=100]{mf(x,0.3226,1.5,1620,0.3)};
+\addplot[curvaC,domain=0:12,samples=100]{mf(x,0.5000,1.5,1620,0.3)};
+\end{axis}
+\end{tikzpicture}
+
+\vspace{3mm}
+\begin{tikzpicture}
+\begin{axis}[cursopanel,height=5.2cm,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\Fy$ (\si{\newton})},
+  xmin=0, xmax=12, ymin=0, ymax=2400, ytick={0,500,...,2000},
+  title={$\MFC$: caída tras el pico}]
+\addplot[curvaA,domain=0:12,samples=100]{mf(x,0.3226,1.25,1620,0.3)};
+\addplot[curvaB,domain=0:12,samples=100]{mf(x,0.3226,1.5,1620,0.3)};
+\addplot[curvaC,domain=0:12,samples=100]{mf(x,0.3226,1.8,1620,0.3)};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,height=5.2cm,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\Fy$ (\si{\newton})},
+  xmin=0, xmax=12, ymin=0, ymax=2400, ytick={0,500,...,2000},
+  title={$\MFE$: forma en el pico}]
+\addplot[curvaA,domain=0:12,samples=100]{mf(x,0.3226,1.5,1620,-1.0)};
+\addplot[curvaB,domain=0:12,samples=100]{mf(x,0.3226,1.5,1620,0.3)};
+\addplot[curvaC,domain=0:12,samples=100]{mf(x,0.3226,1.5,1620,0.9)};
+\end{axis}
+\end{tikzpicture}
+\caption[Efecto de los coeficientes de la Magic Formula]{Qué hace cada
+coeficiente de la Magic Formula. En cada panel se varía uno y se dejan fijos los
+otros tres; la curva roja es la misma en los cuatro. Entender esta figura es lo
+que permite poner semillas razonables al ajuste y, sobre todo, darse cuenta de
+cuándo un ajuste ha convergido a un sitio absurdo.}
+\label{fig:modelado:coeficientes}
+\end{figure}
+
+\subsection{Dependencia con la carga y con la caída}
+
+Un juego de cuatro coeficientes solo vale para una carga vertical. Como el coche
+trabaja a cargas que cambian continuamente, la Magic Formula completa hace que
+los coeficientes dependan de la variación normalizada de carga
+
+\begin{equation}
+  \dfz = \frac{\Fz - \Fzo}{\Fzo}
+  \label{eq:dfz}
+\end{equation}
+
+mediante polinomios. Por ejemplo, el valor de pico y la rigidez de deriva se
+escriben habitualmente como
+
+\begin{equation}
+  \MFD = (p_{D1} + p_{D2}\,\dfz)\,\Fz, \qquad
+  \Calpha = p_{K1}\,\Fzo \sin\!\left(2\arctan\frac{\Fz}{p_{K2}\,\Fzo}\right)
+  \label{eq:dependencia_carga}
+\end{equation}
+
+y la caída entra como términos adicionales en $\MFSh$, $\MFSv$ y $\MFD$. Ahí es
+donde la fórmula deja de ser elegante: el modelo completo tiene más de cien
+coeficientes. Para Formula Student casi nunca hacen falta todos.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Nivel de modelo} & \textbf{Cuándo basta} & \textbf{Parámetros} \\
+\midrule
+Lineal, $\Fy = \Calpha \slipa$ & Balance y gradiente de subviraje & 1 por eje \\
+MF por carga, interpolando & Transferencia de carga, diagramas & 4--6 por carga \\
+MF con dependencia de $\dfz$ & Simulación de vuelta & 10--20 \\
+MF completa (fichero \texttt{.tir}) & Simulación multicuerpo & \num{100}+ \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+La tentación es ir directamente al modelo más completo. Es un error de orden: el
+modelo se elige por la \emph{pregunta} que hay que contestar. Un modelo lineal
+contesta bien «¿de qué lado va el balance?» en diez minutos, y esa suele ser la
+pregunta que de verdad hay encima de la mesa. Ajustar cien coeficientes a datos
+de un neumático que ni siquiera es el nuestro es trabajo que parece ingeniería y
+no lo es.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Ajuste y validación del modelo}
 \label{sec:modelado_neumatico:04}
-\pendiente{Pendiente de redactar.}
+\index{ajuste de curvas}\index{validación}
 
+\subsection{Procedimiento}
+
+El ajuste es un problema de mínimos cuadrados no lineales. Lo que lo hace fácil o
+imposible no es el algoritmo, sino cómo se le plantea:
+
+\begin{enumerate}
+  \item \textbf{Ajustar carga por carga, no todo a la vez.} Primero un juego de
+        coeficientes por cada escalón de carga; después, la dependencia con la
+        carga sobre esos resultados. Un ajuste global de veinte parámetros a la
+        vez casi nunca converge a algo con sentido.
+  \item \textbf{Dar semillas razonables}: $\MFD \approx$ el máximo de los datos,
+        $\MFC \approx \num{1.5}$ en lateral y $\approx \num{1.65}$ en
+        longitudinal, $\MFB$ tal que el pico caiga donde cae en los datos,
+        $\MFE \approx 0$.
+  \item \textbf{Poner límites} a cada parámetro. Sin límites, el optimizador
+        encuentra soluciones con $\MFD$ negativo que ajustan estupendamente y no
+        significan nada.
+  \item \textbf{Ponderar la zona lineal.} Hay muchos más puntos cerca del pico
+        que cerca del origen, y el ajuste sacrifica la pendiente inicial ---que
+        es justo lo que gobierna el comportamiento normal del coche--- para ganar
+        un poco en el pico.
+\end{enumerate}
+
+El programa \texttt{ajuste\_mf.py} implementa este procedimiento. Genera datos
+sintéticos si no se le pasa fichero, de modo que el flujo completo se puede
+probar antes de tener datos reales:
+
+\lstinputlisting[language=Python, firstline=43, lastline=60,
+  caption={Modelo y rigidez de deriva (\texttt{Codigo/dinamica/ajuste\_mf.py})},
+  label={lst:mf_modelo}]{dinamica/ajuste_mf.py}
+
+\lstinputlisting[language=Python, firstline=111, lastline=145,
+  caption={Ajuste de un escalón de carga y comprobaciones de sensatez},
+  label={lst:mf_ajuste}]{dinamica/ajuste_mf.py}
+
+\subsection{Cómo saber si el ajuste es bueno}
+
+Un coeficiente de determinación alto no dice gran cosa: la Magic Formula tiene
+tanta libertad que ajusta casi cualquier nube de puntos. Lo que hay que mirar es
+otra cosa (\cref{fig:modelado:ajuste}):
+
+\begin{itemize}
+  \item \textbf{Los residuos, no el error medio.} Si los residuos tienen
+        estructura ---todos positivos en una zona y negativos en otra--- el
+        modelo no está capturando la forma, por bueno que sea el $R^2$.
+  \item \textbf{$\MFB\MFC\MFD$ frente a la pendiente medida} en los primeros
+        grados. Si no coinciden, el ajuste ha sacrificado la zona lineal.
+  \item \textbf{$\MFD/\Fz$ dentro de lo posible.} Un $\muy$ de \num{3.5} no es un
+        neumático: es un error de unidades.
+  \item \textbf{Una condición reservada.} Ajustar sin usar una de las cargas y
+        comprobar después qué predice el modelo para ella. Es la única
+        comprobación que de verdad mide capacidad predictiva.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot,height=5.4cm,
+  ylabel={$\Fy$ (\si{\newton})},
+  xmin=0, xmax=12.5, ymin=0, ymax=1900,
+  xtick={0,2,...,12}, xticklabels={},
+  ytick={0,500,...,1500},
+  legend pos=south east]
+\addplot[curvaB,domain=0:12.5,samples=150]{mf(x,0.3226,1.5,1620,0.3)};
+  \addlegendentry{Magic Formula ajustada}
+\addplot[only marks,mark=*,mark size=1.3pt,fusalPrim] coordinates {
+  (0,6) (1,740) (2,1187) (3,1459) (4,1548) (5,1618) (6,1607)
+  (7,1631) (8,1589) (9,1598) (10,1581) (11,1547) (12,1544)};
+  \addlegendentry{datos promediados}
+\end{axis}
+\end{tikzpicture}
+
+\begin{tikzpicture}
+\begin{axis}[cursoplot,height=2.8cm,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={residuo (\si{\newton})},
+  xmin=0, xmax=12.5, ymin=-30, ymax=30,
+  xtick={0,2,...,12}, ytick={-20,0,20}]
+\addplot[only marks,mark=*,mark size=1.3pt,fusalSec] coordinates {
+  (0,6) (1,15) (2,-15) (3,11) (4,-13) (5,11) (6,-13)
+  (7,15) (8,-16) (9,8) (10,8) (11,-9) (12,5)};
+\end{axis}
+\end{tikzpicture}
+\caption[Ajuste de la Magic Formula y residuos]{Ajuste de la Magic Formula sobre
+datos promediados, con el panel de residuos debajo. Lo que se busca en el panel
+inferior es \emph{ruido sin estructura}: si los residuos formaran una curva
+---por ejemplo, todos negativos entre \num{2} y \SI{5}{\degree}--- el modelo
+estaría fallando en la forma, y habría que revisar $\MFE$ o el planteamiento del
+ajuste en vez de aceptar el resultado porque el error medio sea pequeño. Datos
+sintéticos.}
+\label{fig:modelado:ajuste}
+\end{figure}
+
+\begin{ojo}
+\textbf{Nunca extrapolar.} Fuera del rango de ángulos, cargas, presiones y caídas
+ensayado, la Magic Formula no es un modelo: es un polinomio suelto haciendo lo
+que le apetece. El simulador acabará pidiendo cargas de \SI{3000}{\newton} en un
+bordillo aunque el ensayo llegara a \num{1600}, y devolverá un número sin avisar.
+Hay que \textbf{saturar el modelo} en los extremos del rango ensayado y contar
+cuántas veces se ha llegado a esa saturación: si es a menudo, el resultado de la
+simulación no vale.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Factores de escala y agarre real en pista}
 \label{sec:modelado_neumatico:05}
-\pendiente{Pendiente de redactar.}
+\index{factor de escala}\index{skidpad}
+
+\subsection{El problema de la banda de ensayo}
+
+Los datos del TTC se toman sobre 3M Safety Walk, un abrasivo mucho más agresivo
+que el asfalto. Un neumático que en el banco da $\muy = \num{2.6}$ en pista da
+entre \num{1.4} y \num{1.7}. Si esos datos se meten sin corregir en el simulador,
+sale un coche que da \SI{2.5}{\gacc} laterales y que se diseña ---en frenos, en
+aerodinámica, en rigidez de suspensión--- para unas cargas que nunca va a ver.
+
+La corrección habitual es un factor de escala global sobre el pico:
+
+\begin{equation}
+  \MFD^{\text{pista}} = \lamu \, \MFD^{\text{banco}}
+  \label{eq:factor_escala}
+\end{equation}
+
+con $\lamu$ habitualmente entre \num{0.55} y \num{0.75}. Es una corrección
+grosera ---escala el pico pero no la rigidez de deriva, que en
+realidad también cambia--- y es, con diferencia, la mayor fuente de incertidumbre
+de todo el bloque de dinámica. Por eso no puede quedarse como un número heredado
+en un script: hay que medirlo.
+
+\subsection{Calibrar con el skidpad}
+
+El skidpad es un ensayo de agarre lateral casi puro y sale gratis: se corre en
+cada competición y se puede repetir en cualquier aparcamiento con conos. Para un
+radio de trayectoria $R$ y un tiempo de vuelta $t$:
+
+\begin{equation}
+  \ay = \frac{v^2}{R} = \frac{(2\pi R/t)^2}{R}
+  \quad\Longrightarrow\quad
+  \muy^{\text{efectivo}} = \frac{4\pi^2 R}{g\,t^2}
+  \label{eq:skidpad}
+\end{equation}
+
+Con el radio nominal de \SI{9.125}{\meter}, un tiempo de \SI{5.2}{\second} da un
+$\muy$ efectivo de \num{1.36} (\cref{fig:modelado:escala}b). Ese número se
+compara con el que da el modelo, y la diferencia \emph{es} el factor de escala.
+
+\begin{clave}
+El $\muy$ que sale del skidpad es un \textbf{coeficiente efectivo del coche
+entero}, no el pico del neumático: incluye la pérdida por transferencia de carga,
+el hecho de que las cuatro ruedas no trabajan en su óptimo a la vez y que el
+piloto no está exactamente en el límite. Por eso es siempre \emph{menor} que el
+pico del neumático, y por eso es exactamente el número que hay que reproducir con
+el modelo completo del coche: si tu simulación del skidpad da el tiempo medido,
+el modelo de neumático y el de transferencia de carga son coherentes entre sí.
+
+A la velocidad del skidpad ---unos \SI{40}{\kilo\meter\per\hour}--- la carga
+aerodinámica es despreciable, lo que convierte este ensayo en la medida de agarre
+más limpia que un equipo puede hacer sin instrumentación.
+\end{clave}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\slipa$ (\si{\degree})}, ylabel={$\Fy$ (\si{\newton})},
+  xmin=0, xmax=12, ymin=0, ymax=2900,
+  xtick={0,2,...,12}, ytick={0,500,...,2500},
+  title={(a) Escalado del pico}, legend pos=south east]
+\addplot[curvaA,domain=0:12,samples=120]{mf(x,0.3226,1.5,2600,0.3)};
+  \addlegendentry{banco, $\muy=\num{2.6}$}
+\addplot[curvaB,domain=0:12,samples=120]{mf(x,0.3226,1.5,1560,0.3)};
+  \addlegendentry{pista, $\lamu=\num{0.6}$}
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\muy$ efectivo}, ylabel={tiempo de skidpad (\si{\second})},
+  xmin=0.9, xmax=2.0, ymin=4.2, ymax=6.6,
+  xtick={1.0,1.2,...,2.0}, ytick={4.5,5.0,...,6.5},
+  title={(b) Calibración con el skidpad}]
+\addplot[curvaC,domain=0.9:2.0,samples=120]{6.0605/sqrt(x)};
+\draw[cursomarca] (axis cs:0.9,5.2) -- (axis cs:1.358,5.2)
+                  -- (axis cs:1.358,4.2);
+\node[cursonota,anchor=south west] at (axis cs:1.40,5.3)
+     {\SI{5.2}{\second} $\Rightarrow$\\$\muy \approx \num{1.36}$};
+\end{axis}
+\end{tikzpicture}
+\caption[Escalado del modelo y calibración con el skidpad]{(a) La curva de banco
+y la misma curva escalada al agarre de pista: el factor $\lamu$ recorta la fuerza
+disponible casi a la mitad. (b) Tiempo de vuelta de skidpad frente al coeficiente
+de agarre efectivo, según \eqref{eq:skidpad} con $R=\SI{9.125}{\meter}$. La curva
+se lee al revés de como se dibuja: se mide el tiempo y se deduce el agarre real
+del coche.}
+\label{fig:modelado:escala}
+\end{figure}
+
+\subsection{Qué aguanta y qué no el modelo escalado}
+
+Merece la pena tener claro qué conclusiones sobreviven a un error del
+\SI{10}{\percent} en $\lamu$ y cuáles no:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}Xl@{}}
+\toprule
+\textbf{Pregunta} & \textbf{¿Fiable?} \\
+\midrule
+¿Qué reparto de barras equilibra el coche? & Sí, muy poco sensible \\
+¿Conviene más rigidez delante o detrás? & Sí \\
+¿Cuánto gano quitando \SI{10}{\kilogram}? & Sí, en términos relativos \\
+¿Qué relación de transmisión pongo? & Sí \\
+¿Qué tiempo voy a hacer en el autocross? & No \\
+¿Cuántas $g$ laterales da el coche? & No: escala directamente con $\lamu$ \\
+¿Qué cargas uso para dimensionar la suspensión? & No sin un margen explícito \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+Un modelo de neumático sirve para \textbf{ordenar opciones}, no para predecir
+resultados. Las respuestas relativas ---esto es mejor que aquello, y por este
+margen--- se mantienen aunque el factor de escala esté equivocado, porque el
+error afecta igual a las dos alternativas. Las respuestas absolutas ---este
+tiempo, estas $g$, estas cargas--- se van con él.
+
+Esa es también la forma correcta de contarlo en el design event: no «nuestro
+coche da \SI{1.45}{\gacc}», sino «con el modelo escalado a partir del skidpad,
+esta configuración da un \SI{4}{\percent} más de agarre de eje que la
+alternativa, y así es como lo hemos comprobado».
+\end{clave}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Modelar sin datos]
+No estamos en el TTC y el Pirelli \texttt{185/40 R13} que montamos no está
+ensayado en ninguna ronda, así que a día de hoy \textbf{no tenemos modelo de
+neumático}. Lo que hay es un $\muy$ conservador metido a mano en las hojas de
+cálculo de transferencia de carga y de casos de carga.
+
+Eso condiciona todo el bloque, y conviene decirlo tal cual: los diagramas del
+capítulo \ref{ch:diagramas_ymd} y la simulación de vuelta del
+\ref{ch:simulacion_vuelta} no se pueden cerrar con rigor mientras esto siga así.
+Nuestras prioridades, en orden:
+
+\begin{enumerate}
+  \item \textbf{Medir el skidpad} en cuanto el coche ruede. Es gratis, no
+        necesita instrumentación y da directamente el $\muy$ efectivo con el que
+        estamos rodando, que hoy es literalmente un número supuesto.
+  \item \textbf{Decidir con datos el neumático de la temporada siguiente}: si el
+        candidato está en el TTC, entrar en el consorcio pasa a ser una compra
+        justificada y no un capricho.
+  \item \textbf{Montar el flujo de ajuste antes de tener los datos}, con
+        \texttt{ajuste\_mf.py} y sus datos sintéticos, para que el día que
+        lleguen no se pierda un mes aprendiendo a leerlos.
+\end{enumerate}
+
+\pendiente{Cerrar este recuadro con: tiempo de skidpad medido, $\muy$ efectivo
+deducido y el valor de $\muy$ que se estaba usando antes en las hojas de cálculo.
+La diferencia entre los dos últimos números es lo que este capítulo tiene que
+enseñar al equipo.}
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Meter los datos del TTC sin escalar y obtener \SI{2.5}{\gacc} laterales
+        sin que a nadie le extrañe.
+  \item Ajustar los cien coeficientes del modelo completo con datos de cuatro
+        cargas: sobra modelo y falta información.
+  \item Aceptar un ajuste porque el $R^2$ es \num{0.99}, sin mirar los residuos
+        ni comprobar $\MFB\MFC\MFD$.
+  \item Extrapolar fuera del rango ensayado y no enterarse, porque el modelo no
+        avisa.
+  \item Perder el rastro de qué versión del modelo produjo qué resultado. Los
+        coeficientes van en un fichero con fecha y con el mismo control de
+        versiones que el código.
+  \item Confundir el $\muy$ del neumático con el $\muy$ efectivo del coche: el
+        segundo es siempre menor, y es el único que se mide.
+  \item Repetir el ajuste a mano cada vez. Si no es un script que se ejecuta
+        entero de principio a fin, dentro de dos temporadas nadie sabrá
+        reproducirlo.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item El \textbf{fichero de coeficientes} del neumático de la temporada, con
+        fecha, origen de los datos, rango de validez (ángulos, cargas, presiones,
+        caídas) y factor de escala aplicado. Es el fichero del que dependen todos
+        los cálculos del bloque.
+  \item El \textbf{script de ajuste} en el repositorio, ejecutable de principio a
+        fin sobre los datos brutos, sin pasos manuales.
+  \item La \textbf{página de validación} del informe de diseño: gráfica de ajuste
+        con residuos, comparación de $\MFB\MFC\MFD$ con la pendiente medida y
+        calibración de $\lamu$ con el skidpad.
+  \item El \textbf{registro de skidpad}: tiempo, radio usado, presiones,
+        temperaturas y $\muy$ efectivo deducido, una fila por sesión.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿De dónde salen los datos de vuestro neumático?
+  \item ¿Qué factor de escala aplicáis y cómo lo habéis obtenido?
+  \item ¿Qué $\muy$ efectivo medisteis en el skidpad y cuánto se parece al que
+        predice vuestro modelo?
+  \item Enseñadme el ajuste y los residuos.
+  \item ¿Qué hace vuestro simulador cuando la carga se sale del rango ensayado?
+  \item ¿Cuánto cambiarían vuestras conclusiones si el factor de escala estuviera
+        equivocado un \SI{10}{\percent}?
 \end{enumerate}
 \end{juez}

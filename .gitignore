@@ -18,6 +18,10 @@
 *.tdo
 *.lol
 
+# --- Python (scripts de Codigo/) ---
+__pycache__/
+*.pyc
+
 # --- Sistema ---
 Thumbs.db
 desktop.ini

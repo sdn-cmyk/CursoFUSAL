@@ -118,7 +118,64 @@
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,calc,positioning,patterns,decorations.pathmorphing,decorations.pathreplacing}
 \usepackage{pgfplots}
+\usepgfplotslibrary{groupplots,fillbetween}
 \pgfplotsset{compat=1.18}
+
+% Estilo común de todas las gráficas del libro. Úsalo siempre:
+%   \begin{axis}[cursoplot, xlabel=..., ylabel=...]   una gráfica a ancho de página
+%   \begin{axis}[cursopanel, ...]                     media página (dos en paralelo)
+\pgfplotsset{/pgf/number format/.cd, use comma, 1000 sep={}}
+\pgfplotsset{
+  cursoplot/.style={
+    width=0.92\linewidth, height=6.2cm,
+    scale only axis, axis lines=left,
+    label style={font=\sffamily\small},
+    tick label style={font=\sffamily\scriptsize},
+    title style={font=\sffamily\small\bfseries,color=fusalPrim},
+    legend style={font=\sffamily\scriptsize,draw=fusalGris!50,fill=white,
+                  fill opacity=0.88,text opacity=1,rounded corners=1pt},
+    legend cell align=left,
+    grid=both, major grid style={draw=fusalGris!25},
+    minor grid style={draw=fusalGris!12},
+    scaled ticks=false, tick align=outside,
+    every axis plot/.append style={line width=0.9pt},
+    clip mode=individual},
+  % Panel para dos gráficas en paralelo. Aquí «width» es el ancho TOTAL del
+  % dibujo (rótulos incluidos), por eso lleva scale only axis=false.
+  cursopanel/.style={cursoplot, scale only axis=false,
+    width=0.47\linewidth, height=6.0cm},
+  cursotercio/.style={cursoplot, scale only axis=false,
+    width=0.32\linewidth, height=5.4cm,
+    label style={font=\sffamily\scriptsize},
+    tick label style={font=\sffamily\tiny},
+    title style={font=\sffamily\scriptsize\bfseries,color=fusalPrim},
+    legend style={font=\sffamily\tiny,draw=fusalGris!50,fill=white,
+                  fill opacity=0.88,text opacity=1,rounded corners=1pt}},
+}
+% Magic Formula de Pacejka, para dibujar curvas de neumático (capítulos 8 y 9):
+%   mf(x,B,C,D,E) = D sin( C arctan( (1-E) Bx + E arctan(Bx) ) )
+% OJO con los grados: en pgfmath atan() devuelve grados y sin() los espera, por
+% eso la arcotangente interior lleva rad(). Va aquí y no en el capítulo porque
+% declare function es global y no se puede declarar dos veces.
+\tikzset{
+  declare function={
+    mf(\x,\B,\C,\D,\E) = \D*sin(\C*atan((1-\E)*\B*\x + \E*rad(atan(\B*\x))));
+  }
+}
+
+% Colores de curva. El «cycle list» automático de pgfplots no es fiable en todas
+% las instalaciones, así que cada \addplot lleva su estilo explícito:
+%   \addplot[curvaA] ... \addplot[curvaB] ...
+\tikzset{
+  curvaA/.style={fusalPrim,thick},
+  curvaB/.style={fusalSec,thick},
+  curvaC/.style={teal!65!black,thick},
+  curvaD/.style={orange!85!black,thick},
+  curvaE/.style={violet!65!black,thick},
+  curvaAux/.style={fusalGris,thick,densely dashed},
+  cursonota/.style={font=\sffamily\scriptsize,align=center,text=fusalGris},
+  cursomarca/.style={fusalSec,densely dashed,line width=0.6pt},
+}
 
 % ---- Bibliografía ----------------------------------------------------
 \usepackage[style=numeric-comp,backend=biber,sorting=none,maxbibnames=99]{biblatex}
