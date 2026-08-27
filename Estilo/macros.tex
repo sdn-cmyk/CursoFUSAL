@@ -16,6 +16,17 @@
 % Texto guía dentro de los recuadros: qué hay que escribir ahí. Bórralo al redactar.
 \newcommand{\redactar}[1]{\textcolor{fusalGris}{\itshape #1}}
 
+% Hueco que solo se puede rellenar con datos nuestros, y que hoy no están.
+% Va en primera persona a propósito: es una nota para quien lo lea dentro de
+% unos meses, no un TODO de plantilla. Con argumento opcional se añade en una
+% línea qué es lo que falta.
+%   \otrodia
+%   \otrodia[Falta la rigidez a balanceo total, muelles y barras, en rueda.]
+\newcommand{\otrodia}[1][]{%
+  \redactar{No me da tiempo, o me faltan ganas ahora mismo. Espero que cuando
+  lo vuelvas a leer ya esté anotado.%
+  \if\relax\detokenize{#1}\relax\else\ #1\fi}}
+
 % --- Dinámica vehicular ----------------------------------------------
 \newcommand{\Fz}{F_z}                       % carga vertical
 \newcommand{\Fy}{F_y}                       % fuerza lateral

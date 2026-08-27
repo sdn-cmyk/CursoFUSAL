@@ -1,56 +1,396 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Diagramas de momento de guiñada
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Diagramas de momento de guiñada}
 \label{ch:diagramas_ymd}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Explicar qué es un diagrama de momento de guiñada y qué pregunta
+        contesta que el capítulo \ref{ch:regimen_estacionario} no contesta.
+  \item Construir uno: qué se barre, qué se bloquea y por qué hay que iterar.
+  \item Leer en él el agarre máximo, el balance en el límite, la estabilidad y
+        el control que le queda al piloto.
+  \item Decidir un reparto de transferencia de carga a partir del diagrama, y
+        saber qué parte de esa decisión aguanta que el modelo de neumático sea
+        malo.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{90 minutos}{Capítulos \ref{ch:modelado_neumatico} y
+\ref{ch:regimen_estacionario}}{Ordenador con
+\texttt{Codigo/dinamica/ymd.py}}
 
+El capítulo anterior deja dos preguntas sin contestar. La primera: el gradiente
+de subviraje describe el coche lejos del límite, pero ¿qué hace \emph{en} el
+límite? La segunda: el cálculo de balance mira si cada eje llega o no llega,
+pero no dice qué margen de maniobra le queda al piloto cuando llega.
+
+El \textbf{diagrama de momento de guiñada} ---\emph{Yaw Moment Diagram} (YMD),
+o método del momento de Milliken (MMM)--- contesta las dos a la vez
+\cite{milliken_rcvd_1995}. Es, con diferencia, la herramienta de dinámica
+vehicular que más información da por línea de código, y la que mejor queda en
+un design event si se sabe explicar.
+
+% ---------------------------------------------------------------------
 \section{Construcción del diagrama YMD/MMM}
 \label{sec:diagramas_ymd:01}
-\pendiente{Pendiente de redactar.}
+\index{diagrama de momento de guiñada}\index{YMD}\index{MMM}
 
+\subsection{La idea: bloquear la guiñada}
+
+En un coche real, si el momento de guiñada no es cero el coche acelera en
+guiñada, cambia su velocidad de giro y el estado se mueve. Solo se pueden
+sostener los estados con momento nulo, así que en régimen estacionario nunca se
+ve el resto del mapa.
+
+El truco del MMM es un experimento imaginario: \textbf{sujetar el coche en
+guiñada}, como en un túnel de viento, y obligarle a mantener un ángulo de
+deriva $\beta$ y un ángulo de dirección $\delta$ cualesquiera. Entonces se
+pueden calcular las dos magnitudes que interesan para \emph{cualquier}
+combinación, no solo para las sostenibles:
+
+\begin{equation}
+  \ay = \frac{\Fy^{\text{del}} + \Fy^{\text{tra}}}{m},
+  \qquad
+  N = a\,\Fy^{\text{del}} - b\,\Fy^{\text{tra}}
+  \label{eq:ymd_ay_n}
+\end{equation}
+
+Representando $N$ frente a $\ay$ para toda una malla de $\beta$ y $\delta$ sale
+una red de líneas: el diagrama. Los estados que el coche puede sostener de
+verdad son los de $N = 0$; el resto del dibujo es lo que el coche
+\emph{intentaría} hacer, y ahí está la información sobre estabilidad.
+
+\begin{clave}
+Con la guiñada bloqueada ($r = 0$) los ángulos de deriva se simplifican a
+\begin{equation*}
+  \slipa_{\text{del}} = \beta - \delta,
+  \qquad
+  \slipa_{\text{tra}} = \beta
+\end{equation*}
+y desaparece la velocidad de la ecuación \eqref{eq:slip_ejes}. Consecuencia
+práctica: \textbf{para un coche sin aerodinámica, el diagrama es el mismo a
+cualquier velocidad}. Un solo dibujo describe el coche entero.
+
+En cuanto haya alerones esto se acaba, porque la carga aerodinámica cambia con
+$V^2$: habrá que hacer un diagrama por velocidad, y ese es uno de los costes
+ocultos del paquete aerodinámico que el capítulo
+\ref{ch:merece_la_pena_aero} tiene que contabilizar.
+\end{clave}
+
+\subsection{El bucle que hay que iterar}
+
+Hay una pescadilla que se muerde la cola: la transferencia de carga depende de
+$\ay$, y $\ay$ depende de las fuerzas laterales, que dependen de la carga de
+cada rueda. No se puede resolver de un tirón, así que se itera
+(\cref{fig:ymd:bucle}). Con relajación, porque cerca del límite el punto fijo
+oscila si se aplica entero.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=6mm and 9mm]
+  \node[terminal] (ini) {elegir $\beta$ y $\delta$};
+  \node[proceso, below=of ini] (alfa)
+       {$\slipa_{\text{del}}=\beta-\delta$\\$\slipa_{\text{tra}}=\beta$};
+  \node[proceso, below=of alfa] (trans)
+       {transferencia de carga\\con la $\ay$ que haya};
+  \node[proceso, below=of trans] (cargas)
+       {carga de las cuatro ruedas};
+  \node[proceso, below=of cargas] (fuerzas)
+       {$\Fy$ de cada rueda\\con la Magic Formula};
+  \node[proceso, below=of fuerzas] (nueva) {nueva $\ay$};
+  \node[decision, below=of nueva] (conv) {¿ha convergido?};
+  \node[terminal, below=of conv] (fin) {punto $(\ay,\,N)$};
+  \node[nota, right=of trans] (n1)
+       {la primera vuelta se entra con $\ay = 0$};
+  \node[nota, right=of conv] (n2)
+       {con relajación: cerca del límite, si no, oscila};
+
+  \draw[flujo] (ini) -- (alfa);
+  \draw[flujo] (alfa) -- (trans);
+  \draw[flujo] (trans) -- (cargas);
+  \draw[flujo] (cargas) -- (fuerzas);
+  \draw[flujo] (fuerzas) -- (nueva);
+  \draw[flujo] (nueva) -- (conv);
+  \draw[flujo] (conv) -- node[etiq,right] {sí} (fin);
+  \draw[flujo] (conv.west) -- ++(-1.5,0) |- node[etiq,left,pos=0.25] {no} (trans.west);
+  \draw[aviso] (n1) -- (trans);
+  \draw[aviso] (n2) -- (conv);
+\end{tikzpicture}
+\caption[Bucle de cálculo de un punto del diagrama]{Cómo se calcula un punto
+del diagrama. El bucle existe porque la transferencia de carga depende de la
+aceleración lateral y la aceleración lateral depende de la transferencia de
+carga. El diagrama completo es este bucle repetido para cada combinación de
+$\beta$ y $\delta$ de la malla.}
+\label{fig:ymd:bucle}
+\end{figure}
+
+% ---------------------------------------------------------------------
 \section{Lectura e interpretación}
 \label{sec:diagramas_ymd:02}
-\pendiente{Pendiente de redactar.}
+\index{YMD!lectura}
 
+La \cref{fig:ymd:diagrama} es el diagrama de un coche de Formula Student
+genérico. Cuesta un rato entenderlo la primera vez, así que conviene leerlo por
+partes.
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[Las dos familias de líneas] Una familia es $\delta$ constante ---lo que
+    hace el coche si el piloto no mueve el volante y el coche desliza más---; la
+    otra es $\beta$ constante, es decir, cómo responde el coche al volante para
+    un deslizamiento dado.
+  \item[El eje horizontal: agarre] El punto más a la derecha marca la máxima
+    aceleración lateral que el coche es capaz de generar. Aquí,
+    \SI{1.57}{\gacc}.
+  \item[La línea $N = 0$: lo sostenible] Solo los puntos donde el diagrama corta
+    el eje horizontal son estados de equilibrio. El corte más alejado del origen
+    es la \textbf{máxima aceleración lateral equilibrada}, que aquí vale
+    \SI{1.56}{\gacc}: lo que el coche puede sostener en una curva de verdad.
+  \item[Los cuatro cuadrantes] Arriba a la derecha el coche gira más de lo que
+    el piloto pide (le sobra momento); abajo a la derecha, menos. Es
+    sobreviraje y subviraje, pero medidos en newton-metro y no en sensaciones.
+\end{description}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=7.4cm, width=0.86\linewidth,
+  xlabel={$\ay$ (\si{\gacc})}, ylabel={momento de guiñada $N$ (\si{\newton\meter})},
+  xmin=-1.85, xmax=1.85, ymin=-4400, ymax=4400,
+  xtick={-1.5,-1,...,1.5}, ytick={-4000,-2000,0,2000,4000},
+  legend pos=north west]
+\addplot[fusalPrim,line width=0.7pt] table[empty line=jump]
+  {Codigo/dinamica/ymd_delta.dat};
+  \addlegendentry{$\delta$ constante}
+\addplot[fusalSec,line width=0.7pt,densely dashed] table[empty line=jump]
+  {Codigo/dinamica/ymd_beta.dat};
+  \addlegendentry{$\beta$ constante}
+\draw[fusalGris] (axis cs:-1.85,0) -- (axis cs:1.85,0);
+\addplot[only marks,mark=*,mark size=2pt,teal!65!black]
+  coordinates {(1.564,0) (-1.564,0)};
+\node[cursonota,anchor=north east,text=teal!65!black]
+  at (axis cs:1.82,-500) {máxima $\ay$\\equilibrada};
+\node[cursonota,anchor=north east] at (axis cs:1.82,4250)
+  {giro a la derecha,\\le sobra momento:\\sobrevira};
+\node[cursonota,anchor=south east] at (axis cs:1.82,-4250)
+  {giro a la derecha,\\le falta momento:\\subvira};
+\end{axis}
+\end{tikzpicture}
+\caption[Diagrama de momento de guiñada]{Diagrama de momento de guiñada de un
+coche de Formula Student genérico (\SI{300}{\kilogram}, reparto \num{48}/\num{52},
+$\LLTD = \num{0.50}$), calculado con \texttt{ymd.py} y el neumático sintético
+del capítulo \ref{ch:neumatico}. Cada línea azul es un ángulo de dirección
+constante; cada línea roja discontinua, un ángulo de deriva del vehículo
+constante. Solo los puntos sobre el eje horizontal son estados que el coche
+puede sostener.}
+\label{fig:ymd:diagrama}
+\end{figure}
+
+\begin{ojo}
+El diagrama es \textbf{simétrico respecto del origen}, así que uno dado la
+vuelta parece perfectamente correcto. Es la trampa de signos del apartado
+\ref{sec:regimen_estacionario:01} otra vez, y aquí no se detecta a ojo: hay que
+comprobarla a propósito con un caso conocido. En \texttt{ymd.py} la
+comprobación es que girando el volante a la derecha salgan $\ay$ y $N$
+positivos, y que un coche con el peso muy adelantado salga estable.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Estabilidad y control}
 \label{sec:diagramas_ymd:03}
-\pendiente{Pendiente de redactar.}
+\index{estabilidad}\index{control}
 
+Aquí está lo que no da ningún otro método. En cualquier punto del diagrama se
+leen dos pendientes, y cada una responde a una pregunta distinta:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Pendiente} & \textbf{Pregunta} & \textbf{Lo que quieres} \\
+\midrule
+$\pderiv{N}{\ay}$ a $\delta$ constante & Si el coche desliza más por su cuenta, ¿aparece un momento que lo endereza? & \textbf{Negativa}: estable \\
+$\pderiv{N}{\delta}$ a $\beta$ constante & ¿Le queda al piloto autoridad con el volante? & \textbf{Grande}: hay control \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+Conviene leer la estabilidad como \textbf{pendiente en el diagrama}
+($\pderiv{N}{\ay}$) y no como derivada respecto de $\beta$. El motivo es
+práctico: la pendiente es lo que se ve dibujado y no cambia de signo aunque uno
+se equivoque con el convenio de $\beta$, que es exactamente el error que más se
+comete. Lo mismo dicho sin fórmulas: \emph{si el coche empieza a irse y las
+líneas del diagrama bajan, el propio coche se recoloca; si suben, se va}.
+\end{clave}
+
+Lo importante es que \textbf{las dos cosas se miden en el límite, no en el
+centro del diagrama}. Un coche puede ser perfectamente estable circulando
+tranquilo y quedarse sin control en el límite, porque el eje delantero ya está
+saturado y girar más el volante no añade nada. Eso, en el diagrama, se ve como
+líneas de $\beta$ constante que se juntan por la derecha: el piloto mueve el
+volante y el punto de trabajo apenas se mueve.
+
+% ---------------------------------------------------------------------
 \section{Uso en decisiones de diseño}
 \label{sec:diagramas_ymd:04}
-\pendiente{Pendiente de redactar.}
+\index{YMD!uso en diseño}
+
+La utilidad real del diagrama no es dibujarlo bonito una vez, sino dibujarlo
+dos veces y comparar. El uso más rentable es barrer el reparto de transferencia
+de carga del capítulo \ref{ch:regimen_estacionario} y mirar qué le pasa al
+coche (\cref{fig:ymd:lltd}).
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\LLTD$}, ylabel={$\ay$ (\si{\gacc})},
+  xmin=0.37, xmax=0.63, ymin=1.49, ymax=1.58,
+  xtick={0.40,0.45,...,0.60}, ytick={1.50,1.52,...,1.58},
+  title={(a) Cuánto agarre se usa}, legend pos=south west]
+\addplot[curvaA] table[x=LLTD,y=AyTope] {Codigo/dinamica/ymd_lltd.dat};
+  \addlegendentry{techo del coche}
+\addplot[curvaB] table[x=LLTD,y=AyEquilibrada] {Codigo/dinamica/ymd_lltd.dat};
+  \addlegendentry{equilibrada, $N=0$}
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={$\LLTD$}, ylabel={$N/(m g \batalla)$ en el techo de agarre},
+  xmin=0.37, xmax=0.63, ymin=-0.042, ymax=0.042,
+  xtick={0.40,0.45,...,0.60}, ytick={-0.03,-0.02,...,0.03},
+  title={(b) Hacia qué lado se desequilibra}]
+\addplot[curvaC] table[x=LLTD,y=margen] {Codigo/dinamica/ymd_lltd.dat};
+\draw[fusalGris] (axis cs:0.37,0) -- (axis cs:0.63,0);
+\node[cursonota,anchor=north,text=fusalSec] at (axis cs:0.50,0.041)
+     {$N>0$: le sobra momento, sobrevira};
+\node[cursonota,anchor=south,text=fusalPrim] at (axis cs:0.50,-0.041)
+     {$N<0$: le falta momento, subvira};
+\end{axis}
+\end{tikzpicture}
+\caption[Efecto del reparto de transferencia de carga]{Lo que el diagrama dice
+sobre el reparto de transferencia de carga. (a) El techo de agarre del coche
+apenas se mueve (\SI{1.566}{\gacc} de punta a punta), pero la aceleración que
+puede \emph{sostener} sí: hay un óptimo. (b) En el punto de máximo agarre queda
+un momento de guiñada sin equilibrar, y su signo es el balance en el límite;
+cruza cero en $\LLTD \approx \num{0.50}$. Calculado con \texttt{ymd.py}.}
+\label{fig:ymd:lltd}
+\end{figure}
+
+\begin{clave}
+La lectura del panel (a) es la que cambia la forma de pensar: \textbf{el reparto
+de transferencia de carga casi no cambia cuánto agarre tiene el coche, sino si
+el coche puede usarlo}. El techo se mueve un \SI{0.4}{\percent} entre los
+extremos del barrido; la aceleración sostenible, un \SI{3.5}{\percent}. Un coche
+mal repartido no es un coche sin agarre: es un coche con agarre que no puede
+aprovechar porque un eje se rinde antes que el otro.
+\end{clave}
+
+Merece la pena señalar que este cruce ---$\LLTD \approx \num{0.50}$--- es el
+mismo que sale del cálculo mucho más simple de la
+\cref{fig:estacionario:lltd}, hecho con otro modelo y otro programa. Que dos
+caminos independientes den el mismo número es la mejor validación barata que se
+puede hacer, y conviene tenerla presente: \textbf{si el YMD y la hoja de
+balance no coinciden, uno de los dos está mal}, y casi siempre es un signo o
+una altura.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}Xl@{}}
+\toprule
+\textbf{Pregunta} & \textbf{¿Aguanta un modelo de neumático malo?} \\
+\midrule
+¿Qué reparto de barras equilibra el coche? & Sí \\
+¿En qué dirección mover el $\LLTD$ si sobrevira? & Sí \\
+¿Gano o pierdo estabilidad al bajar el $\CdG$? & Sí \\
+¿Cuántas $g$ laterales da el coche? & No \\
+¿Cuánto margen de control queda en el límite? & Solo cualitativamente \\
+\bottomrule
+\end{tabularx}
+\end{center}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Todavía no tenemos diagrama]
+Hoy no tenemos YMD del coche, y no es por falta de herramienta: el programa
+está escrito y funciona. Es que no tenemos con qué alimentarlo. Faltan las dos
+entradas de las que depende todo:
+
+\begin{enumerate}
+  \item El \textbf{modelo de neumático} del capítulo
+        \ref{ch:modelado_neumatico}, que no existe porque nuestro Pirelli no
+        está ensayado en el TTC.
+  \item El \textbf{reparto de transferencia de carga}, que no se puede calcular
+        sin la rigidez a balanceo del capítulo \ref{ch:regimen_estacionario}.
+\end{enumerate}
+
+Con lo que hay, el diagrama saldría, pero sería un dibujo bonito de un coche
+que no es el nuestro. Lo honesto ---y lo que hay que decir en el design
+event--- es que el diagrama es el paso siguiente y no un paso dado.
+
+\medskip
+Lo que sí se puede hacer ya, sin datos y sin coche, es usar
+\texttt{ymd.py} con los parámetros genéricos para ver \emph{en qué dirección}
+mueven las cosas: qué le pasa al balance al subir el centro de balanceo
+trasero, o cuánto margen de $\LLTD$ hay antes de que el coche se vuelva
+desagradable. Eso vale desde hoy y no depende de tener el neumático.
+
+\medskip
+\otrodia[Faltan el diagrama con nuestros parámetros, el $\LLTD$ elegido y la
+justificación de por qué ese y no otro.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Presentar un diagrama sin decir a qué velocidad y con qué carga
+        aerodinámica está hecho. Sin aero da igual; con aero es imprescindible.
+  \item Dibujar el diagrama del revés por un signo y no enterarse, porque es
+        simétrico.
+  \item Leer el agarre máximo en el punto más a la derecha en vez de en el corte
+        con $N = 0$. El coche no puede sostener el primero.
+  \item Juzgar la estabilidad en el centro del diagrama, que es donde a nadie le
+        importa, en vez de en el límite.
+  \item Barrer una sola variable y quedarse con el óptimo. El óptimo de $\LLTD$
+        se mueve al cambiar la altura del centro de gravedad, el neumático o las
+        presiones.
+  \item Creerse las $g$ absolutas del diagrama. Escalan con el factor $\lamu$
+        del capítulo \ref{ch:modelado_neumatico} igual que todo lo demás.
+  \item Elegir el reparto que da más agarre y montarlo sin preguntar al piloto.
+        El coche más rápido en el papel y el que el piloto puede llevar al
+        límite no siempre son el mismo (capítulo \ref{ch:piloto_ensayos_pista}).
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item El \textbf{diagrama del coche} en una página, con los parámetros usados
+        escritos al lado: masa, reparto, $\hcg$, vía, $\LLTD$ y de dónde sale el
+        modelo de neumático.
+  \item El \textbf{barrido de $\LLTD$}: aceleración equilibrada y balance en el
+        límite frente al reparto, y el valor elegido señalado.
+  \item La \textbf{comprobación cruzada} contra la hoja de balance del capítulo
+        \ref{ch:regimen_estacionario}: los dos métodos deben dar el mismo
+        reparto neutro.
+  \item Una \textbf{tabla de sensibilidades} en el formato del capítulo
+        \ref{ch:coche_como_sistema}: cuánto se mueve el balance por cada
+        \SI{10}{\milli\meter} de $\hcg$, por cada punto de $\LLTD$ y por cada
+        décima de bar de presión.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Qué os dice vuestro diagrama que no os dijera ya el gradiente de
+        subviraje?
+  \item ¿A qué velocidad está calculado y por qué da igual (o no)?
+  \item ¿Dónde está el punto de máxima aceleración lateral equilibrada?
+  \item ¿El coche es estable en el límite? Enseñádmelo en el diagrama.
+  \item ¿Cuánto control con el volante le queda al piloto ahí?
+  \item ¿Qué $\LLTD$ habéis elegido y qué habéis descartado?
+  \item ¿Coincide con lo que os dice la hoja de transferencia de carga?
 \end{enumerate}
 \end{juez}

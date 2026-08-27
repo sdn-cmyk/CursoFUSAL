@@ -1,60 +1,706 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Cinemática de la suspensión
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Cinemática de la suspensión}
 \label{ch:cinematica_suspension}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Construir el centro instantáneo y el centro de balanceo de un doble
+        trapecio, y explicar por qué el segundo no es un punto físico.
+  \item Relacionar la longitud del brazo oscilante virtual con la ganancia de
+        caída y con la variación de vía, y saber por qué no se pueden tener las
+        dos cosas a la vez.
+  \item Colocar el tirante de dirección para anular el bump steer, y comprobar
+        que está bien colocado.
+  \item Calcular el porcentaje de antihundimiento y de antilevantamiento, y
+        decidir con criterio si conviene o no llevarlos.
+  \item Definir salida, avance, rastro y radio de pivotamiento, y predecir qué
+        le hace cada uno al tacto de la dirección y a la caída en curva.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{120 minutos}{Capítulos \ref{ch:neumatico} y
+\ref{ch:regimen_estacionario}}{Ordenador con VSusp o equivalente,
+\texttt{Codigo/suspension/cinematica.py} y el CAD de la suspensión}
 
+La cinemática es la disciplina que decide \emph{en qué postura llega el
+neumático al suelo} en cada instante de la vuelta. Todo lo demás de este bloque
+---muelles, amortiguadores, manguetas, trapecios--- existe para sostener esa
+postura y para no romperse. Por eso la cinemática se congela primero: cambiar
+un punto duro cuando las manguetas están mecanizadas cuesta una temporada.
+
+\begin{clave}
+Los objetivos de este capítulo no son suyos: vienen del capítulo
+\ref{ch:regimen_estacionario}. La cinemática no decide cuánta transferencia de
+carga hay ni cuánto agarre tiene el coche; decide \textbf{cómo se reparte} esa
+transferencia y \textbf{con qué ángulo} apoya el neumático. Un capítulo de
+cinemática que no cite números del bloque de dinámica vehicular es un capítulo
+de dibujo técnico.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Centros instantáneo y de balanceo}
 \label{sec:cinematica_suspension:01}
-\pendiente{Pendiente de redactar.}
+\index{centro instantáneo}\index{centro de balanceo}\index{brazo oscilante virtual}
 
+\subsection{La construcción}
+
+Vista de frente, una suspensión de doble trapecio es un cuadrilátero
+articulado. En cada instante, la mangueta gira respecto al chasis alrededor de
+un punto: el \textbf{centro instantáneo} (CI), que se obtiene prolongando los
+dos trapecios hasta que se cortan (\cref{fig:cinematica:centros}).
+
+De ahí salen las dos magnitudes que se usan a diario:
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[Brazo oscilante virtual] La distancia horizontal del centro instantáneo
+    a la huella de contacto. Es el radio del arco que describe la rueda, y
+    gobierna la ganancia de caída y la variación de vía.
+  \item[Centro de balanceo] Se traza la recta que une el centro instantáneo con
+    la huella de contacto; donde corta al plano de simetría del coche está el
+    centro de balanceo (CB). Su altura es la que entra en el término geométrico
+    de la transferencia de carga, ecuación
+    \eqref{eq:transferencia_tres_terminos}.
+\end{description}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=2mm]}]
+  % suelo y plano de simetría
+  \draw[fusalGris] (-2.3,0) -- (7.6,0);
+  \draw[fusalGris,densely dashed] (0,-0.35) -- (0,2.6);
+  \node[cursonota,anchor=south] at (0,2.65) {plano de simetría};
+  % rueda
+  \draw[fusalGris,fill=fusalGris!12,line width=1pt] (6.2,1.15) circle (1.15);
+  \fill[fusalGris] (6.2,1.15) circle (1.6pt);
+  \node[cursonota,anchor=west] at (7.45,1.15) {centro\\de rueda};
+  \fill[fusalPrim] (6.2,0) circle (2pt);
+  \node[cursonota,anchor=north,text=fusalPrim] at (6.2,-0.12) {huella};
+  % trapecios
+  \draw[fusalPrim,very thick] (2.2,0.816) -- (5.6,0.6);
+  \draw[fusalPrim,very thick] (2.5,1.536) -- (5.5,1.9);
+  \foreach \p in {(2.2,0.816),(2.5,1.536),(5.6,0.6),(5.5,1.9)}
+     \fill[fusalPrim] \p circle (1.7pt);
+  % mangueta
+  \draw[fusalGris,very thick] (5.6,0.6) -- (5.5,1.9);
+  \draw[fusalGris] (5.55,1.25) -- (4.55,2.25);
+  \node[cursonota,anchor=south east] at (4.55,2.25) {mangueta};
+  % prolongaciones hasta el CI
+  \draw[fusalPrim,densely dotted] (5.6,0.6) -- (-1.5,1.05);
+  \draw[fusalPrim,densely dotted] (5.5,1.9) -- (-1.5,1.05);
+  \fill[fusalSec] (-1.5,1.05) circle (2.2pt);
+  \node[cursonota,anchor=south,text=fusalSec] at (-1.5,1.18) {CI};
+  % recta CI - huella y centro de balanceo
+  \draw[fusalSec,thick] (-1.5,1.05) -- (6.2,0);
+  \fill[fusalSec] (0,0.8455) circle (2.2pt);
+  \node[cursonota,anchor=south west,text=fusalSec] at (0.12,0.88) {CB};
+  % brazo oscilante
+  \draw[fusalGris,<->] (-1.5,-0.75) -- (6.2,-0.75);
+  \node[cursonota,anchor=north,fill=white] at (2.35,-0.72)
+       {brazo oscilante virtual};
+\end{tikzpicture}
+\caption[Construcción del centro instantáneo y del centro de balanceo]{Cómo se
+construyen el centro instantáneo y el centro de balanceo en vista frontal. Se
+prolongan los dos trapecios hasta cortarse: ahí está el CI. La recta que une el
+CI con la huella de contacto corta el plano de simetría en el CB. \textbf{Los
+ángulos están muy exagerados}: en un coche real el CI cae varios metros al otro
+lado del coche y el centro de balanceo queda a pocos centímetros del suelo.}
+\label{fig:cinematica:centros}
+\end{figure}
+
+\begin{ojo}
+\textbf{El centro de balanceo no es un punto físico y no es un pivote.} Es una
+construcción geométrica que sirve para dos cosas concretas: repartir la
+transferencia de carga entre la parte geométrica y la elástica, y estimar en
+torno a qué altura balancea la carrocería. Nada gira alrededor de él.
+
+Dos consecuencias que se olvidan siempre:
+
+\begin{itemize}
+  \item \textbf{Se mueve.} En cuanto la suspensión trabaja, el CI se desplaza y
+        el CB con él. En nuestra geometría de ejemplo baja unos
+        \SI{0.44}{\milli\meter} por cada milímetro de compresión, y en balanceo
+        además se va lateralmente. Un CB «de \SI{30}{\milli\meter}» es el valor
+        en una única postura, la de reposo.
+  \item \textbf{Los dos lados no coinciden.} Con el coche balanceado, la
+        construcción de la rueda exterior y la de la interior dan puntos
+        distintos. Lo que se usa entonces es una media, y por eso el modelo 2D
+        de este capítulo es una aproximación y no una verdad.
+\end{itemize}
+\end{ojo}
+
+\subsection{Alto, bajo, y el efecto de gato}
+
+La altura del centro de balanceo es un compromiso, no algo que se maximice:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Centro de balanceo} & \textbf{A favor} & \textbf{En contra} \\
+\midrule
+Alto & Más transferencia geométrica, menos balanceo, respuesta más inmediata &
+  Efecto de gato, mucha variación de vía, el coche «trepa» en curva \\
+Bajo (o negativo) & Poco efecto de gato, vía estable, balanceo predecible &
+  Todo el trabajo lo hacen muelles y barras; más balanceo para la misma
+  rigidez \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+El \textbf{efecto de gato} merece una explicación propia porque es la razón
+principal para no subir el CB alegremente. La fuerza lateral del neumático se
+transmite al chasis a lo largo de la recta que une la huella con el centro
+instantáneo. Si esa recta sube hacia el interior del coche, la fuerza lateral
+tiene una componente vertical que \emph{levanta} la masa suspendida en el lado
+exterior. Y al levantarla sube el centro de gravedad, lo que aumenta la
+transferencia de carga, lo que aumenta la fuerza lateral en el exterior: la
+pescadilla se muerde la cola. En casos extremos el coche se sube sobre sí mismo
+a mitad de curva y suelta el eje de golpe.
+
+\begin{clave}
+La componente vertical que aparece en cada rueda es
+$\Fy \tan\theta$, donde $\theta$ es el ángulo de la recta huella--CI con la
+horizontal. Con un CB alto ese ángulo crece deprisa, y \emph{el efecto de gato
+crece con la fuerza lateral}: no se nota en el aparcamiento y sí en el límite,
+que es cuando peor viene.
+
+Regla práctica de Formula Student: centros de balanceo entre el suelo y unos
+\SI{80}{\milli\meter}, y siempre por debajo del centro de gravedad. Por encima
+de eso hay que tener una razón muy buena y datos que la respalden.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Ganancia de caída y variación de vía}
 \label{sec:cinematica_suspension:02}
-\pendiente{Pendiente de redactar.}
+\index{ganancia de caída}\index{variación de vía}
 
+\subsection{Por qué hace falta ganancia de caída}
+
+Cuando el coche balancea un ángulo $\phi$, la carrocería se inclina y arrastra
+consigo a la mangueta. Si la suspensión no hiciera nada, la rueda exterior
+---la que importa--- se inclinaría hacia fuera exactamente $\phi$, apoyaría de
+canto sobre el hombro exterior y perdería buena parte del agarre que se vio en
+el apartado \ref{sec:neumatico:05}.
+
+La ganancia de caída existe para compensar eso. La rueda exterior se comprime,
+y al comprimirse la geometría le mete caída negativa. La cuenta que hay que
+saber hacer es esta:
+
+\begin{equation}
+  \camber_{\text{dinámica}} = \camber_{\text{estática}}
+     + \underbrace{\phi}_{\text{balanceo}}
+     + \underbrace{\left.\pderiv{\camber}{z}\right|\,\Delta z}
+       _{\text{ganancia por recorrido}}
+  \label{eq:caida_dinamica}
+\end{equation}
+
+y el objetivo es que el resultado quede cerca del óptimo del neumático, no que
+sea cero. Con la geometría de ejemplo, una ganancia de
+\SI{-0.52}{\degree} por cada \SI{25}{\milli\meter} de compresión compensa
+aproximadamente la mitad de un balanceo de \SI{1.5}{\degree}; el resto lo tiene
+que poner la caída estática.
+
+\subsection{El compromiso que no se puede evitar}
+
+Brazo oscilante corto y brazo oscilante largo hacen cosas opuestas, y no hay
+manera de tener las dos:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Brazo oscilante} & \textbf{Ganancia de caída} & \textbf{Variación de vía} \\
+\midrule
+Corto & Alta: la rueda se tumba deprisa, compensa bien el balanceo &
+  Alta: la huella se arrastra lateralmente, calienta y desgasta el neumático \\
+Largo & Baja: hay que compensar con caída estática, que penaliza en recto &
+  Baja: la huella se mantiene donde está \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+La variación de vía es un enemigo silencioso: cada milímetro que la huella se
+mueve lateralmente es un milímetro que el neumático arrastra contra el suelo,
+metiendo un ángulo de deriva parásito que nadie ha pedido. En pista se traduce
+en un coche nervioso sobre bordillos y en temperaturas de neumático que no
+cuadran con lo que se esperaba.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={recorrido (\si{\milli\meter}), $+$ compresión},
+  ylabel={caída (\si{\degree})},
+  xmin=-30, xmax=30, ymin=-0.8, ymax=0.8,
+  xtick={-30,-20,...,30}, ytick={-0.8,-0.4,...,0.8},
+  title={(a) Ganancia de caída}]
+\addplot[curvaA] table[x=recorrido,y=caida]
+  {Codigo/suspension/cinematica_barrido.dat};
+\draw[fusalGris] (axis cs:-30,0) -- (axis cs:30,0);
+\node[cursonota,anchor=south west] at (axis cs:-29,-0.78)
+     {en compresión, caída negativa:\\lo que se busca};
+\end{axis}
+\end{tikzpicture}%
+\hfill
+\begin{tikzpicture}
+\begin{axis}[cursopanel,
+  xlabel={recorrido (\si{\milli\meter}), $+$ compresión},
+  ylabel={vía (\si{\milli\meter})},
+  xmin=-30, xmax=30, ymin=1194, ymax=1202,
+  xtick={-30,-20,...,30}, ytick={1194,1196,...,1202},
+  title={(b) Variación de vía}]
+\addplot[curvaB] table[x=recorrido,y=via]
+  {Codigo/suspension/cinematica_barrido.dat};
+\end{axis}
+\end{tikzpicture}
+\caption[Ganancia de caída y variación de vía]{Barrido de recorrido de la
+geometría de ejemplo, calculado con \texttt{cinematica.py}. (a) La caída se
+hace negativa al comprimir, que es lo que compensa el balanceo. (b) La vía
+cambia menos de \SI{6}{\milli\meter} en los \SI{60}{\milli\meter} de recorrido
+total: el brazo oscilante es largo, y por eso la ganancia de caída es moderada.
+Las dos curvas salen de la misma geometría y no se pueden mejorar a la vez.}
+\label{fig:cinematica:caida_via}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=5.2cm, width=0.72\linewidth,
+  xlabel={recorrido (\si{\milli\meter}), $+$ compresión},
+  ylabel={altura del CB (\si{\milli\meter})},
+  xmin=-30, xmax=30, ymin=10, ymax=50,
+  xtick={-30,-20,...,30}, ytick={10,20,...,50}]
+\addplot[curvaC] table[x=recorrido,y=altura_cb]
+  {Codigo/suspension/cinematica_barrido.dat};
+\draw[cursomarca] (axis cs:-30,29.4) -- (axis cs:30,29.4);
+\node[cursonota,anchor=south west] at (axis cs:-29,30.5)
+     {los \SI{30}{\milli\meter} de catálogo son solo la posición de reposo};
+\end{axis}
+\end{tikzpicture}
+\caption[Migración del centro de balanceo]{El centro de balanceo no se está
+quieto: en el recorrido útil de esta geometría se mueve entre \num{16} y
+\SI{43}{\milli\meter}. Cuando alguien dice «tenemos el centro de balanceo a
+\SI{30}{\milli\meter}» está dando un punto de una curva, y conviene saber si
+la curva es plana o no.}
+\label{fig:cinematica:migracion}
+\end{figure}
+
+% ---------------------------------------------------------------------
 \section{Bump steer}
 \label{sec:cinematica_suspension:03}
-\pendiente{Pendiente de redactar.}
+\index{bump steer}\index{tirante de dirección}
 
+\subsection{Qué es y por qué es tan grave}
+
+\emph{Bump steer} es que la rueda se oriente sola al subir y bajar, sin que
+nadie toque el volante. Ocurre porque el tirante de dirección es un tercer
+brazo con su propia longitud y su propio pivote: si su arco no coincide con el
+que describe su punto de anclaje en la mangueta, la diferencia se convierte en
+convergencia.
+
+Es de los defectos más desagradables que puede tener un coche, y por dos
+razones:
+
+\begin{enumerate}
+  \item \textbf{No se puede compensar conduciendo.} El coche se orienta solo
+        cada vez que pisa un bordillo, frena o balancea. El piloto corrige,
+        pero llega tarde.
+  \item \textbf{Contamina todos los datos.} Un coche con bump steer da ángulos
+        de deriva que no corresponden al volante, y eso hace inútil cualquier
+        intento de correlacionar telemetría con el modelo.
+\end{enumerate}
+
+\subsection{Dónde va el tirante}
+
+La regla de construcción es sencilla de enunciar: \textbf{el tirante debe
+apuntar al mismo centro instantáneo que los trapecios}. Dicho de otra forma, en
+vista frontal los tres brazos ---inferior, superior y tirante--- tienen que
+converger al mismo punto. Si se cumple, el punto exterior del tirante recorre
+el mismo arco que le pide la mangueta y no sobra ni falta longitud.
+
+En la práctica esto se traduce en colocar el tirante a la altura correcta:
+demasiado alto o demasiado bajo, y aparece un término lineal de bump steer que
+es el que se nota. La \cref{fig:cinematica:bumpsteer} compara las dos
+situaciones con la geometría de ejemplo: bajar el anclaje interior
+\SI{31}{\milli\meter} convierte un residuo de \SI{0.05}{\degree} en más de
+\SI{2}{\degree}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=5.6cm, width=0.76\linewidth,
+  xlabel={recorrido (\si{\milli\meter}), $+$ compresión},
+  ylabel={convergencia inducida (\si{\degree})},
+  xmin=-30, xmax=30, ymin=-2.4, ymax=2.4,
+  xtick={-30,-20,...,30}, ytick={-2,-1,...,2},
+  legend pos=north west]
+\addplot[curvaB] table[x=recorrido,y=bump_malo]
+  {Codigo/suspension/cinematica_barrido.dat};
+  \addlegendentry{anclaje interior \SI{31}{\milli\meter} más bajo}
+\addplot[curvaA] table[x=recorrido,y=bump_bueno]
+  {Codigo/suspension/cinematica_barrido.dat};
+  \addlegendentry{tirante apuntando al CI}
+\draw[fusalGris] (axis cs:-30,0) -- (axis cs:30,0);
+\node[cursonota,anchor=south east] at (axis cs:29,-2.2)
+     {objetivo: menos de \SI{0.1}{\degree}\\en todo el recorrido};
+\end{axis}
+\end{tikzpicture}
+\caption[Efecto de la posición del tirante sobre el bump steer]{Bump steer de
+la geometría de ejemplo con el tirante bien y mal colocado. Bajar el anclaje
+interior \SI{31}{\milli\meter} basta para pasar de un residuo despreciable a
+más de \SI{2}{\degree} de convergencia parásita. La curva buena no es
+exactamente cero: queda un término de segundo orden, inevitable, que es el que
+marca lo bueno que puede llegar a ser el ajuste. Estimación 2D de
+\texttt{cinematica.py}; el número que vale es el del modelo 3D.}
+\label{fig:cinematica:bumpsteer}
+\end{figure}
+
+\begin{ojo}
+El modelo de vista frontal de este capítulo \textbf{no basta} para dar por bueno
+un bump steer. En 3D intervienen el ángulo del tirante en planta, el avance y
+la posición longitudinal de la cremallera, y el resultado puede ser bastante
+distinto. El procedimiento correcto es: colocar el tirante con la regla del
+centro instantáneo, comprobar en el modelo 3D, y \textbf{medirlo en el coche
+montado} con un comparador y un gato, que es el único número que no miente
+(capítulo \ref{ch:montaje_alineacion}).
+
+Y hay que medirlo con la dirección en varias posiciones, no solo en recto: el
+bump steer con volante girado ---\emph{roll steer}--- suele ser peor y es el
+que aparece en curva, que es cuando molesta.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Antihundimiento y antilevantamiento}
 \label{sec:cinematica_suspension:04}
-\pendiente{Pendiente de redactar.}
+\index{antihundimiento}\index{antilevantamiento}
 
+\subsection{De dónde sale el porcentaje}
+
+En vista lateral la suspensión tiene su propio centro instantáneo, y la recta
+que va de él hasta la rueda decide qué parte de la transferencia de carga
+longitudinal pasa por los brazos en vez de por los muelles.
+
+La deducción es corta y conviene hacerla en vez de copiar la fórmula. Bajo una
+frenada, el eje delantero recibe una transferencia
+$\Delta\Fz = m\,\ax\,\hcg/\batalla$ (ecuación \eqref{eq:transferencia_long}) y
+soporta una fuerza longitudinal $F_x = k_{f}\,m\,\ax$, donde $k_f$ es la
+fracción de frenada delantera. Si la recta de la vista lateral forma un ángulo
+$\theta_f$ con la horizontal, la componente vertical que se transmite por los
+brazos es $F_x \tan\theta_f$. El porcentaje de antihundimiento es el cociente:
+
+\begin{equation}
+  \%\,\text{antihundimiento} = 100\,
+     \frac{k_f\,m\,\ax \tan\theta_f}{m\,\ax\,\hcg/\batalla}
+   = 100\,k_f \tan\theta_f \frac{\batalla}{\hcg}
+  \label{eq:antidive}
+\end{equation}
+
+Para el eje trasero en aceleración, el razonamiento es el mismo con
+$k = 1$ ---toda la tracción está detrás--- y resulta
+$\%\,\text{antilevantamiento} = 100 \tan\theta_r \,\batalla/\hcg$.
+
+\begin{ojo}
+\textbf{Dónde se mide $\theta$ depende de dónde esté el par.} Con frenos
+montados en la mangueta, el par de frenado se cierra dentro del conjunto de la
+rueda y la recta se traza desde \emph{la huella de contacto}. Con el grupo
+motriz montado en el chasis ---nuestro caso: motor y diferencial en el bastidor
+y palieres a las ruedas--- el par de tracción lo reacciona el chasis, no la
+mangueta, y la recta del antilevantamiento se traza desde \emph{el centro de
+rueda}.
+
+Confundir los dos casos da porcentajes que no se parecen en nada al
+comportamiento real, y es un error clásico de primer coche.
+\end{ojo}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=2mm]}]
+  \draw[fusalGris] (-0.6,0) -- (9.6,0);
+  % rueda delantera
+  \draw[fusalGris,fill=fusalGris!12,line width=1pt] (1.5,1.0) circle (1.0);
+  \fill[fusalGris] (1.5,1.0) circle (1.5pt);
+  \fill[fusalPrim] (1.5,0) circle (2pt);
+  \node[cursonota,anchor=north,text=fusalPrim] at (1.5,-0.12) {huella};
+  % trapecios en vista lateral
+  \draw[fusalPrim,very thick] (2.05,0.55) -- (4.6,0.95);
+  \draw[fusalPrim,very thick] (2.0,1.5) -- (4.4,1.62);
+  \foreach \p in {(2.05,0.55),(4.6,0.95),(2.0,1.5),(4.4,1.62)}
+     \fill[fusalPrim] \p circle (1.5pt);
+  % prolongaciones al centro instantáneo lateral
+  \draw[fusalPrim,densely dotted] (4.6,0.95) -- (8.6,1.58);
+  \draw[fusalPrim,densely dotted] (4.4,1.62) -- (8.6,1.83);
+  \fill[fusalSec] (8.6,1.7) circle (2.2pt);
+  \node[cursonota,anchor=west,text=fusalSec] at (8.75,1.7) {CI lateral};
+  % recta de antihundimiento desde la huella
+  \draw[fusalSec,thick] (1.5,0) -- (8.6,1.7);
+  \draw[fusalGris,densely dashed] (1.5,0) -- (7.2,0);
+  \draw[fusalSec] (3.3,0) arc (0:13.5:1.8);
+  \node[cursonota,anchor=west,text=fusalSec] at (3.4,0.28) {$\theta_f$};
+  \node[cursonota,anchor=north,text=fusalSec] at (6.0,0.85)
+       {recta de antihundimiento};
+  \node[cursonota,anchor=north] at (4.2,-0.45)
+       {con freno en la mangueta, se traza desde la huella};
+\end{tikzpicture}
+\caption[Construcción del antihundimiento]{Construcción del antihundimiento en
+vista lateral. Se prolongan los trapecios hasta el centro instantáneo lateral y
+se traza la recta hasta la huella de contacto; su ángulo $\theta_f$ es el que
+entra en \eqref{eq:antidive}. Con el grupo motriz en el chasis, la recta
+equivalente del antilevantamiento sale del centro de rueda y no de la huella.}
+\label{fig:cinematica:antidive}
+\end{figure}
+
+\subsection{¿Merece la pena llevarlo?}
+
+Aquí hay menos consenso del que parece, y conviene conocer los dos lados:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{A favor} & Menos cabeceo, luego menos variación de altura libre y de
+  ángulos; plataforma más estable para la aerodinámica; el piloto percibe el
+  coche más asentado \\
+\midrule
+\textbf{En contra} & Al meter carga por los brazos, la suspensión se vuelve
+  rígida longitudinalmente y transmite los baches al chasis; cambia el avance
+  al cabecear; complica la geometría en vista lateral y puede pelearse con el
+  \emph{bump steer}; y no reduce la transferencia de carga, solo cambia por
+  dónde pasa \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+El antihundimiento \textbf{no reduce la transferencia de carga}. Es la misma
+idea del capítulo \ref{ch:regimen_estacionario} aplicada al eje longitudinal:
+la transferencia la fijan masa, altura del centro de gravedad y batalla. Lo
+único que decide la geometría es si esa carga llega al chasis por el muelle o
+por los brazos, y por tanto si el coche se hunde o no. Un coche con
+\SI{100}{\percent} de antihundimiento no frena mejor: frena igual, sin
+hundirse, y transmitiendo más baches.
+
+Para un primer coche, un valor bajo ---entre cero y un \SI{30}{\percent}--- es
+una decisión perfectamente defendible, siempre que se sepa decir por qué.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Geometría de dirección: KPI, avance y scrub}
 \label{sec:cinematica_suspension:05}
-\pendiente{Pendiente de redactar.}
+\index{salida}\index{avance}\index{radio de pivotamiento}\index{rastro}
+
+El eje de pivotamiento ---la recta que une las dos rótulas de la mangueta--- es
+alrededor del cual gira la rueda al dirigir. Su orientación se describe con dos
+ángulos y dos distancias (\cref{fig:cinematica:direccion}).
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llXl@{}}
+\toprule
+\textbf{Magnitud} & \textbf{Vista} & \textbf{Qué hace} & \textbf{Típico en FS} \\
+\midrule
+Salida (KPI) & Frontal & Autocentrado por peso; mete caída positiva a la rueda exterior al girar & \SIrange{5}{10}{\degree} \\
+Radio de pivotamiento & Frontal & Reacción de la frenada y de los baches en el volante & \SIrange{0}{30}{\milli\meter} \\
+Avance & Lateral & Autocentrado por velocidad; mete caída \emph{negativa} a la rueda exterior & \SIrange{3}{8}{\degree} \\
+Rastro mecánico & Lateral & Brazo del par autoalineante; es el tacto del límite & \SIrange{15}{35}{\milli\meter} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Los dos autocentrados no son el mismo}
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[La salida centra por peso] Al girar el volante, la geometría hace que
+    la rueda intente hundirse en el suelo; como no puede, levanta el coche. El
+    peso del coche empuja el volante de vuelta al centro. Funciona con el coche
+    parado, crece con el cuadrado del ángulo y no dice nada del agarre.
+  \item[El avance centra por fuerza lateral] Coloca la huella por detrás del eje
+    de pivotamiento una distancia ---el rastro--- y la fuerza lateral del
+    neumático, multiplicada por ese brazo, es el par que el piloto siente. Es
+    el par autoalineante del apartado \ref{sec:neumatico:02}, y \textbf{sí}
+    dice algo del agarre: se desploma cuando el neumático llega al pico.
+\end{description}
+
+\begin{clave}
+De los dos, el que hay que cuidar es el \textbf{avance}, porque es el que
+convierte el volante en un sensor. Un coche con mucho autocentrado por salida y
+poco rastro tiene un volante que vuelve solo al centro y que, sin embargo, no
+avisa de nada: el piloto no nota la diferencia entre ir al \SI{80}{\percent} y
+pasarse.
+
+Cuidado con pasarse por el otro lado: mucho avance da mucho rastro, y mucho
+rastro da un volante pesadísimo en un coche sin asistencia. El límite práctico
+en Formula Student no lo pone la teoría, lo ponen los brazos del piloto en la
+vuelta veinte del endurance.
+\end{clave}
+
+\subsection{Caída inducida al girar}
+
+Al dirigir, los dos ángulos mueven la caída de la rueda exterior en sentidos
+opuestos:
+
+\begin{itemize}
+  \item El \textbf{avance} le mete caída negativa, proporcional a
+        $\sin\delta \sin(\text{avance})$: crece con el ángulo de volante y es
+        justo lo que se quiere en una curva cerrada.
+  \item La \textbf{salida} le mete caída positiva, proporcional a
+        $(1-\cos\delta)\sin(\text{KPI})$: es de segundo orden y despreciable a
+        ángulos pequeños, pero en Formula Student se usan ángulos de dirección
+        muy grandes y a tope de volante deja de serlo.
+\end{itemize}
+
+En un trazado de conos, con horquillas cerradas y mucho volante, esto no es
+teoría fina: es una parte apreciable de la caída con la que trabaja realmente
+la rueda exterior, y hay que sumarla a la ecuación \eqref{eq:caida_dinamica}
+antes de dar por buena una caída estática.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=2mm]}]
+% ---- (a) vista frontal: KPI y radio de pivotamiento ----
+\begin{scope}
+  \draw[fusalGris] (-0.4,0) -- (3.9,0);
+  \draw[fusalGris,fill=fusalGris!12,line width=1pt] (2.5,1.15) circle (1.15);
+  \draw[fusalGris,densely dashed] (2.5,-0.5) -- (2.5,2.7);
+  % eje de pivotamiento
+  \draw[fusalSec,very thick] (3.05,0.45) -- (2.32,2.35);
+  \draw[fusalSec,densely dotted] (3.05,0.45) -- (3.24,-0.05);
+  \fill[fusalSec] (3.24,0) circle (2pt);
+  \draw[fusalSec] (2.5,1.9) arc (90:110.9:0.8);
+  \node[cursonota,anchor=east,text=fusalSec] at (1.1,2.45) {salida\\(KPI)};
+  \draw[fusalSec] (1.15,2.4) -- (2.38,2.0);
+  \draw[fusalPrim,<->] (2.5,-0.42) -- (3.24,-0.42);
+  \node[cursonota,anchor=north,text=fusalPrim] at (2.87,-0.5) {radio de\\pivotamiento};
+  \node[cursonota,anchor=north] at (1.75,-1.15) {(a) vista frontal};
+\end{scope}
+% ---- (b) vista lateral: avance y rastro ----
+\begin{scope}[xshift=6.4cm]
+  \draw[fusalGris] (-0.4,0) -- (3.9,0);
+  \draw[fusalGris,fill=fusalGris!12,line width=1pt] (1.9,1.15) circle (1.15);
+  \draw[fusalGris,densely dashed] (1.9,-0.5) -- (1.9,2.7);
+  % eje de pivotamiento inclinado hacia atrás
+  \draw[fusalSec,very thick] (1.55,0.35) -- (2.16,2.35);
+  \draw[fusalSec,densely dotted] (1.55,0.35) -- (1.44,-0.05);
+  \fill[fusalSec] (1.44,0) circle (2pt);
+  \fill[fusalPrim] (1.9,0) circle (2pt);
+  \draw[fusalSec] (1.9,1.9) arc (90:73.1:0.8);
+  \node[cursonota,anchor=west,text=fusalSec] at (3.15,2.45) {avance};
+  \draw[fusalSec] (3.1,2.4) -- (2.08,2.0);
+  \draw[fusalPrim,<->] (1.44,-0.42) -- (1.9,-0.42);
+  \node[cursonota,anchor=north,text=fusalPrim] at (1.67,-0.5) {rastro};
+  \node[cursonota,anchor=north] at (1.75,-1.15) {(b) vista lateral};
+  \draw[fusalGris,->] (3.15,0.5) -- (3.85,0.5);
+  \node[cursonota,anchor=north] at (3.5,0.42) {marcha};
+\end{scope}
+\end{tikzpicture}
+\caption[Geometría del eje de pivotamiento]{Los cuatro parámetros del eje de
+pivotamiento. (a) En vista frontal, la salida y el radio de pivotamiento, medido
+en el suelo entre el eje de pivotamiento y el plano medio de la rueda. (b) En
+vista lateral, el avance y el rastro mecánico, que es el brazo con el que la
+fuerza lateral del neumático genera el par que siente el piloto.}
+\label{fig:cinematica:direccion}
+\end{figure}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Doble trapecio, pushrod y balancines en un plano]
+La arquitectura está decidida y es deliberadamente conservadora: \textbf{doble
+trapecio con accionamiento por pushrod, balancín y amortiguador coaxial}, igual
+delante que detrás, y con \textbf{balancín, pushrod y amortiguador contenidos
+en un mismo plano vertical}.
+
+Esa última decisión es la que más nos define y conviene saber defenderla. Lo
+que se gana: la relación de instalación es casi constante y fácil de calcular,
+el mecanismo se entiende de un vistazo, y el análisis y el montaje se
+simplifican mucho. Lo que se pierde: libertad de empaquetado, la posibilidad de
+darle progresividad a la relación de instalación, y la de bajar los esfuerzos
+en el pushrod. Un montaje en tres dimensiones saldría más ligero. Aceptamos ese
+peaje a cambio de garantizar una base correcta y comprensible en el primer
+coche.
+
+Lo demás que está fijado:
+
+\begin{itemize}
+  \item \textbf{Centros de balanceo a \SI{30}{\milli\meter} delante y
+        \SI{80}{\milli\meter} detrás}, por las razones del capítulo
+        \ref{ch:regimen_estacionario}.
+  \item \textbf{Caída estática de \SI{-1.5}{\degree} delante y
+        \SI{-1.0}{\degree} detrás}, con una ganancia moderada, elegidas con la
+        curva de VSusp y experiencia de otros equipos, \emph{no} con datos de
+        agarre. Es una base razonable, no un óptimo.
+  \item \textbf{Antihundimiento y antilevantamiento prácticamente nulos.} No es
+        un olvido: no teníamos criterio para elegir un valor, y preferimos
+        partir de cero y medir antes que copiar un porcentaje.
+  \item \textbf{Anclaje de dirección intercambiable en la mangueta.} Se puede
+        cambiar la posición del extremo exterior del tirante ---longitud del
+        brazo de dirección, que es Ackermann, y altura, que es bump steer---
+        sin fabricar una mangueta nueva. Es un habilitador de ensayo, no un
+        adorno.
+  \item \textbf{Rótulas del tirante en doble cortadura}, para quitar flexión en
+        la unión y reducir holguras: la precisión de la dirección es lo que
+        hace utilizables los datos.
+\end{itemize}
+
+\medskip
+\textbf{Lo que sí hicimos bien y hay que seguir haciendo:} construimos la
+cinemática \textbf{dos veces}, en VSusp y en una hoja de cálculo propia, y
+cruzamos altura de centro de balanceo, vía y ganancia de caída. Las diferencias
+fueron de pocos milímetros y pocos puntos porcentuales, y venían de la
+idealización 2D frente a 3D y de redondeos de coordenadas; donde no cuadraban,
+el motivo siempre resultó ser un error de entrada. Hacerlo dos veces es un paso
+de verificación barato que evita que un error de geometría llegue al taller.
+
+\medskip
+\otrodia[Faltan los puntos duros congelados, la ganancia de caída y la curva de
+bump steer reales, y el bump steer medido en el coche montado.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Tratar el centro de balanceo como un pivote físico, o darlo como un
+        número sin decir en qué postura está medido.
+  \item Subir el centro de balanceo para «reducir el balanceo» sin contar el
+        efecto de gato ni la variación de vía que viene con él.
+  \item Buscar mucha ganancia de caída sin mirar lo que pasa con la vía.
+  \item Dar por bueno el bump steer con un modelo 2D, o medirlo solo con la
+        dirección recta.
+  \item Poner antihundimiento porque «los coches de verdad lo llevan», sin
+        saber contra qué caso de frenada está calculado.
+  \item Trazar la recta del antilevantamiento desde la huella teniendo el
+        grupo motriz en el chasis.
+  \item Optimizar la cinemática con un neumático que no es el nuestro y
+        presentar el resultado como un óptimo.
+  \item Cambiar un punto duro después de mecanizar las manguetas. Es la forma
+        más cara de aprender esto.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{tabla de puntos duros} en coordenadas del coche, con origen y
+        convenio declarados, en el formato del capítulo \ref{ch:puntos_duros}.
+  \item Las \textbf{cinco curvas} de la geometría, delante y detrás: caída, vía,
+        altura de centro de balanceo, bump steer y relación de instalación,
+        todas frente al recorrido y en el rango real de trabajo.
+  \item La \textbf{comprobación cruzada} entre dos herramientas independientes,
+        con la tabla de diferencias y la explicación de cada una.
+  \item La \textbf{hoja de objetivos} que conecta cada decisión de geometría con
+        el número del bloque de dinámica vehicular del que sale.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Dónde está vuestro centro de balanceo y cuánto se mueve en el
+        recorrido?
+  \item ¿Cuánta ganancia de caída tenéis y por qué esa y no más?
+  \item ¿Cuánta vía perdéis en compresión?
+  \item Enseñadme la curva de bump steer. ¿La habéis medido en el coche?
+  \item ¿Cuánto antihundimiento lleváis y contra qué frenada está calculado?
+  \item ¿Qué avance y qué rastro tenéis, y cómo habéis decidido el esfuerzo en
+        el volante?
+  \item ¿Cuánta caída gana la rueda exterior a tope de volante?
+  \item ¿Con qué habéis verificado la cinemática además de con la herramienta
+        que la generó?
 \end{enumerate}
 \end{juez}

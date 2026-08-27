@@ -1,60 +1,411 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Casos de carga y dimensionado
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Casos de carga y dimensionado}
 \label{ch:casos_carga}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Definir una tabla de casos de carga defendible, sabiendo de dónde sale
+        cada número.
+  \item Justificar los factores de bache y los coeficientes de seguridad en vez
+        de heredarlos.
+  \item Resolver a mano el equilibrio de una esquina y obtener la carga de cada
+        barra.
+  \item Usar el elemento finito para lo que sirve, con convergencia de malla
+        demostrada.
+  \item Decidir qué merece la pena ensayar físicamente y con qué montaje.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{120 minutos}{Capítulos \ref{ch:mecanica_aplicada},
+\ref{ch:regimen_estacionario} y \ref{ch:cinematica_suspension}}%
+{Ordenador con \texttt{Codigo/suspension/cargas\_esquina.py} y el CAD}
 
+\begin{clave}
+La pregunta que más suspende en el design event es \textbf{«¿de dónde salen tus
+cargas?»}. No se contesta con un coeficiente de seguridad ni con un color de
+tensiones: se contesta con una cadena que empieza en una aceleración medida o
+razonada, pasa por la transferencia de carga del capítulo
+\ref{ch:regimen_estacionario} y termina en la fuerza axial de cada barra. Este
+capítulo es esa cadena.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Definición de los casos de carga}
 \label{sec:casos_carga:01}
-\pendiente{Pendiente de redactar.}
+\index{casos de carga}
 
+\subsection{De dónde salen las aceleraciones}
+
+Un caso de carga es una combinación de aceleraciones que el coche va a ver.
+Hay cuatro sitios de donde pueden salir, y no valen lo mismo:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Origen} & \textbf{Qué tan bueno es} & \textbf{Cuándo} \\
+\midrule
+Telemetría propia & Lo mejor: es tu coche en tu pista & Cuando ya se ha rodado \\
+Modelo de neumático propio & Muy bueno si el modelo está validado & Cap. \ref{ch:modelado_neumatico} \\
+Datos de equipos parecidos & Aceptable como punto de partida & Primer coche \\
+Valores de la bibliografía & El último recurso, y hay que decirlo & Primer coche \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Los valores de referencia que se manejan en Formula Student ---y que hay que
+usar como punto de partida, no como respuesta--- están en torno a
+\SIrange{1.5}{2.5}{\gacc} laterales según neumático y aerodinámica,
+\SIrange{1.5}{2}{\gacc} de frenada y \SIrange{3}{5}{\gacc} verticales en bache
+o bordillo.
+
+\begin{ojo}
+\textbf{Los nuestros tienen que salir de nuestros datos, no de esa lista.} Un
+coche sin aerodinámica y con un neumático duro no da \SI{2.5}{\gacc}: dar por
+buena la cifra alta de la horquilla produce una suspensión pesada dimensionada
+para un coche que no existe. Y al revés, usar la cifra baja sin justificarla es
+igual de indefendible.
+\end{ojo}
+
+\subsection{La tabla}
+
+Los casos que hay que tener, como mínimo, son estos. La columna vertical incluye
+el factor de bache del apartado siguiente:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lSSSX@{}}
+\toprule
+\textbf{Caso} & {$\ax$ (\si{\gacc})} & {$\ay$ (\si{\gacc})} & {$a_z$ (\si{\gacc})} & \textbf{Qué dimensiona} \\
+\midrule
+Frenada máxima      & -1.5 & 0.0 & 1.0 & Trapecios, anclajes, frenos \\
+Curva máxima        &  0.0 & 1.4 & 1.0 & Mangueta, rótulas, tirante \\
+Frenada en curva    & -1.1 & 1.0 & 1.0 & Combinado: suele mandar en la mangueta \\
+Aceleración         &  1.0 & 0.0 & 1.0 & Trapecios traseros, palieres \\
+Bache con frenada   & -1.0 & 0.0 & 3.0 & \textbf{Casi siempre el crítico} \\
+Bordillo vertical   &  0.0 & 0.0 & 3.5 & Pushrod, balancín, amortiguador \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+Los casos combinados no son la suma de los puros, y son los que mandan. Un
+neumático no puede dar \SI{1.5}{\gacc} de frenada y \SI{1.4}{\gacc} de lateral a
+la vez: la elipse de fricción del apartado \ref{sec:neumatico:03} lo prohíbe. Por
+eso el caso de frenada en curva se plantea sobre la elipse ---por ejemplo
+\SI{1.1}{\gacc} y \SI{1.0}{\gacc}, que están dentro--- y no sumando los máximos,
+que daría cargas imposibles y una suspensión absurdamente pesada.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Factores de bump y coeficientes de seguridad}
 \label{sec:casos_carga:02}
-\pendiente{Pendiente de redactar.}
+\index{factor de bache}\index{coeficiente de seguridad}
 
+\subsection{El factor de bache}
+
+La carga vertical de un bache no se calcula: se estima con un factor sobre la
+estática. Es la parte más arbitraria del capítulo y conviene reconocerlo. Un
+factor de \numrange{3}{4} sobre la carga estática es lo habitual en Formula
+Student, y lo que hay detrás es que la pista tiene bordillos, juntas y conos,
+y que el coche los va a pisar.
+
+Lo que sí se puede hacer es acotarlo por arriba con un argumento físico: la
+fuerza vertical máxima que puede transmitir el neumático está limitada por su
+rigidez vertical y por el recorrido disponible antes de tocar el tope. Si el
+producto de esos dos números da menos que el factor supuesto, el factor sobra.
+
+\begin{ojo}
+\textbf{Cuidado con multiplicar factores.} Un caso de \SI{3}{\gacc} vertical con
+un coeficiente de seguridad de \num{2} y encima un factor de bache de \num{1.5}
+está pidiendo \SI{9}{\gacc} a la pieza. Cada factor tiene que aparecer una sola
+vez y estar escrito dónde se aplica. Es el mecanismo por el que las suspensiones
+de primer coche acaban pesando el doble de lo necesario.
+\end{ojo}
+
+\subsection{Coeficientes de seguridad con criterio}
+
+Un coeficiente de seguridad cubre \emph{incertidumbre}, no ignorancia. Se elige
+mirando qué es lo que no se sabe:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Situación} & \textbf{Qué incertidumbre hay} & \textbf{Coef.} \\
+\midrule
+Carga medida, material certificado, pieza mecanizada & Poca & \numrange{1.3}{1.5} \\
+Carga estimada, material conocido & Media & \numrange{1.5}{2.0} \\
+Carga estimada, soldadura propia, material sin certificar & Alta & \numrange{2.0}{3.0} \\
+Pieza cuyo fallo es catastrófico (dirección, frenos) & La que sea, más margen & \textbf{$\geq$ 2, y ensayar} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+Un coeficiente de seguridad enorme sobre un caso de carga que nadie ha definido
+no protege de nada: solo añade peso y da una sensación falsa de rigor. Es mucho
+mejor un coeficiente de \num{1.5} sobre una carga que se sabe de dónde viene que
+uno de \num{4} sobre un número inventado. Y ante un juez, la diferencia entre
+las dos actitudes se nota en la primera pregunta.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Cálculo manual previo}
 \label{sec:casos_carga:03}
-\pendiente{Pendiente de redactar.}
+\index{diagrama de sólido libre}
 
+\subsection{Seis barras, seis incógnitas}
+
+Una esquina de doble trapecio con pushrod tiene seis barras biarticuladas: los
+cuatro brazos de los trapecios, el tirante de dirección y el pushrod
+(\cref{fig:cargas:esquina}). Como son biarticuladas solo trabajan a axial, así
+que hay seis incógnitas. Y la mangueta, como sólido rígido en el espacio, da
+seis ecuaciones de equilibrio: tres de fuerzas y tres de momentos.
+
+Seis y seis: el problema es \textbf{isostático} y se resuelve exactamente, sin
+hipótesis adicionales, resolviendo un sistema lineal $6\times 6$:
+
+\begin{equation}
+  \begin{bmatrix} \vect{u}_1 & \cdots & \vect{u}_6 \\
+                  \vect{r}_1\times\vect{u}_1 & \cdots &
+                  \vect{r}_6\times\vect{u}_6 \end{bmatrix}
+  \begin{Bmatrix} N_1 \\ \vdots \\ N_6 \end{Bmatrix}
+  = - \begin{Bmatrix} \vect{F} \\ \vect{r}_F\times\vect{F} \end{Bmatrix}
+  \label{eq:equilibrio_esquina}
+\end{equation}
+
+donde $\vect{u}_i$ es el vector unitario de cada barra, $\vect{r}_i$ la posición
+de su extremo en la mangueta y $\vect{F}$ la fuerza en la huella.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=2mm]}]
+  \draw[fusalGris] (-0.3,0) -- (7.4,0);
+  % rueda
+  \draw[fusalGris,fill=fusalGris!12,line width=1pt] (5.9,1.15) circle (1.15);
+  \fill[fusalPrim] (5.9,0) circle (2.2pt);
+  % mangueta
+  \draw[fusalGris,line width=2.5pt] (5.5,0.6) -- (5.35,2.0);
+  \draw[fusalGris] (5.42,1.7) -- (4.6,2.85);
+  \node[cursonota,anchor=south east] at (4.6,2.85) {mangueta};
+  % barras
+  \draw[fusalPrim,very thick] (5.5,0.6) -- (1.6,0.9);
+  \draw[fusalPrim,very thick] (5.5,0.6) -- (1.9,1.35);
+  \draw[fusalPrim,very thick] (5.35,2.0) -- (2.2,1.85);
+  \draw[fusalPrim,very thick] (5.35,2.0) -- (2.5,2.25);
+  \draw[curvaC,very thick] (5.42,1.25) -- (2.0,1.6);
+  \draw[fusalSec,very thick] (5.48,0.85) -- (3.3,3.3);
+  \node[cursonota,anchor=south east,text=fusalPrim] at (2.05,0.72)
+       {trapecio inferior\\(dos barras)};
+  \node[cursonota,anchor=south east,text=fusalPrim] at (2.55,2.3)
+       {trapecio superior\\(dos barras)};
+  \node[cursonota,anchor=east,text=teal!65!black] at (1.95,1.62) {tirante};
+  \node[cursonota,anchor=south,text=fusalSec] at (3.3,3.35) {pushrod};
+  % carga en la huella
+  \draw[fusalSec,->,very thick] (5.9,0) -- (5.9,1.35);
+  \draw[fusalSec,->,very thick] (5.9,0) -- (7.15,0);
+  \node[cursonota,anchor=north,text=fusalSec] at (6.6,-0.1) {$\Fy$};
+  \node[cursonota,anchor=west,text=fusalSec] at (6.0,1.2) {$\Fz$};
+\end{tikzpicture}
+\caption[Sólido libre de una esquina]{Diagrama de sólido libre de una esquina.
+La mangueta está en equilibrio bajo la fuerza de la huella y las seis fuerzas
+axiales de las barras biarticuladas. Seis incógnitas y seis ecuaciones: el
+problema es isostático y no hace falta ninguna hipótesis adicional. El pushrod
+aparece en el plano por claridad; en el coche va hacia el balancín.}
+\label{fig:cargas:esquina}
+\end{figure}
+
+\begin{clave}
+La comprobación que valida el planteamiento: aplicar \SI{1000}{\newton}
+verticales puros y sumar vectorialmente las seis reacciones. Tienen que dar
+\SI{1000}{\newton} verticales y cero en las otras dos direcciones, con error de
+redondeo. Si no salen, hay un signo o un punto mal. El programa
+\texttt{cargas\_esquina.py} hace esa comprobación antes de dar ningún resultado,
+y conviene copiar la costumbre en cualquier hoja de cálculo propia.
+\end{clave}
+
+\subsection{Lo que sale, y qué manda}
+
+Con la geometría de ejemplo y los seis casos de la tabla, la envolvente por
+barra es la de la \cref{fig:cargas:envolvente}. Dos lecturas que conviene
+interiorizar:
+
+\begin{itemize}
+  \item \textbf{El caso crítico casi siempre lleva bache.} Los casos puramente
+        horizontales, que son los que primero se le ocurren a todo el mundo, no
+        dimensionan casi nada.
+  \item \textbf{El pushrod siempre trabaja a compresión}, y por eso lo limita el
+        pandeo y no la resistencia (capítulo \ref{ch:componentes_suspension}). El
+        brazo delantero del trapecio inferior, en cambio, ve la mayor tracción,
+        porque reacciona el par de frenado como un par entre sus dos brazos.
+\end{itemize}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=6.0cm, width=0.80\linewidth,
+  ybar, bar width=9pt,
+  ylabel={carga axial (\si{\newton})},
+  symbolic x coords={trap.\ inf.\ del,trap.\ inf.\ tra,trap.\ sup.\ del,
+                     trap.\ sup.\ tra,tirante,pushrod},
+  xtick=data, x tick label style={rotate=20,anchor=north east,
+                                  font=\sffamily\tiny},
+  enlarge x limits=0.12,
+  ymin=-3200, ymax=6000, ytick={-3000,-1500,0,1500,3000,4500},
+  legend style={at={(0.98,0.97)},anchor=north east,
+                font=\sffamily\scriptsize,draw=fusalGris!50,fill=white}]
+\addplot[fill=fusalPrim!70,draw=fusalPrim] coordinates {
+  (trap.\ inf.\ del,5164) (trap.\ inf.\ tra,1327) (trap.\ sup.\ del,413)
+  (trap.\ sup.\ tra,1884) (tirante,373) (pushrod,0)};
+  \addlegendentry{máxima tracción}
+\addplot[fill=fusalSec!60,draw=fusalSec] coordinates {
+  (trap.\ inf.\ del,-1060) (trap.\ inf.\ tra,-2383) (trap.\ sup.\ del,-2074)
+  (trap.\ sup.\ tra,-695) (tirante,-1402) (pushrod,-2778)};
+  \addlegendentry{máxima compresión}
+\draw[fusalGris] (axis cs:trap.\ inf.\ del,0) -- (axis cs:pushrod,0);
+\end{axis}
+\end{tikzpicture}
+\caption[Envolvente de cargas por barra]{Envolvente de carga axial de cada barra
+sobre los seis casos, calculada con \texttt{cargas\_esquina.py} para la
+geometría de ejemplo. Sin coeficiente de seguridad todavía. El pushrod solo
+aparece a compresión, que es lo que se espera de un pushrod; si en algún caso
+saliera a tracción, habría que revisar la geometría o el caso.}
+\label{fig:cargas:envolvente}
+\end{figure}
+
+% ---------------------------------------------------------------------
 \section{Verificación por FEA}
 \label{sec:casos_carga:04}
-\pendiente{Pendiente de redactar.}
+\index{elementos finitos}\index{convergencia de malla}
 
+El cálculo manual da las cargas de las barras; el elemento finito sirve para las
+piezas que \emph{no} son barras: manguetas, balancines, anclajes y soportes,
+donde la geometría es tridimensional y no hay fórmula.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Para esto sí} & Manguetas, balancines, orejetas y anclajes; concentración
+  de tensiones en agujeros y cambios de sección; rigidez de piezas complejas \\
+\midrule
+\textbf{Para esto no} & Sustituir el cálculo de cargas; obtener el pandeo de un
+  tubo, que sale de Euler; convencer a nadie con un dibujo de colores sin
+  convergencia demostrada \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+Un análisis sin \textbf{estudio de convergencia} no vale como verificación. El
+procedimiento del capítulo \ref{ch:elementos_finitos} es el mismo aquí: refinar
+la malla hasta que la tensión de pico cambie menos de un criterio declarado
+---por debajo del \SI{5}{\percent} es razonable--- y \textbf{enseñar la gráfica}.
+Sin ella, el número de tensión no significa nada, porque en una singularidad la
+tensión crece indefinidamente al refinar.
+
+Y el resultado se contrasta siempre contra algo: la carga de entrada tiene que
+coincidir con la del cálculo manual, y las reacciones con las cargas de las
+barras. Un FEA que no cuadra con el cálculo a mano tiene un error, y no siempre
+está en el cálculo a mano.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Ensayos de componente}
 \label{sec:casos_carga:05}
-\pendiente{Pendiente de redactar.}
+\index{ensayo de componente}
+
+No todo se puede ni se debe ensayar. Merece la pena cuando el cálculo tiene
+mucha incertidumbre o cuando el fallo es grave:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Ensayo} & \textbf{Qué resuelve} & \textbf{Coste} \\
+\midrule
+Tracción de un inserto pegado o roscado en tubo & La unión, que es lo que el FEA peor predice & Bajo \\
+Compresión de un trapecio completo & Pandeo real con sus extremos reales & Bajo \\
+Rigidez de la mangueta & Correlacionar el modelo & Medio \\
+Rigidez a torsión del chasis & Cierra el bucle del capítulo \ref{ch:rigidez_torsional} & Medio \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+El ensayo más rentable de todo el bloque es el de \textbf{arrancamiento de un
+inserto}. Es donde el cálculo es más flojo ---depende del adhesivo, de la
+preparación de la superficie y de la mano que lo hizo---, es donde más fallos
+reales aparecen, y se hace con una prensa prestada y media mañana. Si solo se
+puede hacer un ensayo, que sea ese.
+\end{clave}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Manguetas: 37 MPa y lo que eso quiere decir]
+Las manguetas se analizaron en Ansys como caso estático estructural bajo cargas
+combinadas de peor caso ---frenada fuerte más curva máxima, más las reacciones
+del rodamiento y de la dirección---. La tensión de von Mises de pico salió en
+torno a \SI{37}{\mega\pascal}, que sobre un aluminio de la serie 6000 deja un
+coeficiente de seguridad muy holgado. La convergencia se hizo por refinamiento
+h, aceptando menos de un \SI{5}{\percent} de error relativo en la tensión de
+pico, y la gráfica de convergencia existe y se enseña.
+
+Hay que saber presentarlo bien, porque un coeficiente de seguridad alto se puede
+leer de dos maneras. La nuestra es deliberada: la mangueta se dejó
+geométricamente simple, sin vaciados complicados, para que el mecanizado fuera
+barato, y el resultado es una pieza más robusta de lo estrictamente necesario.
+Es una decisión de coste y de fabricación, no un sobredimensionado accidental, y
+así hay que contarlo. Lo que no vale es presentarlo como si hubiéramos
+optimizado.
+
+\medskip
+\otrodia[Faltan la tabla de casos de carga con las aceleraciones justificadas,
+la envolvente de cargas de nuestras barras y la aleación confirmada de la
+mangueta.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Sumar los máximos de frenada y de curva. La elipse de fricción lo
+        prohíbe.
+  \item Multiplicar factor de bache por coeficiente de seguridad por factor
+        dinámico hasta llegar a cargas que el neumático no puede transmitir.
+  \item Dar un coeficiente de seguridad sin decir sobre qué carga está aplicado.
+  \item Presentar un FEA sin estudio de convergencia.
+  \item No comprobar que las reacciones del FEA coinciden con el cálculo manual.
+  \item Dimensionar el pushrod a resistencia cuando lo que lo limita es el
+        pandeo.
+  \item Olvidar los casos que no son de conducción: montaje, transporte, empujar
+        el coche por la carrocería, el gato.
+  \item No revisar las cargas cuando cambian las presiones, el neumático o el
+        reparto. Los casos de carga caducan.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{tabla de casos de carga}, con el origen de cada aceleración
+        escrito al lado.
+  \item La \textbf{hoja de cargas por barra}, con la envolvente de los seis
+        casos y el caso crítico de cada una.
+  \item El \textbf{informe de FEA} de las piezas no triviales, con estudio de
+        convergencia y comprobación contra el cálculo manual.
+  \item El \textbf{plan de ensayos} de componente: qué, con qué montaje, con qué
+        criterio de aceptación.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿De dónde salen vuestras cargas?
+  \item ¿Por qué esas aceleraciones y no otras?
+  \item ¿Cuál es vuestro caso crítico y para qué pieza?
+  \item ¿Cómo habéis combinado frenada y curva?
+  \item ¿Qué coeficiente de seguridad usáis y sobre qué?
+  \item Enseñadme la convergencia de malla.
+  \item ¿Habéis ensayado algo físicamente?
+  \item ¿Qué pasa con estas cargas si cambiáis de neumático?
 \end{enumerate}
 \end{juez}

@@ -1,60 +1,333 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Sistema de dirección
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Sistema de dirección}
 \label{ch:direccion}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Conocer los requisitos de reglamento que afectan a la dirección y
+        diseñar para pasarlos a la primera.
+  \item Elegir una desmultiplicación a partir del ángulo de giro necesario y del
+        esfuerzo que puede sostener el piloto.
+  \item Montar columna y juntas sin holguras y sin pares parásitos.
+  \item Definir el Ackermann con criterio y saber por qué el «\SI{100}{\percent}
+        geométrico» no es el objetivo.
+  \item Diseñar volante y desconexión rápida pensando en el egreso y en el
+        piloto.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{90 minutos}{Capítulos \ref{ch:cinematica_suspension} y
+\ref{ch:casos_carga}}{Reglamento vigente, la cremallera y un volante}
 
+La dirección es el único sistema del coche con el que el piloto está en
+contacto permanente, y el único cuyo fallo no tiene plan B. Por eso este
+capítulo tiene más reglamento y más comprobaciones que los anteriores, y por eso
+las decisiones se toman con un margen que en otras piezas sería excesivo.
+
+% ---------------------------------------------------------------------
 \section{Requisitos de reglamento}
 \label{sec:direccion:01}
-\pendiente{Pendiente de redactar.}
+\index{reglamento!dirección}
 
+\begin{regla}[dirección]
+Los puntos que el reglamento controla y que condicionan el diseño desde el
+primer día:
+
+\begin{itemize}
+  \item \textbf{Tope de giro} mecánico, que impida que la rueda toque nada en
+        todo el recorrido.
+  \item \textbf{Juego libre en el volante} limitado a un valor pequeño, medido
+        en el volante. Es lo que obliga a rótulas en doble cortadura y a
+        casquillos sin holgura.
+  \item \textbf{Volante de contorno cerrado}, sin salientes que puedan enganchar
+        al piloto, y con la desconexión rápida accionable con guantes.
+  \item \textbf{Fijaciones con frenado positivo} en todas las uniones de la
+        dirección: es de las primeras cosas que mira la revisión técnica.
+  \item \textbf{Sistemas por cable o traseros} sujetos a requisitos adicionales,
+        si es que se permiten.
+\end{itemize}
+
+Los artículos y los números concretos cambian entre temporadas: hay que
+comprobarlos en el reglamento vigente y anotar qué versión se ha consultado.
+\end{regla}
+
+\begin{ojo}
+El requisito que más suspende en revisión técnica no es de cálculo: es el
+\textbf{juego libre}. Se acumula en muchos sitios pequeños ---rótulas, chavetero
+de la columna, junta cardán, casquillos del soporte de cremallera, e incluso el
+propio volante en su acople--- y cada uno parece despreciable por separado.
+La forma de no llevarse el disgusto es medirlo en el coche montado, con un
+comparador en el borde del volante y las ruedas sujetas, antes de ir a
+competición.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Relación de desmultiplicación y esfuerzo en volante}
 \label{sec:direccion:02}
-\pendiente{Pendiente de redactar.}
+\index{desmultiplicación de dirección}
 
+\subsection{Cuánto giro hace falta}
+
+El punto de partida no es la relación, es la curva más cerrada del trazado. Con
+el radio mínimo que exige el reglamento para el trazado y la batalla del coche,
+el ángulo de rueda necesario sale del término geométrico de la ecuación
+\eqref{eq:angulo_direccion}. A eso hay que sumarle margen para el ángulo de
+deriva y para el skidpad.
+
+De ahí se baja a la relación:
+
+\begin{equation}
+  i_{\text{dir}} = \frac{\text{giro del volante}}{\text{giro de la rueda}}
+  \label{eq:relacion_direccion}
+\end{equation}
+
+En Formula Student se usan relaciones cortas, típicamente entre \num{3}:1 y
+\num{6}:1, de modo que el volante recorra menos de media vuelta a cada lado. Un
+coche de conos con una dirección larga es incómodo e inseguro: el piloto no
+puede cruzar las manos.
+
+\subsection{El esfuerzo, que es lo que limita de verdad}
+
+Sin servoasistencia, el par que llega al volante es el par autoalineante del
+neumático dividido por la relación:
+
+\begin{equation}
+  M_{\text{volante}} = \frac{2\,\Fy\,(\tneu + t_m)}{i_{\text{dir}}}
+  \label{eq:par_volante}
+\end{equation}
+
+\begin{clave}
+Aquí hay un compromiso que no se puede esquivar: \textbf{la relación corta que
+hace el coche ágil es la misma que hace el volante pesado}. Y como
+$M_{\text{volante}}$ es proporcional al rastro, la única palanca que queda para
+aligerar sin alargar la dirección es reducir avance ---y con él, el tacto del
+límite del apartado \ref{sec:cinematica_suspension:05}---.
+
+Es una decisión de tres variables ---relación, avance y esfuerzo--- de la que
+solo se pueden fijar dos. Y la que manda es el piloto: si no puede con el coche
+en la vuelta veinte del endurance, las otras dos dan igual.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Cremallera, columna y juntas}
 \label{sec:direccion:03}
-\pendiente{Pendiente de redactar.}
+\index{cremallera}\index{columna de dirección}
 
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Elemento} & \textbf{Lo que hay que cuidar} \\
+\midrule
+Cremallera & Carrera total suficiente para el giro necesario; soporte rígido y
+  en dos puntos; que no flecte bajo la carga del tirante \\
+Columna & Rigidez torsional: una columna blanda se siente como holgura aunque no
+  la haya. Y colapso o desconexión en caso de impacto, según reglamento \\
+Juntas cardán & Introducen \textbf{irregularidad de par}: con una sola junta a
+  ángulo, el volante gira a velocidad no uniforme \\
+Acoples & Chavetas o estrías, nunca prisioneros sobre eje liso \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+La \textbf{irregularidad de la junta cardán} es un detalle que se olvida y que se
+nota conduciendo. Una junta simple trabajando a un ángulo no transmite el giro
+de forma uniforme: la rueda responde más en unas posiciones de volante que en
+otras. Se corrige con \textbf{dos juntas en fase}, colocadas de modo que la
+segunda cancele lo que hace la primera, o con una junta homocinética. Si solo
+cabe una, el ángulo debe ser lo más pequeño posible.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Ackermann}
 \label{sec:direccion:04}
-\pendiente{Pendiente de redactar.}
+\index{Ackermann}
 
+\subsection{La construcción geométrica}
+
+En una curva, la rueda interior recorre un radio menor que la exterior, así que
+para que ninguna arrastre debería girar más. El \textbf{Ackermann del
+\SI{100}{\percent}} es la construcción que lo consigue: las prolongaciones de
+los brazos de dirección se cortan en el centro del eje trasero
+(\cref{fig:direccion:ackermann}).
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=2mm]}]
+  % ejes del coche
+  \draw[fusalGris,densely dashed] (-0.4,0) -- (7.6,0);
+  \draw[fusalGris,very thick] (1.2,-1.5) -- (1.2,1.5);
+  \draw[fusalGris,very thick] (5.6,-1.5) -- (5.6,1.5);
+  \node[cursonota,anchor=south] at (1.2,1.6) {eje delantero};
+  \node[cursonota,anchor=south] at (5.6,1.6) {eje trasero};
+  % centro del eje trasero
+  \fill[fusalSec] (5.6,0) circle (2.2pt);
+  % ruedas delanteras giradas
+  \draw[fusalPrim,very thick,rotate around={-26:(1.2,-1.5)}]
+        (0.85,-1.5) -- (1.55,-1.5);
+  \draw[fusalPrim,very thick,rotate around={-17:(1.2,1.5)}]
+        (0.85,1.5) -- (1.55,1.5);
+  % brazos de dirección y su prolongación al centro del eje trasero
+  \draw[fusalSec,densely dotted] (1.2,-1.5) -- (5.6,0);
+  \draw[fusalSec,densely dotted] (1.2,1.5) -- (5.6,0);
+  \draw[fusalSec,very thick] (1.2,-1.5) -- (2.05,-1.21);
+  \draw[fusalSec,very thick] (1.2,1.5) -- (2.05,1.21);
+  \node[cursonota,anchor=north west,text=fusalSec] at (2.15,-1.15)
+       {brazo de dirección};
+  \node[cursonota,anchor=west,text=fusalPrim] at (0.55,-2.0)
+       {interior: gira más};
+  \node[cursonota,anchor=west,text=fusalPrim] at (0.55,2.05)
+       {exterior: gira menos};
+  \node[cursonota,anchor=west,text=fusalSec] at (5.75,0)
+       {las prolongaciones\\se cortan aquí};
+\end{tikzpicture}
+\caption[Construcción de Ackermann]{Construcción del Ackermann del
+\SI{100}{\percent}: los brazos de dirección se orientan de modo que sus
+prolongaciones se corten en el centro del eje trasero. Así, en una curva la
+rueda interior gira más que la exterior y ninguna de las dos arrastra. La
+construcción es exacta solo a velocidad muy baja, cuando los ángulos de deriva
+son despreciables.}
+\label{fig:direccion:ackermann}
+\end{figure}
+
+\subsection{Por qué el 100 \% casi nunca es lo que se quiere}
+
+La construcción de Ackermann supone que las ruedas van hacia donde apuntan, es
+decir, sin ángulo de deriva. Eso solo es cierto maniobrando en un aparcamiento.
+En una curva rápida hay dos efectos que la contradicen:
+
+\begin{enumerate}
+  \item Las ruedas trabajan con ángulos de deriva grandes, y el ángulo que hay
+        que darles depende de esos ángulos, no de la geometría pura.
+  \item La rueda interior está descargada por la transferencia de carga, así que
+        su ángulo de deriva óptimo es \emph{menor} que el de la exterior
+        ---exactamente lo contrario de lo que pide Ackermann---.
+\end{enumerate}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Configuración} & \textbf{Cuándo tiene sentido} & \textbf{Riesgo} \\
+\midrule
+Pro-Ackermann (interior gira más) & Curvas muy cerradas y lentas, mucho volante & Arrastra la interior en curva rápida \\
+Paralelo & Compromiso sencillo y predecible & Ni óptimo ni malo en ningún sitio \\
+Anti-Ackermann (interior gira menos) & Curvas rápidas, mucha transferencia, con aero & Pesado y raro en maniobra lenta \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+Elegir Ackermann \textbf{con criterio} requiere saber a qué ángulo de deriva
+trabaja cada rueda, y eso requiere el modelo de neumático del capítulo
+\ref{ch:modelado_neumatico}. Sin él, la decisión honesta es quedarse cerca de
+paralelo o con un ligero pro-Ackermann ---que es forgiving en un trazado de
+conos--- y \textbf{dejar el anclaje del tirante regulable} para poder cambiarlo
+cuando haya datos. Eso es exactamente lo que hace el anclaje intercambiable de
+la mangueta.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Volante y desconexión rápida}
 \label{sec:direccion:05}
-\pendiente{Pendiente de redactar.}
+\index{volante}\index{desconexión rápida}
+
+El volante parece la pieza menos técnica del coche y es la que más veces se
+rehace, porque es la única que se juzga por sensaciones. Lo que hay que
+resolver:
+
+\begin{itemize}
+  \item \textbf{Desconexión rápida}, accionable con guantes y sin mirar, y que
+        no se pueda soltar sola. Va cronometrada en el egreso.
+  \item \textbf{Contorno cerrado} y sin salientes, según reglamento.
+  \item \textbf{Diámetro y forma} ajustados a la mano del piloto y al esfuerzo:
+        un volante pequeño es más rápido y más pesado.
+  \item \textbf{Mandos y pantalla}, si los hay, alcanzables sin soltar el aro.
+  \item \textbf{Rigidez}: un volante que flecta se siente como holgura.
+\end{itemize}
+
+\begin{clave}
+El volante es la pieza ideal para \textbf{prototipar antes de fabricar}. Se
+imprime en 3D una versión modular con empuñaduras y frontales intercambiables,
+se pone en las manos de los pilotos, se itera con lo que digan, y solo entonces
+se mecaniza la definitiva. Cuesta muy poco y es un ejemplo real de ciclo
+diseñar-validar-corregir que se puede contar en el design event.
+\end{clave}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Cremallera heredada y anclaje regulable]
+Lo decidido:
+
+\begin{itemize}
+  \item \textbf{Cremallera Yacar Cross, heredada.} Es una pieza probada y
+        disponible, y reutilizarla evita gastar horas de diseño en algo que no
+        nos enseña nada. A cambio, la carrera de la cremallera nos viene dada y
+        condiciona la desmultiplicación y el tope de giro.
+  \item \textbf{Anclaje de dirección atornillado a la mangueta}, de forma que se
+        puede mover la longitud del brazo de dirección ---Ackermann--- y su
+        altura ---bump steer--- sin fabricar una mangueta nueva. La idea es
+        barrer unas cuantas posiciones en pista y quedarse con la que dé la
+        curva de bump steer más limpia y el tacto que pidan los pilotos.
+  \item \textbf{Rótulas del tirante en doble cortadura}, para quitar flexión de
+        la unión y reducir holguras. La precisión de la dirección no es solo
+        comodidad: sin ella los datos de ángulo de volante no sirven para
+        correlacionar nada.
+  \item \textbf{Volante prototipado en 3D antes de mecanizar}, con empuñaduras y
+        frontal intercambiables, iterado con los pilotos.
+\end{itemize}
+
+Sobre el Ackermann: sin datos de ángulo de deriva no tenemos con qué justificar
+nada agresivo, así que la elección es conservadora y revisable. Es una de las
+cosas que se decidirán con telemetría.
+
+\medskip
+\otrodia[Faltan la desmultiplicación real con la cremallera montada, el radio de
+giro conseguido, el juego libre medido en el volante y la posición de Ackermann
+elegida.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Dejar el juego libre para medirlo en la revisión técnica.
+  \item Usar una sola junta cardán a ángulo grande y no entender por qué el
+        coche responde distinto a izquierdas que a derechas.
+  \item Elegir la desmultiplicación sin comprobar el esfuerzo que queda en el
+        volante.
+  \item Poner Ackermann del \SI{100}{\percent} porque es «lo correcto», sin
+        datos de deriva.
+  \item Soportar la cremallera en un solo punto, o sobre chapa que flecta.
+  \item Prisioneros sobre eje liso en la columna.
+  \item Diseñar el volante sin que se lo prueben los pilotos.
+  \item No comprobar la interferencia de la rueda a tope de giro con la
+        suspensión en el extremo del recorrido.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{hoja de dirección}: carrera de cremallera, desmultiplicación,
+        ángulo de rueda a tope, radio de giro y esfuerzo estimado en volante.
+  \item La \textbf{curva de Ackermann} conseguida frente al ángulo de volante,
+        para las posiciones disponibles del anclaje.
+  \item El \textbf{registro de juego libre} medido en el volante, con fecha.
+  \item El \textbf{informe del volante}: iteraciones, qué dijeron los pilotos y
+        tiempo de egreso medido.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Cuál es vuestra desmultiplicación y de dónde sale?
+  \item ¿Cuánto esfuerzo tiene que hacer el piloto en la curva más cerrada?
+  \item ¿Qué Ackermann lleváis y por qué?
+  \item ¿Cuánto juego libre tenéis en el volante y cómo lo habéis medido?
+  \item ¿Cómo compensáis la irregularidad de las juntas de la columna?
+  \item ¿Cabe la rueda a tope de giro con la suspensión comprimida?
+  \item ¿Cuánto tarda el piloto en salir con el volante puesto?
 \end{enumerate}
 \end{juez}

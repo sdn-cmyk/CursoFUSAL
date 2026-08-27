@@ -1,60 +1,283 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Montaje, alineación y mantenimiento
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Montaje, alineación y mantenimiento}
 \label{ch:montaje_alineacion}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Medir las cotas del coche montado y compararlas con las nominales.
+  \item Ejecutar un procedimiento de alineación repetible, en el orden correcto.
+  \item Mantener una tabla de pares de apriete que se use de verdad.
+  \item Establecer criterios de inspección y de vida para las piezas críticas.
+  \item Tener una lista previa a rodaje que impida salir con el coche mal.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{90 minutos, en el taller con el coche}%
+{Todo el bloque de suspensión}{Superficie plana, básculas por rueda, medidor de
+caída, cuerdas o placas de alineación, llave dinamométrica y el coche}
 
+Este capítulo es el que convierte todo lo anterior en un coche que va como está
+calculado. Es también el menos glamuroso y el que más veces se salta, y por eso
+tantos equipos ruedan con un coche que no se parece a su hoja de cálculo.
+
+\begin{clave}
+Todo lo escrito en los siete capítulos anteriores describe un coche
+\emph{nominal}. El coche real tiene tolerancias de mecanizado, deformaciones de
+soldadura, ajustes que se han movido y alguien que apretó a ojo. La diferencia
+entre los dos es exactamente el error con el que se van a interpretar todos los
+datos de pista. Medir esa diferencia no es burocracia: es lo que hace utilizable
+la telemetría.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Medición de cotas y utillaje}
 \label{sec:montaje_alineacion:01}
-\pendiente{Pendiente de redactar.}
+\index{alineación}\index{utillaje}
 
+\subsection{La superficie de referencia}
+
+Nada de esto funciona sin una \textbf{superficie plana} conocida. No hace falta
+un mármol de metrología: sirve una zona de taller nivelada con cuatro placas
+calibradas, con tal de que se compruebe con nivel y se deje marcada en el suelo
+para repetir siempre en el mismo sitio.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Cota} & \textbf{Cómo se mide} & \textbf{Tolerancia razonable} \\
+\midrule
+Altura libre & Desde la superficie a un punto marcado del chasis & \SI{1}{\milli\meter} \\
+Vía y batalla & Con cinta o láser entre centros de rueda & \SI{2}{\milli\meter} \\
+Peso por rueda & Cuatro básculas, coche con piloto o lastre & \SI{1}{\percent} \\
+Caída & Medidor apoyado en la llanta, no en el neumático & \SI{0.1}{\degree} \\
+Convergencia & Cuerdas o placas, referido al eje del coche & \SI{0.1}{\degree} \\
+Avance y salida & Girando la rueda un ángulo conocido y midiendo caída & \SI{0.25}{\degree} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+La convergencia se refiere \textbf{al eje longitudinal del coche}, no a la rueda
+de al lado. Si se mide rueda contra rueda se obtiene la convergencia total, pero
+no se sabe si está repartida por igual: el coche puede ir con el volante torcido
+y la suma correcta. Por eso se monta el bastidor de cuerdas alrededor del coche,
+paralelo a su eje, y se mide cada rueda contra su cuerda.
+
+Y todas las medidas se toman con el coche \textbf{a su altura de trabajo y con
+el peso del piloto} ---o su lastre---. Un coche medido vacío no está medido.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Procedimiento de alineación}
 \label{sec:montaje_alineacion:02}
-\pendiente{Pendiente de redactar.}
 
+\subsection{El orden importa}
+
+Cada ajuste mueve a los siguientes, así que hacerlo en desorden obliga a
+repetirlo todo. El orden que funciona:
+
+\begin{enumerate}
+  \item \textbf{Presiones} a su valor de referencia, en frío. Todo lo demás
+        depende de la altura del coche, y esta de la presión.
+  \item \textbf{Alturas libres}, con el piloto o su lastre a bordo.
+  \item \textbf{Pesos por rueda} y reparto en diagonal, ajustando con los
+        asientos de muelle.
+  \item \textbf{Caída}, en las cuatro ruedas.
+  \item \textbf{Convergencia}, que casi siempre se ha movido al tocar la caída.
+  \item \textbf{Centrado del volante}, repartiendo la longitud entre los dos
+        tirantes.
+  \item \textbf{Repaso}: volver a medir alturas y pesos, porque los ajustes
+        anteriores los han movido.
+\end{enumerate}
+
+\begin{clave}
+El paso que más se salta y más se paga es el \textbf{reparto de pesos en
+diagonal}. Un coche con la diagonal descuadrada se comporta distinto girando a
+izquierdas que a derechas, y esa asimetría vuelve loco a cualquiera que intente
+ajustar el balance: se toca la barra, mejora en una dirección y empeora en la
+otra. Antes de tocar un solo reglaje de balance, la diagonal tiene que estar
+cuadrada y anotada.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Pares de apriete y frenado de tornillería}
 \label{sec:montaje_alineacion:03}
-\pendiente{Pendiente de redactar.}
+\index{par de apriete}\index{frenado positivo}
 
+La teoría está en el apartado \ref{sec:mecanica_aplicada:04}: lo que importa es
+la precarga, y la llave dinamométrica controla el par, no la precarga. Lo que
+corresponde a este capítulo es lo operativo:
+
+\begin{itemize}
+  \item \textbf{Una tabla de pares}, por tipo de unión, impresa y colgada en el
+        taller. Si no está en la pared, cada uno usa el suyo.
+  \item \textbf{Frenado positivo} donde lo exija el reglamento: autoblocantes,
+        tuerca almenada con pasador o alambre. Los adhesivos de rosca
+        habitualmente no cuentan por sí solos.
+  \item \textbf{Marcar el apriete} con una raya de pintura entre tornillo y
+        pieza. Permite ver de un vistazo si algo se ha movido, en el box y en la
+        revisión técnica.
+  \item \textbf{Tuercas autoblocantes de un solo uso}: si el anillo plástico ya
+        ha trabajado, se cambia.
+  \item \textbf{Llave calibrada}, y comprobada de vez en cuando. Una
+        dinamométrica que ha vivido en el fondo de una caja de herramientas no
+        es una referencia.
+\end{itemize}
+
+% ---------------------------------------------------------------------
 \section{Inspección y vida de los componentes}
 \label{sec:montaje_alineacion:04}
-\pendiente{Pendiente de redactar.}
+\index{inspección}\index{vida de componentes}
 
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Componente} & \textbf{Qué se busca} & \textbf{Cuándo} \\
+\midrule
+Rótulas y terminales & Holgura, giro duro, suciedad & Cada sesión \\
+Trapecios & Golpes, pandeo, fisuras en soldadura & Cada sesión, y tras salirse \\
+Insertos pegados & Despegue, línea de adhesivo & Cada sesión \\
+Discos y pastillas & Espesor, grietas térmicas, material restante & Cada sesión \\
+Líquido de frenos & Aspecto, tacto de pedal & Cada sesión; cambio periódico \\
+Rodamientos & Holgura, ruido, temperatura tras rodar & Semanal \\
+Tornillería crítica & Marcas de apriete alineadas & Cada sesión \\
+Piezas de aluminio cargadas cíclicamente & Fisuras: no tienen límite de fatiga & Con vida en km fijada \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+El aluminio \textbf{no tiene límite de fatiga}, como se vio en el apartado
+\ref{sec:mecanica_aplicada:03}. Eso obliga a fijar una \textbf{vida en
+kilómetros} para manguetas, balancines y anclajes mecanizados, y a inspeccionar
+o retirar al alcanzarla. Y obliga a llevar la cuenta: sin un registro de
+kilómetros por pieza, esa vida no significa nada.
+
+El problema se multiplica con las piezas heredadas de temporadas anteriores, que
+llegan con un daño acumulado que nadie ha contabilizado. Una pieza sin historial
+es una pieza nueva o es chatarra; no hay término medio razonable.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Checklist previo a rodaje}
 \label{sec:montaje_alineacion:05}
-\pendiente{Pendiente de redactar.}
+\index{checklist}
+
+\subsection{Por qué una lista y no la memoria}
+
+Porque a las tres de la mañana, con el coche a medio montar y la furgoneta
+cargando, la memoria falla. Una lista escrita no depende de quién esté despierto,
+y además se puede mejorar cada vez que algo sale mal.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Bloque} & \textbf{Comprobaciones} \\
+\midrule
+Suspensión & Tornillería con marcas alineadas; rótulas sin holgura; nada roza en
+  todo el recorrido; topes montados \\
+Dirección & Juego libre dentro de límite; topes de giro; ruedas rectas con
+  volante recto; desconexión rápida funciona \\
+Frenos & Pedal firme en frío; ambos circuitos con presión; luz de freno;
+  interruptor de sobrerrecorrido; nivel de líquido \\
+Ruedas & Par de tuercas de rueda; presiones anotadas; sentido de rodadura \\
+Reglajes & Alturas, caídas, convergencias y pesos por rueda anotados en la hoja
+  de la sesión \\
+Datos & Adquisición grabando; canales comprobados; hora sincronizada \\
+Piloto & Cinturones ajustados; egreso probado; extintor y personal listos \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+La lista tiene que terminar con una \textbf{firma}: alguien concreto que dice
+que el coche está listo. No es burocracia, es lo que hace que las
+comprobaciones se hagan de verdad, y lo que permite reconstruir qué pasó cuando
+algo sale mal. La misma idea que el registro de reglajes: si no está escrito y
+firmado, no ocurrió.
+\end{clave}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[El plan de validación]
+El plan está definido y es sensato; lo que falta es ejecutarlo. El orden
+previsto, de menos a más exigente:
+
+\begin{enumerate}
+  \item \textbf{Shakedown a baja velocidad}: comprobar interferencias,
+        dirección y frenos, sin buscar prestaciones.
+  \item \textbf{Skidpad y ensayo de radio constante}, para balance y agarre.
+        Es lo que cierra los capítulos \ref{ch:modelado_neumatico} y
+        \ref{ch:regimen_estacionario}: da el $\muy$ efectivo y el gradiente de
+        subviraje.
+  \item \textbf{Aceleración y frenada en recto}, para transferencia de carga y
+        para afinar el reparto de frenada.
+\end{enumerate}
+
+Se registran por CAN velocidades de rueda, ángulo de volante, presiones de
+freno, posiciones de amortiguador, unidad inercial y datos del motor. El
+objetivo declarado es \textbf{correlacionar balanceo, caída y balance medidos
+contra el modelo de la hoja de cálculo y de VSusp}: esa correlación es la razón
+por la que se priorizó tener un coche rodando.
+
+Y el orden de ajuste si el coche subvira en la primera tanda, de lo más
+reversible a lo menos: (1) presiones ---bajar delante o subir detrás---;
+(2) ablandar la barra delantera o endurecer la trasera; (3) reparto de muelles;
+(4) geometría. Tenerlo decidido de antemano evita improvisar con prisa.
+
+\medskip
+\otrodia[Falta la hoja de cotas del coche montado frente a las nominales, la
+tabla de pares real, y el registro de kilómetros por pieza.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Alinear sin superficie plana de referencia, o en un sitio distinto cada
+        vez.
+  \item Medir sin el peso del piloto.
+  \item Medir la caída apoyando en el neumático en vez de en la llanta.
+  \item Medir convergencia rueda contra rueda y quedarse con el total.
+  \item Saltarse el reparto en diagonal y luego pelearse con un balance
+        asimétrico.
+  \item No repetir las medidas después de ajustar: cada paso mueve los
+        anteriores.
+  \item Apretar a ojo por ir con prisa. Es exactamente cuando se rompe algo.
+  \item Rodar sin anotar los reglajes de la sesión. Los datos quedan huérfanos.
+  \item No llevar la cuenta de kilómetros de las piezas de aluminio.
+  \item Cambiar dos cosas entre tandas y no poder atribuir la mejora.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{hoja de cotas} del coche montado frente a las nominales, con
+        las diferencias explicadas.
+  \item El \textbf{procedimiento de alineación} en una página, con el orden y
+        las tolerancias.
+  \item La \textbf{tabla de pares de apriete}, impresa y colgada en el taller.
+  \item El \textbf{plan de inspección} con periodicidad y criterios de retirada,
+        y el registro de kilómetros por pieza.
+  \item La \textbf{lista previa a rodaje}, con casilla de firma, usada en cada
+        salida.
+  \item La \textbf{hoja de sesión}: reglajes, presiones, temperaturas, qué se
+        cambió y qué dijo el piloto.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Cómo medís la caída y con qué repetibilidad?
+  \item ¿Vuestras cotas reales coinciden con las nominales?
+  \item ¿En qué orden alineáis y por qué ese orden?
+  \item ¿Cuadráis el reparto en diagonal?
+  \item ¿Dónde está vuestra tabla de pares de apriete?
+  \item ¿Qué vida habéis fijado para las piezas de aluminio y cómo la contáis?
+  \item Enseñadme la lista previa a rodaje y la última hoja de sesión.
+  \item ¿Cómo vais a correlacionar lo medido con vuestro modelo?
 \end{enumerate}
 \end{juez}

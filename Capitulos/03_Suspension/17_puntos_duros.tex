@@ -1,56 +1,352 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Definición de los puntos duros
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Definición de los puntos duros}
 \label{ch:puntos_duros}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Traducir los objetivos numéricos del bloque de dinámica vehicular en
+        una lista de puntos duros defendible.
+  \item Elegir herramienta con criterio y saber qué ve y qué no ve cada una.
+  \item Hacer un estudio paramétrico que sirva para decidir, y no solo para
+        llenar páginas del informe.
+  \item Documentar y congelar la geometría de forma que dentro de dos
+        temporadas siga siendo utilizable.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{90 minutos}{Capítulo \ref{ch:cinematica_suspension}}%
+{Herramienta de cinemática, hoja de cálculo y la plantilla de puntos duros}
 
+Un \textbf{punto duro} es una coordenada de la que cuelga todo lo demás: el
+centro de una rótula, el eje de un pivote, el centro de rueda. Este capítulo no
+añade teoría al anterior; añade \emph{método}, que es lo que separa una
+geometría que se puede defender de una que salió de mover puntos hasta que la
+gráfica quedó bonita.
+
+\begin{clave}
+Los puntos duros son la interfaz entre departamentos. El chasis necesita saber
+dónde anclar, la transmisión dónde pasan los palieres, la aerodinámica qué
+altura libre hay y el equipo de fabricación qué se puede mecanizar. En cuanto
+se congelan, cualquier cambio arrastra a todos: por eso se congelan tarde en el
+análisis y pronto en el calendario, y por eso el capítulo termina hablando de
+control de versiones y no de geometría.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{De los objetivos de dinámica a la geometría}
 \label{sec:puntos_duros:01}
-\pendiente{Pendiente de redactar.}
+\index{puntos duros}\index{objetivos de diseño}
 
+\subsection{La cadena de decisiones}
+
+Ningún punto duro se elige por sí mismo. Cada uno sale de un objetivo que viene
+de más arriba, y el trabajo consiste en recorrer esa cadena en orden
+(\cref{fig:puntos:cadena}) y no saltársela.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Objetivo} & \textbf{Qué fija} & \textbf{Viene de} \\
+\midrule
+$\ay$ objetivo y masa & Vía, batalla, $\hcg$ & Cap. \ref{ch:coche_como_sistema} \\
+Altura de centro de balanceo & Alturas de los pivotes interiores & Cap. \ref{ch:regimen_estacionario} \\
+Ganancia de caída & Longitudes y ángulos de los trapecios & Cap. \ref{ch:neumatico} \\
+Bump steer nulo & Altura y longitud del tirante & Cap. \ref{ch:cinematica_suspension} \\
+Recorrido de suspensión & Altura libre y posición del balancín & Cap. \ref{ch:muelles_amortiguadores} \\
+Reglamento y ergonomía & Envolvente disponible & Cap. \ref{ch:chasis_reglamento} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[node distance=5mm and 12mm]
+  \node[terminal] (obj) {objetivos de dinámica vehicular};
+  \node[proceso, below=of obj] (env) {envolvente: reglamento,\\piloto, llanta,
+        transmisión};
+  \node[proceso, below=of env] (prim) {puntos primarios:\\vía, batalla,
+        centro de rueda};
+  \node[proceso, below=of prim] (sec) {puntos de trapecio\\y de tirante};
+  \node[proceso, below=of sec] (act) {puntos de accionamiento:\\pushrod,
+        balancín, amortiguador};
+  \node[decision, below=of act] (ok) {¿cumple las\\curvas objetivo?};
+  \node[terminal, below=of ok] (fin) {geometría congelada};
+  \node[nota, right=of prim] (n1)
+       {aquí ya se cierra el \SI{80}{\percent} del comportamiento};
+  \node[nota, right=of ok] (n2)
+       {si no, se vuelve a los puntos de trapecio, no a los primarios};
+
+  \draw[flujo] (obj) -- (env);
+  \draw[flujo] (env) -- (prim);
+  \draw[flujo] (prim) -- (sec);
+  \draw[flujo] (sec) -- (act);
+  \draw[flujo] (act) -- (ok);
+  \draw[flujo] (ok) -- node[etiq,right] {sí} (fin);
+  \draw[flujo] (ok.west) -- ++(-1.6,0) |- node[etiq,left,pos=0.25] {no} (sec.west);
+  \draw[aviso] (n1) -- (prim);
+  \draw[aviso] (n2) -- (ok);
+\end{tikzpicture}
+\caption[Cadena de decisiones de los puntos duros]{El orden en que se fijan los
+puntos duros. La envolvente y los puntos primarios se cierran primero porque los
+condiciona el reglamento y el empaquetado; a partir de ahí se itera sobre los
+puntos de trapecio hasta cumplir las curvas objetivo. Volver a tocar los puntos
+primarios en esa iteración significa que la envolvente estaba mal planteada.}
+\label{fig:puntos:cadena}
+\end{figure}
+
+\subsection{Restricciones que llegan de fuera}
+
+Antes de mover un solo punto conviene tener escrita la lista de lo que no se
+puede tocar, porque cada una de estas cosas ha mandado geometrías enteras a la
+basura a mitad de temporada:
+
+\begin{itemize}
+  \item \textbf{Envolvente de la llanta.} Los trapecios y el pushrod tienen que
+        caber dentro de la llanta en todo el recorrido \emph{y} a tope de
+        volante. Es la restricción que más sorpresas da, y se comprueba con el
+        modelo 3D girando la dirección, no con la vista frontal.
+  \item \textbf{Reglamento.} Ancho de vía mínimo, batalla mínima, distancia al
+        suelo y las reglas de sujeción y de material de los elementos de
+        suspensión.
+  \item \textbf{Chasis.} Los anclajes tienen que caer en nodos del bastidor. Un
+        anclaje a mitad de tubo mete flexión donde no debe y se paga en rigidez
+        torsional (capítulo \ref{ch:caminos_carga_nodos}).
+  \item \textbf{Palieres.} El ángulo máximo de las juntas homocinéticas limita
+        dónde puede estar el centro de rueda respecto al diferencial
+        (capítulo \ref{ch:palieres_juntas}).
+  \item \textbf{Fabricación.} Un punto duro solo existe si alguien puede
+        mecanizarlo con la tolerancia necesaria y medirlo después.
+\end{itemize}
+
+% ---------------------------------------------------------------------
 \section{Flujo de trabajo y herramientas}
 \label{sec:puntos_duros:02}
-\pendiente{Pendiente de redactar.}
+\index{VSusp}\index{herramientas de cinemática}
 
+\subsection{Qué ve cada herramienta}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Herramienta} & \textbf{Para qué sirve} & \textbf{Qué no ve} \\
+\midrule
+Herramienta 2D (VSusp y similares) & Iterar deprisa en vista frontal: centro de
+  balanceo, caída, vía & Avance, Ackermann, interferencias, bump steer real \\
+Hoja de cálculo propia & Entender de verdad lo que se hace; comprobar la
+  herramienta & Lo que no se haya programado \\
+CAD 3D con ensamblaje cinemático & La geometría de verdad, con interferencias y
+  recorridos & Nada, pero cuesta mucho más iterar \\
+Multicuerpo (Adams, MotionView) & Transitorios, flexibilidades, cargas &
+  Requiere datos que un primer coche no tiene \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+El flujo que funciona en un equipo pequeño es \textbf{2D para explorar, 3D para
+confirmar}. Se itera en la herramienta rápida hasta tener una geometría
+candidata, y solo entonces se monta en el CAD, donde aparecen las
+interferencias y el bump steer real. Al revés ---empezar en el CAD--- se acaba
+haciendo tres iteraciones en un mes en vez de treinta en una tarde.
+
+Y sea cual sea la herramienta: \textbf{constrúyela dos veces}. Es el apartado
+siguiente y es la mejor media hora que se invierte en todo el bloque.
+\end{clave}
+
+\subsection{Construirla dos veces}
+
+Una herramienta de cinemática no avisa de un error de entrada: si se teclea una
+coordenada mal, dibuja tan contenta la curva equivocada. La única defensa barata
+es calcular lo mismo por dos caminos independientes y comparar.
+
+Lo que hay que cruzar, como mínimo:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Magnitud} & \textbf{Por qué esta} & \textbf{Tolerancia razonable} \\
+\midrule
+Altura de centro de balanceo & Es muy sensible a errores de altura & \SI{2}{\milli\meter} \\
+Vía en reposo & Detecta errores de coordenada lateral & \SI{1}{\milli\meter} \\
+Ganancia de caída & Detecta errores en las longitudes de brazo & \SI{5}{\percent} \\
+Relación de instalación & Detecta errores en el accionamiento & \SI{2}{\percent} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+Cuando dos herramientas no coinciden, la reacción natural es quedarse con la
+que da el número que gusta más. Es exactamente lo contrario de lo que hay que
+hacer: \textbf{una discrepancia es información}, y hay que perseguirla hasta
+saber de dónde sale. En nuestra experiencia, casi siempre resultó ser un error
+de entrada; el resto se explicaba por la idealización 2D frente a 3D. Ninguna
+diferencia se quedó sin explicar, y esa es la regla.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Estudios paramétricos}
 \label{sec:puntos_duros:03}
-\pendiente{Pendiente de redactar.}
+\index{estudio paramétrico}\index{sensibilidad}
 
+\subsection{Barrer un parámetro, no diez}
+
+Un estudio paramétrico útil mueve \textbf{un} punto duro cada vez y mira qué le
+pasa a las curvas objetivo. Mover varios a la vez produce gráficas
+impresionantes de las que no se puede concluir nada, porque no se sabe a quién
+atribuir el cambio.
+
+El resultado que se busca no es «la geometría óptima», sino una \textbf{tabla de
+sensibilidades} en el formato del capítulo \ref{ch:coche_como_sistema}:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Si muevo\ldots} & \textbf{Le pasa esto a\ldots} & \textbf{Unidades} \\
+\midrule
+Altura del pivote interior inferior & Centro de balanceo & \si{\milli\meter} por \si{\milli\meter} \\
+Altura del pivote interior superior & Centro de balanceo y ganancia de caída & \si{\milli\meter}, \si{\degree\per\milli\meter} \\
+Longitud del trapecio superior & Ganancia de caída y variación de vía & \si{\degree\per\milli\meter} \\
+Altura del anclaje del tirante & Bump steer & \si{\degree} por \si{\milli\meter} \\
+Posición del balancín & Relación de instalación & --- por \si{\milli\meter} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Con esa tabla en la mano, las discusiones de diseño se acaban en dos minutos, y
+en el design event se contesta a «¿por qué este punto está aquí?» con un número
+en vez de con una opinión.
+
+\begin{ojo}
+Un estudio paramétrico tiene un peligro concreto: \textbf{optimizar contra un
+neumático que no es el nuestro}. Si el objetivo de ganancia de caída sale de
+una curva de agarre prestada, el óptimo que salga es el óptimo de otro coche.
+Mientras no haya datos propios, lo honesto es elegir valores conservadores,
+dejar margen de ajuste ---anclajes intercambiables, chapas de reglaje--- y
+decirlo así en el informe.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Documentación y congelación de la geometría}
 \label{sec:puntos_duros:04}
-\pendiente{Pendiente de redactar.}
+\index{congelación de diseño}\index{documentación}
+
+\subsection{La tabla de puntos duros}
+
+Es el documento más importante del bloque y cabe en una hoja. Tiene que llevar,
+sin excepción:
+
+\begin{enumerate}
+  \item \textbf{El origen y el convenio de ejes}, dibujados, no descritos. La
+        mitad de los errores entre departamentos vienen de que cada uno pone el
+        origen donde le conviene.
+  \item \textbf{Una fila por punto}, con nombre normalizado, las tres
+        coordenadas y a qué pieza pertenece cada lado de la unión.
+  \item \textbf{La postura en la que están medidas}: coche en reposo, con
+        piloto, a la altura libre de diseño. Sin eso, las coordenadas no
+        significan nada.
+  \item \textbf{Versión y fecha}, y quién la aprobó.
+\end{enumerate}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llXl@{}}
+\toprule
+\textbf{Código} & \textbf{Punto} & \textbf{Une} & \textbf{$x$, $y$, $z$} \\
+\midrule
+\texttt{FLI-1} & Trapecio inf. delantero, pivote delantero & Chasis -- trapecio & \ldots \\
+\texttt{FLI-2} & Trapecio inf. delantero, pivote trasero & Chasis -- trapecio & \ldots \\
+\texttt{FLO}   & Rótula inferior delantera & Trapecio -- mangueta & \ldots \\
+\texttt{FTO}   & Tirante exterior delantero & Tirante -- mangueta & \ldots \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Congelar de verdad}
+
+Congelar no es dejar de tocar el archivo: es un acto explícito con fecha, con
+una versión etiquetada y con un aviso a todos los departamentos. A partir de
+ahí, un cambio de punto duro deja de ser una edición y pasa a ser una
+\textbf{petición de cambio} que alguien tiene que aprobar sabiendo qué arrastra.
+
+\begin{clave}
+La pregunta que hay que saber contestar antes de congelar es: \textbf{si dentro
+de un año alguien quiere reconstruir esta geometría, ¿tiene todo lo que
+necesita?} Si la respuesta depende de que siga en el equipo la persona que la
+hizo, no está documentada. El capítulo \ref{ch:documentacion_traspaso} insiste
+en esto para el coche entero; en puntos duros duele especialmente, porque es
+información que no se puede recuperar mirando la pieza: las coordenadas
+nominales no están escritas en ningún sitio del coche.
+\end{clave}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Dos herramientas, un resultado]
+Lo que hicimos y funcionó: montamos la cinemática \textbf{en VSusp y en una hoja
+de cálculo propia}, por separado, y cruzamos altura de centro de balanceo, vía y
+ganancia de caída. Las diferencias salieron de pocos milímetros y pocos puntos
+porcentuales. Al perseguirlas, casi todas eran errores de entrada nuestros; el
+resto se explicaba por la idealización 2D frente a 3D y por redondeos de
+coordenadas.
+
+Merece la pena decir por qué esto no es perder el tiempo: una herramienta de
+cinemática no avisa de una coordenada mal tecleada, y un error de geometría que
+llega al taller cuesta manguetas nuevas. Media tarde de verificación cruzada es
+la póliza más barata del bloque.
+
+También está decidido dejar \textbf{margen de ajuste donde sabemos que nos
+falta criterio}: el anclaje de dirección de la mangueta es intercambiable, de
+modo que la longitud y la altura del brazo de dirección se pueden mover sin
+fabricar nada nuevo. Es una decisión consciente de un equipo que sabe que va a
+tener que corregir.
+
+\medskip
+\otrodia[Falta la tabla de puntos duros congelada, con origen, convenio, fecha
+y versión, y la tabla de sensibilidades que la justifica.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Empezar a mover puntos antes de tener escrita la envolvente.
+  \item Mover varios parámetros a la vez en un estudio paramétrico.
+  \item Dar coordenadas sin decir el origen, el convenio de ejes ni la postura
+        del coche.
+  \item Quedarse con la herramienta que da el número que gusta cuando dos no
+        coinciden.
+  \item Congelar la geometría en una reunión y no avisar a los demás
+        departamentos.
+  \item Presentar como óptimo un resultado obtenido con un neumático prestado.
+  \item Guardar la geometría solo en el fichero de la herramienta. Si la
+        licencia caduca o la versión cambia, se pierde.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{tabla de puntos duros} completa, con origen y convenio
+        dibujados, postura de medida, versión y fecha.
+  \item La \textbf{tabla de sensibilidades} de los cinco o seis parámetros que
+        de verdad se han barrido.
+  \item El \textbf{informe de verificación cruzada} entre dos herramientas, con
+        cada diferencia explicada.
+  \item El \textbf{registro de cambios} de la geometría desde la congelación,
+        con motivo y aprobación de cada uno.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿De qué objetivo de dinámica vehicular sale este punto duro?
+  \item ¿Qué habéis barrido y qué habéis descartado?
+  \item ¿Cuánto se mueve el centro de balanceo si subo este anclaje
+        \SI{10}{\milli\meter}?
+  \item ¿Con qué habéis verificado la geometría además de con la herramienta
+        que la generó?
+  \item ¿Cuándo congelasteis y qué habéis cambiado desde entonces?
+  \item ¿Comprobasteis las interferencias con la dirección a tope y la
+        suspensión en el extremo del recorrido?
 \end{enumerate}
 \end{juez}

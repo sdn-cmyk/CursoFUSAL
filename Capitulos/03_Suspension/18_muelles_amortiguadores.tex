@@ -1,60 +1,467 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Muelles, amortiguadores y barras
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Muelles, amortiguadores y barras}
 \label{ch:muelles_amortiguadores}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Definir la relación de instalación sin ambigüedad y deducir por qué la
+        rigidez en rueda va con su cuadrado.
+  \item Dimensionar muelles a partir de una frecuencia de suspensión objetivo,
+        contando con el neumático.
+  \item Calcular el amortiguamiento crítico de una esquina y traducir un ratio
+        objetivo a una constante de amortiguador.
+  \item Leer una curva fuerza--velocidad y saber qué zona toca cada ajuste.
+  \item Dimensionar una barra estabilizadora y conectar su rigidez con el
+        $\LLTD$ del capítulo \ref{ch:regimen_estacionario}.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{120 minutos}{Capítulos \ref{ch:regimen_estacionario} y
+\ref{ch:cinematica_suspension}}{Hoja de cálculo, un muelle, un amortiguador y
+un calibre}
 
+Si la cinemática decide en qué postura llega el neumático al suelo, este
+capítulo decide \emph{con qué fuerza} y \emph{con qué rapidez}. Muelles y
+barras reparten la carga; los amortiguadores controlan cómo se llega de un
+estado a otro. Es también el capítulo con más ajustes que se tocan en pista,
+así que conviene entenderlo bien: es donde más rápido se gana y donde más
+fácil se estropea un coche que iba bien.
+
+% ---------------------------------------------------------------------
 \section{Relación de instalación}
 \label{sec:muelles_amortiguadores:01}
-\pendiente{Pendiente de redactar.}
+\index{relación de instalación}\index{balancín}
 
+\subsection{Definición, y por qué hay que fijarla por escrito}
+
+La \textbf{relación de instalación} relaciona el movimiento del amortiguador con
+el de la rueda. Existen las dos convenciones en la literatura y se confunden
+constantemente, así que en este libro se usa siempre:
+
+\begin{equation}
+  \MR = \frac{\text{recorrido del amortiguador}}{\text{recorrido de la rueda}}
+  \label{eq:motion_ratio}
+\end{equation}
+
+Con esta definición $\MR < 1$ en un montaje normal: la rueda se mueve más que
+el amortiguador. Valores típicos en Formula Student están entre \num{0.5} y
+\num{0.8}.
+
+\begin{clave}
+De los trabajos virtuales sale todo lo demás. Si la rueda se desplaza
+$\delta_r$ y el amortiguador $\delta_a = \MR\,\delta_r$, la igualdad de
+trabajos $F_r \delta_r = F_a \delta_a$ da $F_r = \MR\,F_a$. Dividiendo fuerza
+entre desplazamiento:
+
+\begin{equation}
+  \Kw = \MR^{2}\,\Ks
+  \label{eq:rigidez_rueda}
+\end{equation}
+
+\textbf{La rigidez en rueda va con el cuadrado de la relación de instalación.}
+Un error del \SI{5}{\percent} en $\MR$ es un error del \SI{10}{\percent} en la
+rigidez, y por eso el $\MR$ es de los pocos números de este bloque que hay que
+\emph{medir} en el coche montado y no solo calcular. Lo mismo vale para el
+amortiguamiento: $c_{\text{rueda}} = \MR^{2} c_{\text{amortiguador}}$.
+\end{clave}
+
+\subsection{Progresivo, regresivo o constante}
+
+La relación de instalación no tiene por qué ser constante a lo largo del
+recorrido: depende de cómo giren el balancín y el pushrod
+(\cref{fig:muelles:balancin}). Según cómo evolucione:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Comportamiento} & \textbf{Qué hace} & \textbf{Cuándo interesa} \\
+\midrule
+Progresivo ($\MR$ crece al comprimir) & El coche se endurece al hundirse &
+  Con mucha carga aerodinámica, o para proteger el final de recorrido \\
+Constante & Rigidez en rueda igual en todo el recorrido &
+  Coche sin aero: sencillo, predecible y fácil de correlacionar \\
+Regresivo ($\MR$ cae al comprimir) & El coche se ablanda al hundirse &
+  Casi nunca a propósito; suele ser un accidente de diseño \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+Un $\MR$ regresivo sin querer es un fallo clásico de primer coche: el balancín
+pasa por una postura en la que pierde brazo y la suspensión se ablanda justo
+cuando más comprimida está. Se detecta barriendo el recorrido completo en el
+CAD, no mirando la posición de reposo. Y se detecta también en pista, porque el
+coche toca fondo antes de lo previsto.
+\end{ojo}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=2mm]}]
+  % chasis y pivote del balancín
+  \draw[fusalGris,densely dashed] (0,0.2) -- (0,3.4);
+  \fill[fusalPrim] (1.6,2.6) circle (2.2pt);
+  \node[cursonota,anchor=south east] at (1.5,2.7) {pivote del\\balancín};
+  % balancín como triángulo
+  \draw[fusalPrim,very thick,fill=fusalPrim!10]
+        (1.6,2.6) -- (2.9,2.05) -- (0.7,1.75) -- cycle;
+  % pushrod
+  \draw[fusalSec,very thick] (2.9,2.05) -- (4.9,0.55);
+  \node[cursonota,anchor=west,text=fusalSec] at (3.9,1.55) {pushrod};
+  % amortiguador
+  \draw[fusalPrim,very thick] (0.7,1.75) -- (0.05,1.05);
+  \draw[fusalPrim,line width=3pt] (0.55,1.6) -- (0.25,1.25);
+  \draw[fusalPrim] (0.4,1.42) -- (-0.35,2.25);
+  \node[cursonota,anchor=south,text=fusalPrim] at (-0.35,2.3)
+       {muelle y\\amortiguador};
+  % rueda
+  \draw[fusalGris,fill=fusalGris!12,line width=1pt] (6.1,0.95) circle (0.95);
+  \draw[fusalGris,very thick] (4.9,0.55) -- (5.6,0.75);
+  \draw[fusalGris,->,thick] (6.1,2.15) -- (6.1,2.85);
+  \node[cursonota,anchor=west] at (6.25,2.5) {recorrido\\de la rueda};
+  \draw[fusalPrim,->,thick] (0.05,0.75) -- (0.42,1.15);
+  \node[cursonota,anchor=north west] at (0.2,0.7) {recorrido del\\amortiguador};
+\end{tikzpicture}
+\caption[Accionamiento por pushrod y balancín]{Accionamiento por pushrod con
+balancín. La relación de instalación es el cociente entre lo que se mueve el
+amortiguador y lo que se mueve la rueda, y depende de los brazos efectivos del
+balancín en cada postura. Con el balancín, el pushrod y el amortiguador en un
+mismo plano vertical la relación es casi constante, que es la elección de este
+equipo.}
+\label{fig:muelles:balancin}
+\end{figure}
+
+% ---------------------------------------------------------------------
 \section{Rigidez en rueda y frecuencias de suspensión}
 \label{sec:muelles_amortiguadores:02}
-\pendiente{Pendiente de redactar.}
+\index{frecuencia de suspensión}\index{rigidez en rueda}
 
+\subsection{Por qué se diseña en frecuencia y no en rigidez}
+
+Una rigidez en newton por milímetro no dice nada por sí sola: depende de la
+masa que sostiene. Lo que sí es comparable entre coches ---y lo que gobierna
+cómo se siente el coche--- es la \textbf{frecuencia propia de la masa
+suspendida}:
+
+\begin{equation}
+  \fr = \frac{1}{2\pi}\sqrt{\frac{K_{\text{marcha}}}{m_s}}
+  \label{eq:frecuencia_suspension}
+\end{equation}
+
+donde $m_s$ es la masa suspendida de esa esquina y $K_{\text{marcha}}$ la
+rigidez que ve esa masa, que \textbf{no} es la rigidez en rueda: el neumático
+está en serie y también se deforma.
+
+\begin{equation}
+  \frac{1}{K_{\text{marcha}}} = \frac{1}{\Kw} + \frac{1}{K_{\text{neu}}}
+  \label{eq:rigidez_serie}
+\end{equation}
+
+\begin{ojo}
+Olvidar el neumático es el error más frecuente de este apartado. Un neumático de
+Formula Student anda por \SIrange{80}{120}{\newton\per\milli\meter}, que es del
+mismo orden que la rigidez en rueda: ignorarlo sobreestima la frecuencia en un
+\SIrange{10}{20}{\percent}. Y la rigidez del neumático depende de la presión,
+así que la frecuencia de suspensión cambia al inflar. Otra razón más para tener
+la presión documentada.
+\end{ojo}
+
+\subsection{Un dimensionado completo, de principio a fin}
+
+Merece la pena hacer la cuenta entera una vez, porque es exactamente la que hay
+que saber defender:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Paso} & \textbf{Cómo} & \textbf{Resultado} \\
+\midrule
+1. Masa suspendida por esquina & \SI{260}{\kilogram} suspendidos, \SI{48}{\percent} delante, entre dos ruedas & \SI{62.4}{\kilogram} \\
+2. Frecuencia objetivo & Elegida: coche sin aero, base cómoda & \SI{3.0}{\hertz} \\
+3. Rigidez de marcha & $K = m_s(2\pi \fr)^2$ & \SI{22.2}{\newton\per\milli\meter} \\
+4. Descontar el neumático & \eqref{eq:rigidez_serie} con \SI{100}{\newton\per\milli\meter} & $\Kw = \SI{28.5}{\newton\per\milli\meter}$ \\
+5. Pasar al muelle & $\Ks = \Kw/\MR^2$ con $\MR = \num{0.65}$ & \SI{67.5}{\newton\per\milli\meter} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Tipo de coche} & \textbf{Por qué} & \textbf{$\fr$ típica} \\
+\midrule
+Formula Student sin aerodinámica & Pista bacheada, conos, sin carga extra & \SIrange{2.5}{3.5}{\hertz} \\
+Formula Student con aerodinámica & Hay que controlar la altura libre & \SIrange{3.5}{5}{\hertz} \\
+Turismo de calle & Confort & \SIrange{1}{1.5}{\hertz} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+El eje trasero se suele poner un \SIrange{5}{15}{\percent} más rígido en
+frecuencia que el delantero. La razón es el \emph{flat ride}: al pasar por un
+bache, el eje trasero lo pisa más tarde que el delantero, y si oscila algo más
+deprisa alcanza al delantero y el coche cabecea menos. Es una de las pocas
+reglas de este bloque que se puede aplicar sin datos propios.
+
+Ojo con no confundirlo con el reparto de rigidez a balanceo: se puede tener el
+trasero más rígido \emph{en marcha} y aun así darle menos $\LLTD$, jugando con
+las barras. Son dos grados de libertad distintos y conviene no mezclarlos.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Teoría del amortiguador}
 \label{sec:muelles_amortiguadores:03}
-\pendiente{Pendiente de redactar.}
+\index{amortiguador}\index{ratio de amortiguamiento}
 
-\section{Banco de amortiguadores}
-\label{sec:muelles_amortiguadores:04}
-\pendiente{Pendiente de redactar.}
+\subsection{Amortiguamiento crítico y ratio}
 
+El amortiguador controla la velocidad con la que la suspensión se mueve. La
+referencia es el amortiguamiento crítico de esa esquina:
+
+\begin{equation}
+  c_{\text{cr}} = 2\sqrt{\Kw\,m_s},
+  \qquad
+  \zeta = \frac{c_{\text{rueda}}}{c_{\text{cr}}}
+  \label{eq:amortiguamiento_critico}
+\end{equation}
+
+Siguiendo el ejemplo anterior, con $\Kw = \SI{28.5}{\newton\per\milli\meter}$ y
+$m_s = \SI{62.4}{\kilogram}$ sale $c_{\text{cr}} = \SI{2667}{\newton\second\per\meter}$.
+Con un objetivo de $\zeta = \num{0.65}$, el amortiguamiento necesario en rueda
+es \SI{1734}{\newton\second\per\meter}, y en el amortiguador
+$c_{\text{amortiguador}} = c_{\text{rueda}}/\MR^2 = \SI{4104}{\newton\second\per\meter}$.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{$\zeta$} & \textbf{Qué pasa} & \textbf{Uso} \\
+\midrule
+$< \num{0.3}$ & El coche rebota y sigue oscilando & Demasiado blando \\
+\numrange{0.4}{0.7} & Compromiso entre control y absorción & \textbf{Rango de trabajo} \\
+$\approx \num{1}$ & Vuelve sin oscilar, pero lentísimo y muy duro & Solo casos especiales \\
+$> \num{1}$ & La rueda no sigue el suelo; pierde contacto en baches & Error \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{La curva fuerza--velocidad}
+
+Un amortiguador real no es un coeficiente: es una curva
+(\cref{fig:muelles:amortiguador}). Y cada tramo de la curva lo usa una cosa
+distinta del coche, que es la clave para saber qué tornillo tocar:
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[Baja velocidad (hasta \SI{50}{\milli\meter\per\second})] Es el
+    movimiento del \emph{chasis}: balanceo al entrar en curva, cabeceo al
+    frenar, transferencia de carga. Aquí se ajusta cómo responde el coche a las
+    acciones del piloto. Lo gobierna la sangría.
+  \item[Alta velocidad (por encima del codo)] Es el movimiento de la
+    \emph{rueda}: baches, bordillos, piano. Aquí se ajusta el confort y el
+    contacto con el suelo. Lo gobierna la válvula de descarga.
+  \item[Compresión frente a extensión] Casi siempre se pone más extensión que
+    compresión, del orden del doble o el triple. La compresión trabaja contra
+    el muelle y contra la masa no suspendida; la extensión controla la energía
+    que el muelle devuelve.
+\end{description}
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=6.2cm, width=0.78\linewidth,
+  xlabel={velocidad del amortiguador (\si{\meter\per\second})},
+  ylabel={fuerza (\si{\newton})},
+  xmin=-0.32, xmax=0.32, ymin=-420, ymax=560,
+  xtick={-0.3,-0.2,...,0.3}, ytick={-400,-200,0,200,400},
+  legend pos=north west]
+\addplot[curvaA,mark=*,mark size=1.2pt] coordinates {
+  (-0.30,-300) (-0.20,-255) (-0.10,-190) (-0.05,-140) (0,0)
+  (0.05,260) (0.10,340) (0.20,430) (0.30,500)};
+  \addlegendentry{amortiguador real}
+\addplot[fusalGris,densely dashed,domain=-0.09:0.09,samples=2]{4104*x};
+  \addlegendentry{equivalente lineal, $\zeta=\num{0.65}$}
+\draw[fusalGris] (axis cs:-0.32,0) -- (axis cs:0.32,0);
+\draw[cursomarca] (axis cs:0.05,0) -- (axis cs:0.05,260);
+\node[cursonota,anchor=west] at (axis cs:0.065,120) {codo};
+\node[cursonota,anchor=north west] at (axis cs:0.005,-140)
+     {$+$ extensión: controla\\lo que devuelve el muelle};
+\node[cursonota,anchor=south east] at (axis cs:-0.02,120)
+     {$-$ compresión: más blanda,\\trabaja contra la masa no suspendida};
+\end{axis}
+\end{tikzpicture}
+\caption[Curva fuerza--velocidad de un amortiguador]{Curva fuerza--velocidad
+típica. Hasta el codo, en torno a \SI{50}{\milli\meter\per\second}, la pendiente
+es alta y controla los movimientos del chasis; pasado el codo la válvula de
+descarga la reduce para que la rueda pueda seguir el suelo. La recta discontinua
+es el amortiguador lineal equivalente que sale de
+\eqref{eq:amortiguamiento_critico}: coincide donde importa para el ratio de
+amortiguamiento y se separa a alta velocidad, que es justo lo que se busca.}
+\label{fig:muelles:amortiguador}
+\end{figure}
+
+\subsection{Banco de amortiguadores}
+
+Un banco mueve el amortiguador con un recorrido y una frecuencia conocidos y
+mide la fuerza. Da dos gráficas:
+
+\begin{itemize}
+  \item \textbf{Fuerza frente a velocidad}, que es la de la figura anterior y la
+        que se usa para ajustar.
+  \item \textbf{Fuerza frente a desplazamiento}, un bucle cuya área es la
+        energía disipada por ciclo. Sirve sobre todo para diagnosticar: un
+        bucle deformado o asimétrico delata aire en el amortiguador, una junta
+        que roza o un vástago doblado.
+\end{itemize}
+
+\begin{clave}
+Lo que de verdad justifica un banco no es dibujar curvas bonitas: es
+\textbf{saber que los cuatro amortiguadores son iguales}. Dos amortiguadores del
+mismo modelo y con los mismos clics pueden diferir un \SI{15}{\percent}, y esa
+diferencia se convierte en un coche que va distinto a izquierdas que a derechas
+y que nadie sabe por qué. Si no hay banco propio, merece la pena buscar uno
+prestado una sola tarde y caracterizar el juego completo.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Barras estabilizadoras}
-\label{sec:muelles_amortiguadores:05}
-\pendiente{Pendiente de redactar.}
+\label{sec:muelles_amortiguadores:04}
+\index{barra estabilizadora}
+
+\subsection{Para qué sirven de verdad}
+
+Una barra estabilizadora añade rigidez \emph{solo en balanceo}: cuando las dos
+ruedas de un eje suben a la vez no hace nada, y cuando suben distinto se
+retuerce. Eso permite separar dos cosas que si no irían juntas:
+
+\begin{itemize}
+  \item La \textbf{frecuencia de suspensión}, que se elige con los muelles y
+        gobierna cómo se traga el coche los baches.
+  \item El \textbf{reparto de transferencia de carga}, que se elige con las
+        barras y gobierna el balance (capítulo \ref{ch:regimen_estacionario}).
+\end{itemize}
+
+Sin barras habría que endurecer un eje entero para mover el balance, y con ello
+se estropearía la respuesta ante baches. Por eso la barra es el ajuste de
+balance por excelencia: mueve el $\LLTD$ sin tocar nada más.
+
+\subsection{Dimensionado}
+
+La rigidez a balanceo que aportan los muelles de un eje, referida a la rueda,
+es
+
+\begin{equation}
+  \Kroll^{\text{muelles}} = \frac{\Kw\,\via^{2}}{2}
+  \label{eq:rigidez_balanceo_muelles}
+\end{equation}
+
+en newton-metro por radián. Con el ejemplo anterior
+($\Kw = \SI{28.5}{\newton\per\milli\meter}$, $\via = \SI{1.2}{\meter}$) salen
+\SI{20520}{\newton\meter\per\radian}, es decir unos
+\SI{358}{\newton\meter\per\degree} solo de muelles.
+
+Para la barra, que trabaja a torsión:
+
+\begin{equation}
+  K_{\text{barra}} = \frac{G\,J}{L_{\text{barra}}},
+  \qquad J = \frac{\pi d^{4}}{32}
+  \label{eq:barra_torsion}
+\end{equation}
+
+\begin{ojo}
+La rigidez de una barra va con la \textbf{cuarta potencia del diámetro}: pasar
+de \num{10} a \SI{12}{\milli\meter} multiplica por más de dos. Eso hace que
+elegir el diámetro «por si acaso» sea malísima idea, y que las barras se
+diseñen \textbf{ajustables}: con brazos de pala orientables o con varios
+agujeros de anclaje. Un juego de tres posiciones cubre mucho más terreno que
+acertar el diámetro a la primera.
+
+Y la barra rara vez es la parte blanda del conjunto: los brazos, los tirantes y
+sus anclajes flectan, y la rigidez que llega a la rueda puede ser bastante menor
+que la que sale de \eqref{eq:barra_torsion}. Si el número importa, se mide.
+\end{ojo}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Base cómoda y estable, para poder rodar]
+Las decisiones tomadas, y su lógica:
+
+\begin{itemize}
+  \item \textbf{Balancín, pushrod y amortiguador en un plano vertical}, lo que
+        da una relación de instalación prácticamente constante. Se eligió por
+        eso: convertir objetivos de rigidez en rueda a rigidez de muelle con
+        una sola multiplicación, sin curvas raras que explicar.
+  \item \textbf{Muelles dimensionados desde frecuencias objetivo}, con la masa
+        suspendida por esquina y la relación de instalación del balancín, y con
+        el trasero algo más alto que el delantero.
+  \item \textbf{Amortiguamiento objetivo $\zeta$ entre \num{0.6} y \num{0.7}},
+        partiendo del amortiguamiento crítico de nuestra masa y rigidez. A
+        partir de ahí, compresión y extensión se afinan en pista.
+  \item \textbf{Todo sesgado a la comodidad y la estabilidad}, no al agarre de
+        pico. Es coherente con el objetivo de la temporada: rodar mucho y
+        recoger datos, no arañar décimas.
+\end{itemize}
+
+Y las limitaciones que hay que reconocer:
+
+\begin{itemize}
+  \item \textbf{No tenemos banco de amortiguadores.} Partimos de las curvas y
+        los clics del fabricante y afinamos con los potenciómetros de
+        amortiguador. Significa que no sabemos si los cuatro son iguales, y esa
+        es una incertidumbre real que arrastramos a todo el ajuste.
+  \item \textbf{La relación de instalación está calculada, no medida.} Como la
+        rigidez va con su cuadrado, medirla en el coche montado es de las
+        comprobaciones más rentables que quedan pendientes.
+\end{itemize}
+
+\medskip
+\otrodia[Faltan las frecuencias objetivo delante y detrás, el $\MR$ medido, las
+rigideces de muelle montadas y el diámetro de barra con sus posiciones.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item No dejar escrita la convención de relación de instalación. La mitad de
+        los equipos usa la inversa, y mezclarlas da un factor cuatro de error.
+  \item Calcular la frecuencia de suspensión sin poner el neumático en serie.
+  \item Usar la masa total en vez de la suspendida por esquina.
+  \item Dar por constante una relación de instalación sin barrer el recorrido
+        completo en el CAD.
+  \item Ajustar el balance con muelles pudiendo hacerlo con la barra.
+  \item Tocar dos clics a la vez entre tandas y no poder atribuir el cambio.
+  \item Suponer que los cuatro amortiguadores son iguales porque son del mismo
+        modelo.
+  \item Diseñar la barra sin ajuste, confiando en acertar el diámetro.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{curva de relación de instalación} frente al recorrido, para
+        los dos ejes, calculada y \emph{medida} en el coche.
+  \item La \textbf{hoja de dimensionado de muelles}: de masa suspendida y
+        frecuencia objetivo a rigidez de muelle, con el neumático en serie.
+  \item La \textbf{hoja de amortiguamiento}: $c_{\text{cr}}$ por esquina, ratio
+        objetivo y constante de amortiguador equivalente.
+  \item La \textbf{tabla de reglajes}: qué frecuencia, qué $\LLTD$ y qué balance
+        da cada combinación de muelle, barra y clics. Es la hoja que se lleva a
+        pista.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Cuál es vuestra relación de instalación y con qué convenio?
+  \item ¿La habéis medido o solo calculado?
+  \item ¿Qué frecuencias de suspensión tenéis y por qué esas?
+  \item ¿Habéis contado con la rigidez del neumático?
+  \item ¿Qué ratio de amortiguamiento buscáis y de dónde sale?
+  \item ¿Qué zona de la curva del amortiguador tocáis para reducir el balanceo
+        en la entrada de curva?
+  \item ¿Cuánta rigidez a balanceo aporta la barra frente a los muelles?
+  \item ¿Cómo sabéis que los cuatro amortiguadores son iguales?
 \end{enumerate}
 \end{juez}

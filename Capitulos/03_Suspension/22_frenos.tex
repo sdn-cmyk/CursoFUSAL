@@ -1,60 +1,364 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Sistema de frenos
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Sistema de frenos}
 \label{ch:frenos}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Conocer los requisitos de reglamento y preparar el \emph{brake test}
+        para pasarlo a la primera.
+  \item Dibujar la curva de reparto ideal de frenada y entender por qué un
+        reparto fijo solo la toca en un punto.
+  \item Recorrer entera la cadena pie\,--\,pedal\,--\,bomba\,--\,presión\,--\,pinza\,--\,disco
+        y comprobar que se bloquean las cuatro ruedas.
+  \item Dimensionar el disco por energía y estimar su temperatura.
+  \item Montar, purgar y mantener el circuito sin sorpresas.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{120 minutos}{Capítulos \ref{ch:regimen_estacionario} y
+\ref{ch:casos_carga}}{Reglamento vigente, \texttt{Codigo/suspension/frenos.py},
+catálogo de pinzas y bombas}
 
+El freno es el sistema con el reglamento más estricto del coche, y con razón:
+es el único cuyo fallo es inmediatamente peligroso y no tiene redundancia
+funcional. También es el que más equipos manda a casa el primer día, casi
+siempre por cosas evitables.
+
+% ---------------------------------------------------------------------
 \section{Requisitos de reglamento y brake test}
 \label{sec:frenos:01}
-\pendiente{Pendiente de redactar.}
+\index{reglamento!frenos}\index{brake test}
 
+\begin{regla}[frenos]
+Lo que el reglamento exige, y que hay que diseñar desde el principio:
+
+\begin{itemize}
+  \item \textbf{Las cuatro ruedas frenadas} y \textbf{dos circuitos
+        independientes}, de forma que un fallo hidráulico deje al menos un
+        circuito operativo.
+  \item \textbf{Bloqueo de las cuatro ruedas} en el ensayo de frenada, con el
+        coche a la velocidad y en las condiciones que fije el reglamento.
+  \item \textbf{Interruptor de sobrerrecorrido del pedal}, que corta la
+        tracción si el pedal se va al fondo.
+  \item \textbf{Luz de freno} con las características indicadas.
+  \item \textbf{Protección de latiguillos} frente a rozamiento, calor y daños
+        mecánicos, y frenado positivo en las uniones.
+  \item Requisitos específicos para coches eléctricos sobre la interacción con
+        la frenada regenerativa.
+\end{itemize}
+
+Los números concretos y los artículos cambian entre temporadas: hay que
+comprobarlos en el reglamento vigente y anotar la versión consultada.
+\end{regla}
+
+\begin{clave}
+El \emph{brake test} se aprueba en la mesa de diseño, no en el circuito. Lo que
+se pide es \textbf{bloquear}, no frenar mucho: hace falta que el sistema pueda
+generar más par del que el neumático puede transmitir. Por eso se dimensiona con
+margen deliberado sobre el agarre disponible, y por eso el cálculo del apartado
+\ref{sec:frenos:03} termina comprobando exactamente eso.
+
+El fallo típico no es de dimensionado: es un pedal esponjoso por una purga mal
+hecha, o un reparto tan trasero que el eje de atrás bloquea y el coche se
+cruza. Los dos se detectan rodando antes de ir, y ninguno se detecta en el CAD.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Reparto de frenada}
 \label{sec:frenos:02}
-\pendiente{Pendiente de redactar.}
+\index{reparto de frenada}
 
+\subsection{El reparto ideal es una curva}
+
+Los dos ejes deberían bloquear a la vez. Como la carga de cada eje depende de la
+transferencia longitudinal ---ecuación \eqref{eq:transferencia_long}--- y esta
+depende de la deceleración, la fracción de frenada que debe ir al eje delantero
+\textbf{cambia con la deceleración}:
+
+\begin{equation}
+  k_f^{\text{ideal}}(\ax) =
+     \frac{b/\batalla + (\ax/g)\,(\hcg/\batalla)}{1}
+  \label{eq:reparto_ideal}
+\end{equation}
+
+En cambio, el reparto \emph{instalado} lo fijan las áreas de bomba y de pistón
+de pinza, los radios eficaces y la posición de la barra compensadora: es
+constante. Una recta horizontal contra una curva creciente: solo se cortan en un
+punto (\cref{fig:frenos:reparto}).
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=6.0cm, width=0.78\linewidth,
+  xlabel={deceleración (\si{\gacc})},
+  ylabel={fracción de frenada al eje delantero},
+  xmin=0, xmax=2.0, ymin=0.4, ymax=0.95,
+  xtick={0,0.25,...,2.0}, ytick={0.4,0.5,...,0.9},
+  legend pos=north west]
+\addplot[curvaA] table[x=decel,y=ideal] {Codigo/suspension/reparto_frenada.dat};
+  \addlegendentry{reparto ideal}
+\addplot[curvaB] table[x=decel,y=real] {Codigo/suspension/reparto_frenada.dat};
+  \addlegendentry{reparto instalado, \num{0.62}}
+\draw[cursomarca] (axis cs:1.5,0.4) -- (axis cs:1.5,0.77);
+\node[cursonota,anchor=north east] at (axis cs:1.47,0.93)
+     {límite del neumático:\\aquí el ideal es \num{0.77}};
+\node[cursonota,anchor=south east] at (axis cs:1.95,0.44)
+     {por debajo del ideal:\\bloquea antes el eje trasero};
+\end{axis}
+\end{tikzpicture}
+\caption[Reparto de frenada ideal e instalado]{Reparto ideal de frenada frente a
+la deceleración, calculado con \texttt{frenos.py} para un coche de
+\SI{300}{\kilogram} con reparto \num{48}/\num{52} y
+$\hcg = \SI{300}{\milli\meter}$. El ideal crece porque la transferencia de carga
+carga el eje delantero; el instalado es constante. Este ejemplo, con
+\num{0.62} instalado, queda \emph{por debajo} del ideal en todo el rango útil:
+el eje trasero va sobrefrenado y bloquearía primero. Hay que llevarlo hacia
+adelante.}
+\label{fig:frenos:reparto}
+\end{figure}
+
+\begin{ojo}
+Que bloquee antes el eje trasero es \textbf{inestable}: en cuanto las ruedas
+traseras pierden agarre lateral, el coche se cruza y el piloto no lo recupera.
+La regla es ajustar el reparto para que \textbf{bloquee ligeramente antes el eje
+delantero} en el entorno de deceleración de trabajo, aunque eso signifique
+alejarse del ideal a decelaraciones bajas. Se sacrifica algo de eficacia a
+cambio de un modo de fallo que el piloto puede corregir soltando el freno.
+\end{ojo}
+
+La barra compensadora permite mover el reparto en pista, y ahí es donde se
+afina, midiendo con sensores de presión en los dos circuitos. Lo que no hace es
+convertir la recta en curva: sigue siendo un reparto fijo.
+
+% ---------------------------------------------------------------------
 \section{Relación de pedal y dimensionado de bombas}
 \label{sec:frenos:03}
-\pendiente{Pendiente de redactar.}
+\index{relación de pedal}\index{bomba de freno}
 
+\subsection{La cadena completa}
+
+Este es el cálculo que hay que saber hacer entero y de memoria, porque es
+literalmente la primera pregunta del juez de frenos. Con los datos del ejemplo:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Paso} & \textbf{Cómo} & \textbf{Resultado} \\
+\midrule
+1. Fuerza del piloto & Valor de diseño, piloto empujando fuerte & \SI{800}{\newton} \\
+2. Fuerza en la varilla & Por la relación de pedal, \num{4.5}:1 & \SI{3600}{\newton} \\
+3. Reparto en la barra & \SI{62}{\percent} al circuito delantero & \SI{2232}{\newton} \\
+4. Presión de línea & Fuerza entre área de bomba & \SI{112}{\bar} \\
+5. Fuerza en la pastilla & Presión por área de pistón, por número de pistones & \\
+6. Par de frenado & Fuerza por $\mu$ de pastilla por radio eficaz, dos caras & \SI{775}{\newton\meter} \\
+7. Fuerza en el suelo & Par entre radio de rodadura, los dos ejes & \SI{5432}{\newton} \\
+8. Deceleración & Fuerza entre peso & \SI{1.85}{\gacc} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+El resultado que valida el diseño es la comparación del último paso con el
+agarre disponible: el sistema da \SI{1.85}{\gacc} teóricos y el neumático solo
+puede transmitir \SI{1.5}{\gacc}. Como el sistema puede más que el neumático,
+\textbf{bloquea las cuatro ruedas con margen}, que es exactamente lo que exige
+el reglamento.
+
+Si saliera al revés, hay tres palancas, en este orden de preferencia: subir la
+relación de pedal (gratis, pero alarga el recorrido), reducir el diámetro de
+bomba (sube la presión, pero también alarga el recorrido) o subir el radio
+eficaz o el área de pinza (cuesta dinero y peso).
+\end{clave}
+
+\begin{ojo}
+Todo lo que sube la presión \textbf{alarga el recorrido del pedal}, porque el
+volumen desplazado tiene que ser el mismo. Un sistema con mucha presión y poco
+esfuerzo puede acabar con el pedal en el suelo, y ahí salta el interruptor de
+sobrerrecorrido. Por eso el dimensionado no termina en la presión: hay que
+comprobar también el \textbf{recorrido}, sumando el juego de pastillas, la
+deformación de latiguillos y la compresibilidad del líquido.
+\end{ojo}
+
+\subsection{Comprar o fabricar la pedalera}
+
+\begin{clave}
+Una pedalera es una pieza de seguridad, de catálogo, disponible y probada en
+muchos coches. Diseñarla propia consume muchas horas, mecanizado, y añade el
+riesgo de un sistema no conforme o con fugas en algo crítico. La regla
+razonable es \textbf{comprar la materia prima crítica para la seguridad y
+fabricar donde se aprende}: el tiempo de los miembros del equipo rinde mucho más
+en la suspensión o en la telemetría que reinventando una pedalera.
+
+Esa decisión hay que llevarla con los números encima: cuánto cuesta la unidad
+comprada, cuántas horas costaría la propia y qué riesgo se evita. Con eso,
+defenderla ante un juez es inmediato.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Discos, pastillas y comportamiento térmico}
 \label{sec:frenos:04}
-\pendiente{Pendiente de redactar.}
+\index{disco de freno}\index{fading}
 
+\subsection{Todo es energía}
+
+El freno convierte energía cinética en calor. Una frenada desde
+\SI{100}{\kilo\meter\per\hour} hasta parado en un coche de
+\SI{300}{\kilogram} disipa unos \SI{116}{\kilo\joule}. Repartidos según el
+reparto de frenada, a cada disco delantero le tocan unos \SI{36}{\kilo\joule},
+que en un disco de acero de \SI{0.8}{\kilogram} y sin tiempo para enfriarse son
+casi \SI{100}{\kelvin} de subida:
+
+\begin{equation}
+  \Delta T = \frac{E_{\text{disco}}}{m_{\text{disco}}\,c_p}
+  \label{eq:temperatura_disco}
+\end{equation}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Prueba} & \textbf{Régimen térmico} & \textbf{Qué manda} \\
+\midrule
+Aceleración & Una frenada aislada & Nada; sobra freno \\
+Skidpad & Casi sin frenar & Nada \\
+Autocross & Muchas frenadas seguidas, una vuelta & Temperatura de pico \\
+Endurance & Frenadas repetidas, \SI{22}{\kilo\meter} & \textbf{Equilibrio térmico} \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+El disco no se dimensiona por una frenada: se dimensiona por el
+\textbf{equilibrio} entre lo que entra y lo que se disipa a lo largo del
+endurance. Si entra más de lo que sale, la temperatura sube vuelta a vuelta
+hasta que aparece el \emph{fading}: la pastilla pierde coeficiente, el líquido
+puede llegar a hervir y el pedal se va al suelo.
+
+Los síntomas se distinguen: pedal duro pero sin frenada es fading de pastilla;
+pedal largo y esponjoso es líquido hirviendo o aire. El segundo es mucho más
+peligroso y obliga a parar.
+\end{ojo}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Decisión} & \textbf{Criterio} \\
+\midrule
+Diámetro del disco & Radio eficaz, que multiplica el par; limitado por la llanta \\
+Espesor y masa & Capacidad térmica: más masa, menos temperatura de pico \\
+Ventilado o macizo & En FS casi siempre macizo: las velocidades son bajas y el ventilado añade peso \\
+Material de pastilla & Coeficiente estable en el rango de temperatura de trabajo, no el más alto \\
+Líquido & Punto de ebullición en seco \emph{y} en húmedo; absorbe agua y se degrada \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+% ---------------------------------------------------------------------
 \section{Circuito, purga y mantenimiento}
 \label{sec:frenos:05}
-\pendiente{Pendiente de redactar.}
+\index{purga de frenos}
+
+\subsection{El montaje}
+
+\begin{itemize}
+  \item \textbf{Dos circuitos independientes} de verdad: separados desde las
+        bombas, sin ningún punto común que pueda dejar los dos sin presión.
+  \item \textbf{Latiguillos protegidos} del rozamiento, del calor del escape o
+        del motor, y con radios de curvatura amplios.
+  \item \textbf{Purgadores arriba} en cada pinza, para que el aire pueda salir.
+        Una pinza montada del revés no se puede purgar, y es un error de montaje
+        clásico.
+  \item \textbf{Sin puntos altos} en el recorrido de las tuberías donde se
+        acumule aire.
+  \item \textbf{Frenado positivo} en todas las uniones, y protección del
+        interruptor de sobrerrecorrido.
+\end{itemize}
+
+\subsection{Purga y mantenimiento}
+
+\begin{clave}
+Un pedal esponjoso casi nunca es un problema de dimensionado: es aire. Y el aire
+entra al montar, al cambiar pastillas y al abrir cualquier unión. La purga es un
+procedimiento, no una habilidad: orden de las ruedas ---de la más lejana a la
+más cercana a la bomba---, líquido nuevo, y comprobación final con el pedal
+frío.
+
+Lo que hay que dejar escrito, en el capítulo \ref{ch:montaje_alineacion}: el
+procedimiento paso a paso, cada cuánto se cambia el líquido, y una comprobación
+de tacto de pedal en la lista previa a cada rodaje. En competición no hay tiempo
+para descubrir esto a mitad de manga.
+\end{clave}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Pedalera comprada, reparto por afinar]
+\textbf{Compramos la pedalera} a RacingPedalBoxes: la unidad de acelerador con
+sensores lineales duplicados por unos \SI{362}{\EUR} y la de freno con doble
+bomba, barra compensadora e interruptor por unos \SI{393}{\EUR}. Son unidades
+conformes al reglamento y probadas en muchos coches de la parrilla.
+
+El razonamiento, que es el que hay que saber defender: diseñar la nuestra
+significa muchas horas de ingeniería más mecanizado, y el riesgo de un sistema
+no conforme o con fugas en una pieza crítica para la seguridad, a cambio de un
+ahorro marginal. El tiempo de nuestros miembros rinde más donde aprendemos y
+donde conseguimos telemetría. De ahí la regla: \textbf{comprar la materia prima
+crítica para la seguridad, fabricar donde aprendemos o donde no existe la pieza
+adecuada}.
+
+El sistema lleva \textbf{doble bomba sobre barra compensadora}. El diámetro se
+dimensionó a partir de la presión de línea necesaria para bloquear las cuatro
+ruedas a la deceleración que pide el reglamento, usando las áreas de pistón de
+las pinzas, y la barra se dejó sesgada hacia adelante. El reparto final se
+afinará en pista con telemetría de presión de freno.
+
+\medskip
+\otrodia[Faltan el diámetro de bomba montado, la presión objetivo, el reparto
+final medido con sensores y la temperatura de disco registrada en el endurance.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Dimensionar para «frenar mucho» en vez de para bloquear las cuatro
+        ruedas.
+  \item Repartir la frenada con los pesos estáticos, olvidando la transferencia.
+  \item Dejar el reparto por detrás del ideal y descubrirlo cruzándose en pista.
+  \item Comprobar la presión y no el recorrido del pedal.
+  \item Dimensionar el disco con una sola frenada en vez de con el equilibrio
+        térmico del endurance.
+  \item Montar una pinza con el purgador abajo.
+  \item Reutilizar líquido, o no cambiarlo en toda la temporada.
+  \item No llevar sensores de presión: sin ellos, el reparto se ajusta a ciegas.
+  \item Probar el freno por primera vez el día de la revisión técnica.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{hoja de cálculo del sistema}, con la cadena completa de pie a
+        deceleración y la comprobación de bloqueo frente al agarre disponible.
+  \item La \textbf{curva de reparto} ideal frente al instalado, con el punto de
+        trabajo señalado.
+  \item El \textbf{cálculo térmico} del disco: energía por frenada, temperatura
+        de pico y equilibrio estimado en el endurance.
+  \item El \textbf{procedimiento de purga} y el plan de mantenimiento del
+        líquido.
+  \item El \textbf{registro del brake test}: fecha, condiciones, resultado.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Con cuánta fuerza en el pedal bloqueáis las cuatro ruedas?
+  \item Recorredme el cálculo de la presión de línea.
+  \item ¿Cuál es vuestro reparto y cómo lo habéis elegido?
+  \item ¿Qué eje bloquea antes, y por qué ese?
+  \item ¿A qué temperatura llega el disco en el endurance?
+  \item ¿Por qué comprasteis la pedalera en vez de hacerla?
+  \item ¿Cómo se purga el sistema y cada cuánto cambiáis el líquido?
+  \item ¿Cómo comprobáis que los dos circuitos son independientes de verdad?
 \end{enumerate}
 \end{juez}

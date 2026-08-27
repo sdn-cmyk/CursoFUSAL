@@ -41,13 +41,43 @@ La ruta es relativa a \texttt{Codigo/} (está fijada con
     \ref{ch:modelado_neumatico} (códigos \ref{lst:mf_modelo} y
     \ref{lst:mf_ajuste}). Requiere \texttt{numpy}, \texttt{scipy} y
     \texttt{matplotlib}.
+  \item[\texttt{dinamica/balance\_estacionario.py}] Transferencia de carga
+    lateral descompuesta en sus seis términos, con la comprobación de que suman
+    $m\,\ay\,\hcg/\via$, y aceleración lateral a la que se agota cada eje en
+    función del reparto. Escribe los datos de las figuras del capítulo
+    \ref{ch:regimen_estacionario}. Requiere \texttt{numpy}.
+  \item[\texttt{dinamica/ymd.py}] Diagrama de momento de guiñada con la guiñada
+    bloqueada: barre $\beta$ y $\delta$, itera la transferencia de carga y
+    escribe las curvas y el barrido de $\LLTD$ del capítulo
+    \ref{ch:diagramas_ymd}. Requiere \texttt{numpy}.
 \end{description}
 
-\pendiente{Faltan la simulación de vuelta y la generación del diagrama YMD.}
+Los ficheros \texttt{.dat} que generan estos dos últimos se guardan junto al
+programa y los lee directamente \texttt{pgfplots}: si se cambia un parámetro del
+coche, se vuelve a ejecutar el script y las figuras del libro se actualizan al
+recompilar.
+
+\pendiente{Falta la simulación de vuelta.}
 
 \section{Suspensión}
 \label{sec:codigo_suspension}
-\pendiente{Cálculo de cinemática, relaciones de instalación y casos de carga.}
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[\texttt{suspension/cinematica.py}] Cinemática 2D de un doble trapecio en
+    vista frontal: resuelve el cuadrilátero para cada posición y da ganancia de
+    caída, variación de vía, migración del centro de balanceo y una estimación
+    de bump steer. Genera las curvas del capítulo
+    \ref{ch:cinematica_suspension}.
+  \item[\texttt{suspension/cargas\_esquina.py}] Reparte la fuerza de la huella
+    entre las seis barras de una esquina resolviendo el equilibrio de la
+    mangueta, y da la envolvente sobre todos los casos de carga. Se comprueba a
+    sí mismo con una carga vertical pura. Capítulo \ref{ch:casos_carga}.
+  \item[\texttt{suspension/frenos.py}] Curva de reparto ideal de frenada frente
+    al reparto instalado, cadena completa de pie a deceleración y estimación
+    térmica del disco. Capítulo \ref{ch:frenos}.
+\end{description}
+
+Los tres requieren solo \texttt{numpy}.
 
 \section{Utilidades}
 \label{sec:codigo_utilidades}

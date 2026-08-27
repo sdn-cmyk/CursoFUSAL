@@ -1,60 +1,621 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Comportamiento en régimen estacionario
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Comportamiento en régimen estacionario}
 \label{ch:regimen_estacionario}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Fijar de una vez el sistema de ejes y el convenio de signos del
+        equipo, y saber detectar cuándo un modelo ajeno usa otro.
+  \item Calcular la transferencia de carga longitudinal y lateral, y explicar
+        por qué la total no depende de los muelles.
+  \item Descomponer la transferencia lateral de cada eje en sus tres términos y
+        comprobar el resultado con el invariante $m\,\ay\,\hcg/\via$.
+  \item Calcular el reparto de transferencia $\LLTD$ y predecir hacia qué lado
+        mueve el balance del coche.
+  \item Medir el gradiente de subviraje con un ensayo de radio constante y
+        traducirlo en decisiones de puesta a punto.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{90 minutos}{Capítulos \ref{ch:neumatico} y
+\ref{ch:modelado_neumatico}}{Hoja de cálculo, conos para marcar un círculo de
+radio conocido y, si existe, la telemetría del coche}
 
+Con el neumático ya descrito, este capítulo hace lo contrario que el anterior:
+en vez de mirar una rueda, mira el coche entero y reparte entre las cuatro la
+carga que llega a cada una. Todo en régimen \emph{estacionario}, es decir,
+suponiendo que las cosas ya se han estabilizado: velocidad constante, radio
+constante, nada de transitorios. Es una simplificación grande ---en un
+autocross casi nada es estacionario--- pero es la que permite calcular a mano,
+la que fija el reparto de rigideces y la que hay que dominar antes de meterse
+con el capítulo \ref{ch:regimen_transitorio}.
+
+% ---------------------------------------------------------------------
 \section{Sistemas de referencia y convenios de signos}
 \label{sec:regimen_estacionario:01}
-\pendiente{Pendiente de redactar.}
+\index{convenio de signos}\index{sistema de ejes}
 
+\subsection{Los ejes}
+
+Se usa el sistema SAE, solidario al coche y con origen en el centro de
+gravedad (\cref{fig:estacionario:convenios}):
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}llX@{}}
+\toprule
+\textbf{Eje} & \textbf{Sentido} & \textbf{Giro asociado} \\
+\midrule
+$x$ & Hacia delante & Balanceo $\phi$, positivo hundiendo la derecha \\
+$y$ & Hacia la derecha del piloto & Cabeceo $\theta$, positivo morro arriba \\
+$z$ & \textbf{Hacia abajo} & Guiñada $\psi$, positiva girando a la derecha \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Lo que más despista al principio es que \textbf{$z$ apunta hacia abajo}. A
+cambio, un giro a la derecha sale con todo positivo ---velocidad de guiñada,
+aceleración lateral y ángulo de volante---, que es cómodo al leer diagramas.
+
+Las dos variables que describen cómo se mueve el coche en el plano son la
+\textbf{velocidad de guiñada} $r$ y el \textbf{ángulo de deriva del vehículo}
+$\beta$, que es el ángulo entre hacia dónde apunta el coche y hacia dónde se
+mueve de verdad. Con ellas, los ángulos de deriva de cada eje son
+
+\begin{equation}
+  \slipa_{\text{del}} = \beta + \frac{a\,r}{V} - \delta,
+  \qquad
+  \slipa_{\text{tra}} = \beta - \frac{b\,r}{V}
+  \label{eq:slip_ejes}
+\end{equation}
+
+donde $\delta$ es el ángulo de las ruedas delanteras, $a$ y $b$ las distancias
+del centro de gravedad a los ejes delantero y trasero, y $V$ la velocidad.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1.15cm,y=1.15cm,>={Latex[length=2mm]}]
+  % silueta del coche
+  \draw[fusalGris,fill=fusalPrim!5,rounded corners=3pt]
+        (-0.42,-1.6) rectangle (0.42,1.6);
+  \foreach \sx in {-1,1}{
+    \draw[fusalGris,fill=fusalGris!25]
+          ({\sx*0.42},1.2) rectangle ({\sx*0.72},1.6);
+    \draw[fusalGris,fill=fusalGris!25]
+          ({\sx*0.42},-1.6) rectangle ({\sx*0.72},-1.2);}
+  % ejes del coche
+  \draw[fusalPrim,->,thick] (0,0) -- (0,2.75)
+        node[right=1pt,cursonota,text=fusalPrim] {$x$};
+  \draw[fusalPrim,->,thick] (0,0) -- (2.35,0)
+        node[above=1pt,cursonota,text=fusalPrim] {$y$};
+  % centro de gravedad: el simbolo de eje entrando en el papel
+  \draw[fusalPrim,fill=white] (0,0) circle (0.11);
+  \draw[fusalPrim] (-0.078,-0.078) -- (0.078,0.078);
+  \draw[fusalPrim] (-0.078,0.078) -- (0.078,-0.078);
+  \node[cursonota,anchor=north] at (0,-0.20) {$\CdG$};
+  % guiñada, abajo a la derecha para no chocar con nada
+  \draw[fusalPrim,->] (1.45,-0.75) arc (-27:-63:1.65);
+  \node[cursonota,text=fusalPrim,anchor=north west] at (1.42,-0.80) {$r$};
+  % velocidad y beta
+  \draw[fusalSec,->,very thick] (0,0) -- (1.05,2.45);
+  \node[cursonota,text=fusalSec,anchor=south west] at (1.0,2.42) {$V$};
+  \draw[fusalSec] (0,2.05) arc (90:66.8:2.05);
+  \node[cursonota,text=fusalSec,anchor=south east] at (0.32,2.02) {$\beta$};
+  % distancias
+  \draw[fusalGris,<->] (-1.45,0) -- (-1.45,1.4)
+        node[midway,left=1pt,cursonota] {$a$};
+  \draw[fusalGris,<->] (-1.45,-1.4) -- (-1.45,0)
+        node[midway,left=1pt,cursonota] {$b$};
+  \draw[fusalGris,densely dotted] (-1.55,1.4) -- (-0.72,1.4);
+  \draw[fusalGris,densely dotted] (-1.55,-1.4) -- (-0.72,-1.4);
+  % delta en la rueda delantera derecha
+  \draw[fusalSec,very thick,rotate around={-22:(0.57,1.4)}]
+        (0.42,1.2) rectangle (0.72,1.6);
+  \draw[fusalSec,densely dotted] (0.57,1.4) -- (0.57,2.05);
+  \draw[fusalSec,densely dotted,rotate around={-22:(0.57,1.4)}]
+        (0.57,1.4) -- (0.57,2.05);
+  \node[cursonota,text=fusalSec,anchor=south west] at (0.62,2.0) {$\delta$};
+\end{tikzpicture}
+\caption[Convenio de ejes y variables del plano]{Convenio de ejes SAE visto
+desde arriba, con las variables que describen el movimiento en el plano: la
+velocidad de guiñada $r$, el ángulo de deriva del vehículo $\beta$ ---entre por
+dónde apunta el coche y hacia dónde va de verdad--- y el ángulo de dirección
+$\delta$. El eje $z$ entra en el papel, de modo que un giro a la derecha tiene
+$r$, $\ay$ y $\delta$ positivos.}
+\label{fig:estacionario:convenios}
+\end{figure}
+
+\subsection{La trampa del signo del neumático}
+
+Hay un detalle que conviene decir aquí y no cuando ya esté todo escrito. En el
+convenio SAE estricto, \textbf{un ángulo de deriva positivo produce una fuerza
+lateral negativa}: la rueda apunta a un lado del movimiento y el rozamiento
+empuja hacia el otro. Sin embargo, las curvas del capítulo \ref{ch:neumatico}
+están dibujadas en el primer cuadrante, con $\Fy$ y $\slipa$ creciendo juntos,
+que es como las dibuja casi todo el mundo y como salen de la mayoría de las
+herramientas.
+
+\begin{ojo}
+Las dos cosas conviven sin problema si se sabe lo que se hace: se dibuja
+$|\Fy|$ frente a $|\slipa|$ y, al meter el neumático en un modelo del coche, se
+pone el signo a mano. Lo que no se puede es mezclarlas sin enterarse. El
+síntoma clásico es un coche que en la simulación gira al revés, o un diagrama
+del capítulo \ref{ch:diagramas_ymd} que sale invertido y que, como es simétrico,
+\emph{parece} correcto.
+
+Regla práctica: escribe el convenio en la primera hoja de la carpeta de
+dinámica vehicular y, en cada modelo nuevo, haz la comprobación tonta ---girar
+a la derecha con el volante a la derecha--- antes de mirar ningún resultado.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Transferencia de carga longitudinal}
 \label{sec:regimen_estacionario:02}
-\pendiente{Pendiente de redactar.}
+\index{transferencia de carga!longitudinal}
 
+Al frenar o acelerar, la fuerza actúa en el suelo y la inercia en el centro de
+gravedad, que está más alto. Ese par lo equilibran las ruedas cargándose y
+descargándose (\cref{fig:estacionario:transferencias}a):
+
+\begin{equation}
+  \Delta \Fz^{x} = m\,\ax\,\frac{\hcg}{\batalla}
+  \label{eq:transferencia_long}
+\end{equation}
+
+Con $m = \SI{300}{\kilogram}$, $\hcg = \SI{300}{\milli\meter}$ y
+$\batalla = \SI{1550}{\milli\meter}$, una frenada de \SI{1.5}{\gacc} traslada
+\SI{854}{\newton} del eje trasero al delantero. Sobre unos \SI{1400}{\newton}
+estáticos delante, eso es más de un \SI{60}{\percent} de aumento: por eso el
+reparto de frenada no se decide con los pesos estáticos (capítulo
+\ref{ch:frenos}).
+
+\begin{clave}
+La transferencia de carga solo depende de \textbf{masa, altura del centro de
+gravedad y distancia entre apoyos}. No depende de los muelles, ni de las
+barras, ni de la geometría. Muelles y geometría deciden \emph{cómo} se
+transmite ---y cuánto se hunde o balancea el coche--- pero no \emph{cuánta}
+hay.
+
+Es la idea más útil del capítulo y la que más se confunde: quien crea que
+endureciendo el coche reduce la transferencia de carga va a perder mucho
+tiempo.
+\end{clave}
+
+Para un coche de tracción trasera la transferencia longitudinal es, además,
+una buena noticia en aceleración, porque carga el eje motriz. Imponiendo que la
+tracción sea justo el agarre disponible se llega a
+
+\begin{equation}
+  \frac{\ax^{\max}}{g} = \frac{\mux\,(a/\batalla)}
+                              {1 - \mux\,(\hcg/\batalla)}
+  \label{eq:traccion_maxima}
+\end{equation}
+
+Con $\mux = \num{1.5}$, $a/\batalla = \num{0.52}$ y
+$\hcg/\batalla = \num{0.194}$ salen \SI{1.10}{\gacc}, bastante más que los
+\SI{0.78}{\gacc} que daría el reparto estático. Subir el centro de gravedad
+mejora este número ---y empeora todo lo demás---, así que no es una vía de
+diseño: es solo un aviso de que en aceleración el límite no es el que parece.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,>={Latex[length=2mm]}]
+% ---- (a) vista lateral: transferencia longitudinal ----
+\begin{scope}
+  \draw[fusalGris] (-2.6,0) -- (2.6,0);
+  \draw[fusalGris,fill=fusalPrim!5,rounded corners=2pt]
+        (-1.9,0.34) rectangle (1.9,1.05);
+  \draw[fusalGris,fill=fusalGris!25] (-1.6,0.34) circle (0.34);
+  \draw[fusalGris,fill=fusalGris!25] ( 1.6,0.34) circle (0.34);
+  \fill[fusalPrim] (0.1,0.95) circle (1.8pt);
+  \node[cursonota,anchor=south] at (0.1,1.08) {$\CdG$};
+  \draw[fusalGris,<->] (-2.35,0) -- (-2.35,0.95)
+        node[midway,left,cursonota] {$\hcg$};
+  \draw[fusalGris,<->] (-1.6,-0.5) -- (1.6,-0.5)
+        node[midway,fill=white,cursonota] {$\batalla$};
+  \draw[fusalSec,->,very thick] (0.1,0.95) -- (-1.15,0.95);
+  \node[cursonota,text=fusalSec,anchor=south] at (-0.55,1.02) {$m\,\ax$};
+  \draw[fusalPrim,->,thick] (1.6,-0.05) -- (1.6,-0.95);
+  \draw[fusalPrim,->,thick] (-1.6,-0.05) -- (-1.6,-1.3);
+  \node[cursonota,text=fusalPrim,anchor=north] at (1.6,-0.95) {se descarga};
+  \node[cursonota,text=fusalPrim,anchor=north] at (-1.6,-1.3) {se carga};
+  \node[cursonota,anchor=north] at (0,-1.85) {(a) frenada};
+\end{scope}
+% ---- (b) vista frontal: transferencia lateral ----
+\begin{scope}[xshift=7.8cm]
+  \draw[fusalGris] (-2.2,0) -- (2.2,0);
+  \draw[fusalGris,fill=fusalPrim!5,rounded corners=2pt]
+        (-1.25,0.34) rectangle (1.25,1.15);
+  \draw[fusalGris,fill=fusalGris!25] (-1.5,0.34) circle (0.34);
+  \draw[fusalGris,fill=fusalGris!25] ( 1.5,0.34) circle (0.34);
+  \fill[fusalPrim] (0,0.95) circle (1.8pt);
+  \node[cursonota,anchor=south east] at (-0.05,1.05) {$\CdG$};
+  \draw[fusalGris,<->] (-1.95,0) -- (-1.95,0.95)
+        node[midway,left,cursonota] {$\hcg$};
+  \draw[fusalGris,<->] (-1.5,-0.5) -- (1.5,-0.5)
+        node[midway,fill=white,cursonota] {$\via$};
+  \draw[fusalSec,->,very thick] (0,0.95) -- (1.25,0.95);
+  \node[cursonota,text=fusalSec,anchor=south] at (0.65,1.02) {$m\,\ay$};
+  \draw[fusalPrim,->,thick] (1.5,-0.05) -- (1.5,-1.3);
+  \draw[fusalPrim,->,thick] (-1.5,-0.05) -- (-1.5,-0.95);
+  \node[cursonota,text=fusalPrim,anchor=north] at (1.5,-1.3) {exterior};
+  \node[cursonota,text=fusalPrim,anchor=north] at (-1.5,-0.95) {interior};
+  \node[cursonota,anchor=north] at (0,-1.85) {(b) curva};
+\end{scope}
+\end{tikzpicture}
+\caption[Transferencia de carga longitudinal y lateral]{De dónde sale la
+transferencia de carga. La fuerza de inercia actúa en el centro de gravedad y
+la reacción en el suelo: el par que forman lo equilibran las ruedas cargándose
+y descargándose. Solo intervienen la masa, la altura del centro de gravedad y
+la distancia entre apoyos ---batalla en (a), vía en (b)---. Los muelles no
+aparecen por ninguna parte.}
+\label{fig:estacionario:transferencias}
+\end{figure}
+
+% ---------------------------------------------------------------------
 \section{Transferencia de carga lateral}
 \label{sec:regimen_estacionario:03}
-\pendiente{Pendiente de redactar.}
+\index{transferencia de carga!lateral}\index{centro de balanceo}
 
+\subsection{El total, que no se puede tocar}
+
+Igual que antes, y por el mismo argumento:
+
+\begin{equation}
+  \Delta \Fz^{y} = m\,\ay\,\frac{\hcg}{\via}
+  \label{eq:transferencia_lat}
+\end{equation}
+
+Este es el número que entra en la fórmula de pérdida de agarre del capítulo
+\ref{ch:neumatico}, y solo baja con menos masa, centro de gravedad más bajo o
+más vía.
+
+\subsection{El reparto entre ejes, que sí}
+
+Lo que sí se elige es cómo se reparte esa transferencia entre el eje delantero
+y el trasero. Cada eje recibe tres contribuciones:
+
+\begin{equation}
+  \Delta\Fz^{i} =
+  \underbrace{\frac{m_s\,\ay\,h'_s}{\via}
+              \frac{\Kroll^{i}}{\Kroll^{\text{del}}+\Kroll^{\text{tra}}}}
+             _{\text{elástica}}
+  + \underbrace{\frac{m_{s,i}\,\ay\,z_{\text{CB},i}}{\via}}_{\text{geométrica}}
+  + \underbrace{\frac{m_{u,i}\,\ay\,z_{u,i}}{\via}}_{\text{no suspendida}}
+  \label{eq:transferencia_tres_terminos}
+\end{equation}
+
+donde $m_s$ es la masa suspendida, $h'_s$ su altura \emph{sobre el eje de
+balanceo}, $z_{\text{CB}}$ la altura del centro de balanceo de ese eje, y
+$m_u$, $z_u$ la masa no suspendida y la altura de su centro de gravedad.
+
+\begin{description}[leftmargin=0pt,labelsep=0pt,style=nextline]
+  \item[Elástica] Llega a través de muelles y barras, y por eso tarda: el coche
+    tiene que balancear para transmitirla. Es la parte que se ajusta girando
+    una barra estabilizadora.
+  \item[Geométrica] Llega por los brazos de la suspensión, directamente al
+    chasis, sin que el coche balancee. Es instantánea, y la fija la altura del
+    centro de balanceo.
+  \item[No suspendida] Llantas, neumáticos, frenos y manguetas transfieren su
+    propia carga por su cuenta. Es pequeña, pero no cero.
+\end{description}
+
+\begin{clave}
+La comprobación que hay que hacer siempre: \textbf{la suma de los seis términos
+tiene que dar exactamente $m\,\ay\,\hcg/\via$}. Ni uno más ni uno menos. Si no
+cuadra, el error está en las alturas, en el reparto de masa suspendida o en el
+brazo $h'_s$ ---que se mide hasta el eje de balanceo, no hasta el suelo---. Es
+la forma más barata de saber que la hoja de cálculo está bien, y el programa
+\texttt{balance\_estacionario.py} la hace sola.
+\end{clave}
+
+La \cref{fig:estacionario:terminos} descompone los seis términos para un coche
+de Formula Student genérico, pero con \emph{nuestras} alturas de centro de
+balanceo: \SI{30}{\milli\meter} delante y \SI{80}{\milli\meter} detrás. El
+efecto se ve de un vistazo: el eje trasero recibe casi el triple de
+transferencia geométrica que el delantero y, a cambio, necesita menos rigidez
+elástica para llegar al mismo reparto total.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=5.6cm, width=0.58\linewidth,
+  ybar stacked, bar width=30pt, enlarge x limits=0.55,
+  ylabel={$\Delta\Fz$ a \SI{1.4}{\gacc} (\si{\newton})},
+  symbolic x coords={eje delantero,eje trasero},
+  xtick=data, ymin=0, ymax=600, ytick={0,100,...,500},
+  legend style={at={(1.03,0.5)},anchor=west,font=\sffamily\scriptsize,
+                draw=fusalGris!50,fill=white},
+  legend cell align=left]
+\addplot[fill=fusalPrim!70,draw=fusalPrim]
+  coordinates {(eje delantero,411.2) (eje trasero,346.9)};
+  \addlegendentry{elástica}
+\addplot[fill=fusalSec!60,draw=fusalSec]
+  coordinates {(eje delantero,42.9) (eje trasero,123.8)};
+  \addlegendentry{geométrica}
+\addplot[fill=fusalGris!45,draw=fusalGris]
+  coordinates {(eje delantero,52.6) (eje trasero,52.6)};
+  \addlegendentry{no suspendida}
+\end{axis}
+\end{tikzpicture}
+\caption[Descomposición de la transferencia de carga lateral]{Los tres términos
+de la transferencia de carga lateral de cada eje, a \SI{1.4}{\gacc}. Coche
+genérico de \SI{300}{\kilogram} con $\hcg = \SI{300}{\milli\meter}$ y
+$\via = \SI{1200}{\milli\meter}$, pero con nuestras alturas de centro de
+balanceo (\SI{30}{\milli\meter} delante, \SI{80}{\milli\meter} detrás): el eje
+trasero coge casi el triple de transferencia geométrica. Los seis términos
+suman \SI{1030}{\newton}, que es exactamente $m\,\ay\,\hcg/\via$.}
+\label{fig:estacionario:terminos}
+\end{figure}
+
+% ---------------------------------------------------------------------
 \section{Reparto de rigidez a balanceo (LLTD)}
 \label{sec:regimen_estacionario:04}
-\pendiente{Pendiente de redactar.}
+\index{LLTD}\index{barra estabilizadora}
 
+El \textbf{reparto de transferencia de carga lateral} es la fracción que se
+lleva el eje delantero:
+
+\begin{equation}
+  \LLTD = \frac{\Delta\Fz^{\text{del}}}
+               {\Delta\Fz^{\text{del}} + \Delta\Fz^{\text{tra}}}
+  \label{eq:lltd}
+\end{equation}
+
+Con los números de la figura anterior sale un \SI{49.2}{\percent}. Y aquí se
+enlaza con el capítulo \ref{ch:neumatico}: como el agarre de un eje cae con el
+cuadrado de su transferencia de carga, \textbf{el eje que se lleve más $\LLTD$
+es el que antes se queda sin agarre}.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Si el coche\ldots} & \textbf{Qué hacer con el $\LLTD$} & \textbf{Cómo} \\
+\midrule
+Subvira & Bajarlo & Ablandar barra delantera o endurecer la trasera \\
+Sobrevira & Subirlo & Endurecer barra delantera o ablandar la trasera \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+Las palancas para moverlo, de más a menos reversible: barras estabilizadoras,
+muelles, alturas de centro de balanceo (capítulo
+\ref{ch:cinematica_suspension}) y anchos de vía. Las dos primeras se tocan en
+el pit lane; las dos últimas son decisiones de diseño.
+
+\subsection{Cuánto agarre aguanta cada eje}
+
+La \cref{fig:estacionario:lltd} lleva la idea hasta el final. Para cada reparto
+se calcula la aceleración lateral a la que cada eje agota su agarre: lo que el
+eje \emph{tiene} que dar crece con $\ay$, y lo que \emph{puede} dar baja,
+porque la transferencia le va quitando agarre. El primero en cruzarse es el que
+limita, y ese es el balance del coche.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=6.0cm, width=0.80\linewidth,
+  xlabel={$\LLTD$ (fracción al eje delantero)},
+  ylabel={$\ay$ a la que el eje se agota (\si{\gacc})},
+  xmin=0.35, xmax=0.65, ymin=1.45, ymax=1.72,
+  xtick={0.35,0.40,...,0.65}, ytick={1.45,1.50,...,1.70},
+  legend style={at={(0.5,-0.24)},anchor=north,legend columns=2,
+                font=\sffamily\scriptsize,draw=fusalGris!50,fill=white}]
+\addplot[curvaA] table[x=LLTD,y=AyDel] {Codigo/dinamica/balance_lltd.dat};
+  \addlegendentry{límite del eje delantero}
+\addplot[curvaB] table[x=LLTD,y=AyTra] {Codigo/dinamica/balance_lltd.dat};
+  \addlegendentry{límite del eje trasero}
+\draw[cursomarca] (axis cs:0.503,1.45) -- (axis cs:0.503,1.566);
+\node[cursonota,anchor=north] at (axis cs:0.503,1.72) {balance neutro};
+\node[cursonota,anchor=north west,text=fusalSec] at (axis cs:0.355,1.70)
+     {limita el trasero:\\sobrevira};
+\node[cursonota,anchor=north east,text=fusalPrim] at (axis cs:0.645,1.70)
+     {limita el delantero:\\subvira};
+\end{axis}
+\end{tikzpicture}
+\caption[Balance frente al reparto de transferencia de carga]{Aceleración
+lateral a la que se agota cada eje, en función del reparto de transferencia de
+carga. El eje que se agota antes es el que limita al coche y el que define el
+balance; el cruce es el reparto que hace llegar a los dos a la vez. Calculado
+con \texttt{balance\_estacionario.py} y el neumático sintético del capítulo
+\ref{ch:neumatico}: las tendencias son sólidas, los valores absolutos no.}
+\label{fig:estacionario:lltd}
+\end{figure}
+
+\begin{ojo}
+El cruce de la figura ---el reparto que hace llegar a los dos ejes a la vez---
+es el que da \textbf{más agarre}, no necesariamente el que da más vuelta
+rápida. Un coche exactamente neutro es incómodo y poco tolerante: pierde los
+dos ejes a la vez y no avisa. Casi todos los equipos eligen a propósito un poco
+de subviraje, y ese «poco» es una decisión de pilotaje, no de cálculo
+(capítulo \ref{ch:piloto_ensayos_pista}).
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Gradiente de subviraje y balance}
 \label{sec:regimen_estacionario:05}
-\pendiente{Pendiente de redactar.}
+\index{gradiente de subviraje}\index{subviraje}\index{sobreviraje}
+
+\subsection{El modelo de bicicleta}
+
+Lejos del límite, el coche se describe muy bien con dos ruedas ---una por
+eje--- y neumáticos lineales. El ángulo de dirección necesario para recorrer
+una curva de radio $R$ sale entonces como
+
+\begin{equation}
+  \delta = \underbrace{57{,}3\,\frac{\batalla}{R}}_{\text{geométrico}}
+         + \underbrace{\Kus\,\frac{\ay}{g}}_{\text{del neumático}}
+  \label{eq:angulo_direccion}
+\end{equation}
+
+con $\delta$ en grados y el \textbf{gradiente de subviraje}
+
+\begin{equation}
+  \Kus = \frac{W_{\text{del}}}{\Calpha^{\text{del}}}
+       - \frac{W_{\text{tra}}}{\Calpha^{\text{tra}}}
+  \label{eq:kus}
+\end{equation}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Signo} & \textbf{Comportamiento} & \textbf{Qué siente el piloto} \\
+\midrule
+$\Kus > 0$ & Subvirador & Hay que meter más volante al ir más rápido. Estable \\
+$\Kus = 0$ & Neutro & El volante no cambia con la velocidad \\
+$\Kus < 0$ & Sobrevirador & Hay que \emph{quitar} volante; por encima de la velocidad crítica, inestable \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Cómo se mide: el ensayo de radio constante}
+
+Es el ensayo más barato de la dinámica vehicular y solo hace falta un
+aparcamiento: se marca un círculo de radio conocido con conos, se recorre a
+velocidad constante y se anota el ángulo de volante; después se sube un poco la
+velocidad y se repite. Representando $\delta$ frente a $\ay$ sale una recta
+cuya pendiente es $\Kus$ (\cref{fig:estacionario:kus}) y cuya ordenada en el
+origen es el término geométrico, que sirve además para comprobar la
+desmultiplicación de la dirección.
+
+Cerca del límite la recta deja de serlo: se dobla hacia arriba en un coche
+subvirador y hacia abajo en uno sobrevirador. Esa parte ya no la describe
+$\Kus$, y es justo la que se estudia con el capítulo \ref{ch:diagramas_ymd}.
+
+\begin{figure}[htbp]
+\centering
+\begin{tikzpicture}
+\begin{axis}[cursoplot, height=5.8cm, width=0.78\linewidth,
+  xlabel={$\ay$ (\si{\gacc})},
+  ylabel={ángulo de dirección $\delta$ (\si{\degree})},
+  xmin=0, xmax=1.5, ymin=0, ymax=10,
+  xtick={0,0.25,...,1.5}, ytick={0,2,...,10},
+  legend pos=north west]
+\addplot[curvaA,domain=0:1.5,samples=2]{5.92+2.4*x};
+  \addlegendentry{subvirador, $\Kus>0$}
+\addplot[curvaC,domain=0:1.5,samples=2]{5.92};
+  \addlegendentry{neutro, $\Kus=0$}
+\addplot[curvaB,domain=0:1.5,samples=2]{5.92-2.0*x};
+  \addlegendentry{sobrevirador, $\Kus<0$}
+\addplot[fusalGris,densely dotted,domain=0:1.5,samples=2]{5.92};
+\node[cursonota,anchor=north east] at (axis cs:1.48,5.80)
+     {$57{,}3\,\batalla/R$};
+\end{axis}
+\end{tikzpicture}
+\caption[Ensayo de radio constante]{Lo que sale de un ensayo de radio constante
+en $R = \SI{15}{\meter}$ con $\batalla = \SI{1550}{\milli\meter}$: el ángulo de
+dirección frente a la aceleración lateral. La ordenada en el origen es el
+término geométrico y la pendiente, el gradiente de subviraje. Cerca del límite
+las tres curvas dejan de ser rectas, y ahí ya hace falta el capítulo
+\ref{ch:diagramas_ymd}.}
+\label{fig:estacionario:kus}
+\end{figure}
+
+\begin{clave}
+$\Kus$ describe el coche \textbf{lejos del límite}, que es donde el piloto pasa
+casi todo el tiempo y donde se decide si el coche resulta agradable. El $\LLTD$
+describe el coche \textbf{en el límite}, que es donde se hace el tiempo. Son
+dos cosas distintas y se ajustan con palancas distintas: $\Kus$ con rigideces
+de deriva ---presiones, medida de neumático, reparto de pesos--- y el balance
+en el límite con el reparto de transferencia de carga.
+
+Un coche puede ser subvirador en el modelo lineal y sobrevirar en el límite. No
+es una contradicción: es la razón de ser del capítulo siguiente.
+\end{clave}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[De dónde salen nuestros números y de dónde no]
+Lo que está decidido, y por qué:
+
+\begin{itemize}
+  \item \textbf{Reparto de pesos objetivo \num{48}/\num{52}}, ligeramente
+        trasero, coherente con un coche eléctrico de tracción trasera con el
+        acumulador bajo y centrado.
+  \item \textbf{Centros de balanceo a \SI{30}{\milli\meter} delante y
+        \SI{80}{\milli\meter} detrás.} El trasero más alto a propósito: coge
+        más transferencia por vía geométrica y le deja al delantero más
+        transferencia elástica, que es la que luego se puede ajustar con
+        barras. La intención es un coche ligeramente subvirador, tolerante para
+        pilotos sin experiencia.
+  \item \textbf{Altura del centro de gravedad calculada, no medida}, sumando
+        cada masa importante con su posición. Se verificará con pesaje por
+        rueda y ensayo de inclinación cuando el coche exista.
+  \item \textbf{Objetivo de \SIrange{1.2}{1.4}{\gacc} laterales}, deliberadamente
+        modesto: la temporada va de rodar y medir, no de buscar el óptimo de
+        agarre.
+\end{itemize}
+
+Y lo que falta, que es justo lo que impide cerrar el capítulo:
+
+\begin{itemize}
+  \item \textbf{Rigidez a balanceo total en rueda, muelles y barras.} Sin ella
+        no hay $\LLTD$, y sin $\LLTD$ todo esto se queda en teoría. Es además
+        el número contra el que hay que justificar los
+        \SI{1300}{\newton\meter\per\degree} de rigidez torsional del chasis: el
+        criterio no es la cifra absoluta, sino cuántas veces más rígido es el
+        chasis que la suspensión.
+
+        \otrodia[Falta la rigidez a balanceo de cada eje, medida en rueda, y su
+        cociente con los \SI{1300}{\newton\meter\per\degree} del chasis.]
+  \item \textbf{Frecuencias de suspensión y relación de instalación.}
+
+        \otrodia[Faltan las frecuencias objetivo delante y detrás y el $\MR$
+        real del balancín.]
+  \item \textbf{Gradiente de subviraje medido.}
+
+        \otrodia[Falta el ensayo de radio constante: un círculo de conos, tres
+        velocidades y el ángulo de volante anotado.]
+\end{itemize}
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Creer que endurecer el coche reduce la transferencia de carga. Cambia
+        el reparto y el balanceo, no el total.
+  \item Medir $h'_s$ hasta el suelo en vez de hasta el eje de balanceo. Es el
+        error que hace que los seis términos no sumen.
+  \item Olvidar la masa no suspendida: es pequeña, pero al no cuadrar la suma
+        delata que la hoja está mal.
+  \item Usar el reparto de pesos estático para decidir el reparto de frenada.
+  \item Dar un $\LLTD$ sin decir a qué aceleración lateral está calculado. O,
+        peor, calcularlo con las barras en una posición y montarlas en otra.
+  \item Ajustar el balance con muelles cuando bastaba con la barra: es menos
+        reversible y toca además la frecuencia de suspensión.
+  \item Presentar un gradiente de subviraje calculado con rigideces de deriva
+        de un neumático que no es el nuestro, sin decirlo.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{hoja de transferencia de carga}: entradas masa, reparto,
+        $\hcg$, vía, batalla, alturas de centro de balanceo y rigideces a
+        balanceo; salidas los seis términos, el $\LLTD$ y \textbf{la
+        comprobación de que suman} $m\,\ay\,\hcg/\via$.
+  \item La \textbf{tabla de cargas por rueda} en los casos que importan:
+        frenada máxima, curva máxima y frenada en curva. Es la entrada directa
+        de los casos de carga del capítulo \ref{ch:casos_carga}.
+  \item El \textbf{protocolo del ensayo de radio constante} en una página:
+        radio, velocidades, qué se anota y cómo se procesa.
+  \item La \textbf{ficha de balance}: $\LLTD$ de cada posición de barra, para
+        poder decidir en pista sin recalcular nada.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Cuánta transferencia de carga lateral tenéis a vuestra $\ay$ objetivo?
+  \item ¿Cuál es vuestro $\LLTD$ y cómo lo habéis calculado?
+  \item ¿Por qué el centro de balanceo trasero está más alto que el delantero?
+  \item ¿Cuánta de vuestra transferencia es geométrica y cuánta elástica?
+  \item ¿Cuál es vuestro gradiente de subviraje y de dónde sale?
+  \item Si el coche subvira en la primera tanda, ¿qué tocáis y en qué orden?
+  \item ¿Cómo justificáis la rigidez torsional del chasis frente a la rigidez a
+        balanceo de la suspensión?
 \end{enumerate}
 \end{juez}

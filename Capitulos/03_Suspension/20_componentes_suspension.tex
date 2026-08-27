@@ -1,64 +1,332 @@
 % !TeX root = ../../main.tex
 % =====================================================================
 %  Componentes de la suspensión
-%  Responsable: 
-%  Última revisión: 
+%  Responsable:
+%  Última revisión:
 % =====================================================================
 \chapter{Componentes de la suspensión}
 \label{ch:componentes_suspension}
 
 \begin{objetivos}
-  \item \redactar{Objetivo de aprendizaje 1 --- concreto y comprobable.}
-  \item \redactar{Objetivo 2.}
-  \item \redactar{Objetivo 3.}
+  \item Dimensionar un trapecio a pandeo y saber por qué es el pandeo y no la
+        resistencia lo que manda.
+  \item Diseñar la unión del tubo con la rótula de forma que no sea el eslabón
+        débil.
+  \item Plantear una mangueta a partir de sus interfaces, y elegir material y
+        proceso con criterio.
+  \item Seleccionar y montar los rodamientos de rueda con la precarga correcta.
+  \item Dimensionar balancines y tirantes, y diseñar pensando en quien lo tiene
+        que montar a las tres de la mañana.
 \end{objetivos}
 
-\fichasesion{90 min}{\redactar{capítulos previos}}{\redactar{material}}
+\fichasesion{120 minutos}{Capítulos \ref{ch:mecanica_aplicada} y
+\ref{ch:casos_carga}}{Catálogo de rótulas y rodamientos, un trapecio del coche
+anterior y la hoja de cargas por barra}
 
+Con las cargas del capítulo anterior ya se pueden dimensionar las piezas. El
+orden importa: primero las que están limitadas por un modo de fallo claro
+---trapecios, pushrod--- y después las que hay que resolver por interfaces
+---manguetas, balancines---, porque estas últimas dependen de todo lo demás.
+
+% ---------------------------------------------------------------------
 \section{Trapecios: dimensionado y pandeo}
 \label{sec:componentes_suspension:01}
-\pendiente{Pendiente de redactar.}
+\index{trapecio}\index{pandeo}
 
+\subsection{Lo que manda es el pandeo}
+
+Un trapecio es un par de tubos biarticulados. A tracción aguantan muchísimo; a
+compresión colapsan lateralmente mucho antes de plastificar. La carga crítica es
+la de Euler, ecuación \eqref{eq:euler}, con $K = 1$ porque los dos extremos van
+rotulados.
+
+La consecuencia práctica ya salió en el capítulo \ref{ch:mecanica_aplicada} y
+conviene repetirla aquí porque es la que decide la sección:
+
+\begin{clave}
+A masa constante, la carga de pandeo de un tubo crece con el \textbf{cuadrado
+del diámetro}. Ensanchar el tubo y adelgazar la pared multiplica la carga
+crítica sin añadir un gramo. Por eso los trapecios son tubos de diámetro grande
+y pared fina, y por eso el límite no lo pone Euler: lo ponen el pandeo local de
+la pared, la pared mínima que se puede soldar sin quemar, y lo que exija el
+reglamento.
+\end{clave}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXl@{}}
+\toprule
+\textbf{Comprobación} & \textbf{Por qué} & \textbf{Cuándo falla} \\
+\midrule
+Pandeo de Euler & Es el modo dominante & Tubo largo y estrecho \\
+Plastificación & Por si el tubo es corto y grueso & Esbeltez baja \\
+Pandeo local de pared & Euler supone la sección intacta & Pared muy fina \\
+Aplastamiento en el extremo & Donde entra el inserto & Pared fina y carga alta \\
+Fatiga en la soldadura & Muchos kilómetros de ensayo & Cordón mal hecho \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+La longitud que entra en Euler es la \textbf{distancia entre centros de rótula},
+no la del tubo. Y si el trapecio lleva rótulas regulables muy sacadas, la
+longitud efectiva crece y la carga crítica cae con el cuadrado: un trapecio
+ajustado al máximo puede tener bastante menos margen que el que se calculó.
+Conviene calcularlo en la posición más desfavorable de ajuste, no en la nominal.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Insertos, roscas y uniones}
 \label{sec:componentes_suspension:02}
-\pendiente{Pendiente de redactar.}
+\index{inserto}\index{rótula}
 
+\subsection{El eslabón débil está en los extremos}
+
+El tubo casi nunca es lo que falla: falla la unión entre el tubo y la rótula.
+Ahí se juntan un cambio brusco de sección, una soldadura o un adhesivo, y una
+rosca.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Solución} & \textbf{A favor} & \textbf{En contra} \\
+\midrule
+Inserto soldado & Barato, robusto, reparable & Aporta calor y deforma; hay que soldar bien \\
+Inserto pegado & Sin calor, apto para tubo de carbono & Depende del adhesivo y de la preparación; hay que ensayarlo \\
+Inserto remachado o pasador & Sin calor ni químicos & Concentra tensión en el agujero \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Reglas que evitan la mayoría de los fallos}
+
+\begin{itemize}
+  \item \textbf{Rótulas en doble cortadura} siempre que se pueda. En simple
+        cortadura el tornillo trabaja a flexión, la unión tiene holgura y el
+        conjunto se vuelve elástico donde no debe.
+  \item \textbf{Rosca engranada suficiente}: al menos un diámetro en acero y dos
+        en aluminio. Con rótulas de rosca fina, comprobar además que quede rosca
+        engranada en el extremo del ajuste.
+  \item \textbf{Contratuerca en toda rótula regulable.} Sin ella, el ajuste se
+        va solo con la vibración.
+  \item \textbf{Marcar el ajuste}: una raya de pintura en la rosca deja ver de un
+        vistazo si algo se ha movido, en el box y en la revisión técnica.
+  \item \textbf{Longitud de rosca visible}: dejar una ventana o una marca que
+        permita comprobar que la rótula está suficientemente metida sin
+        desmontar nada.
+\end{itemize}
+
+\begin{clave}
+De todas las comprobaciones de este capítulo, la que más fallos reales evita es
+\textbf{ensayar a tracción un inserto pegado antes de fiarse de él}. El cálculo
+de una unión adhesiva depende de la preparación de la superficie, del espesor de
+la línea de pegado y de quién la hizo, y ninguno de esos tres factores está en
+una hoja de cálculo. Media mañana de prensa resuelve la duda.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Manguetas y bujes}
 \label{sec:componentes_suspension:03}
-\pendiente{Pendiente de redactar.}
+\index{mangueta}\index{buje}
 
+\subsection{Se diseña por interfaces}
+
+Una mangueta no se dimensiona: se \emph{resuelve}. Su forma sale de unir puntos
+que ya están fijados por otros:
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Interfaz} & \textbf{Quién la fija} \\
+\midrule
+Rótulas superior e inferior & Los puntos duros del capítulo \ref{ch:puntos_duros} \\
+Alojamiento del rodamiento & El rodamiento elegido y el buje \\
+Anclaje del tirante de dirección & Ackermann y bump steer \\
+Anclaje del pushrod & La relación de instalación \\
+Anclaje de la pinza de freno & El disco y la pinza \\
+Envolvente & La llanta, en todo el recorrido y a tope de volante \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\subsection{Material y proceso}
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lXX@{}}
+\toprule
+\textbf{Opción} & \textbf{A favor} & \textbf{En contra} \\
+\midrule
+Aluminio mecanizado & Tolerancias buenas, ligera, geometría libre & Coste de mecanizado, hay que elegir bien la aleación \\
+Acero soldado de chapa & Barato & Deforma al soldar; cuesta mantener el alojamiento del rodamiento \\
+Fabricación aditiva metálica & Geometría libre, ligera & Cara, propiedades menos conocidas, hay que mecanizar los alojamientos igual \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{ojo}
+La aleación hay que \textbf{decirla bien}. Un 6082 o un 6061 son de uso general
+y soldables; un 7075 es mucho más resistente pero no se suelda y se corroe peor.
+Escribir una designación que no existe en una lámina del design event es de las
+cosas que un juez de estructuras detecta al instante, y contamina la confianza
+en todo lo demás que digas. Si no está confirmada con el proveedor, se
+comprueba antes de imprimir nada.
+\end{ojo}
+
+% ---------------------------------------------------------------------
 \section{Rodamientos}
 \label{sec:componentes_suspension:04}
-\pendiente{Pendiente de redactar.}
+\index{rodamiento}
 
+El rodamiento de rueda ve carga radial, carga axial en curva y un momento de
+vuelco. Lo habitual es un par de rodamientos de bolas de contacto angular o un
+rodamiento de doble hilera, montados con precarga.
+
+\begin{center}
+\begin{tabularx}{\textwidth}{@{}lX@{}}
+\toprule
+\textbf{Lo que hay que comprobar} & \textbf{Cómo} \\
+\midrule
+Carga dinámica equivalente & Con los casos del capítulo \ref{ch:casos_carga} y las fórmulas del fabricante \\
+Vida & En kilómetros de temporada, no en horas de catálogo \\
+Precarga & La que indique el fabricante; se consigue con el par de la tuerca de rueda o con un espaciador calibrado \\
+Ajustes & Aprieto en el aro que gira respecto a la carga, juego en el otro \\
+Estanqueidad & Retenes y protección contra polvo y agua de la manguera de lavado \\
+\bottomrule
+\end{tabularx}
+\end{center}
+
+\begin{clave}
+El fallo típico de rodamiento en Formula Student no es por fatiga: es por
+\textbf{precarga incorrecta}. Demasiado poca y el rodamiento golpea y se
+brinela; demasiada y se calienta y se agarrota. La precarga la fija un
+espaciador o un par de apriete, y ese número tiene que estar en la tabla de
+pares del capítulo \ref{ch:montaje_alineacion}, no en la cabeza de quien montó
+la rueda la primera vez.
+\end{clave}
+
+% ---------------------------------------------------------------------
 \section{Balancines y tirantes}
 \label{sec:componentes_suspension:05}
-\pendiente{Pendiente de redactar.}
+\index{balancín}
 
+El balancín es la pieza más cargada de la suspensión, porque concentra en un
+punto la fuerza del pushrod y la del amortiguador. Y su rigidez entra
+directamente en la rigidez en rueda: un balancín que flecta es un muelle en
+serie con el muelle, y la frecuencia de suspensión que sale no es la calculada.
+
+\begin{itemize}
+  \item \textbf{El pivote es lo crítico.} Tiene que aguantar la resultante de las
+        dos fuerzas, con un rodamiento o casquillo que gire sin holgura y sin
+        agarrotarse.
+  \item \textbf{Doble cortadura, siempre.} Un balancín en voladizo flecta y se
+        alabea, y estropea la relación de instalación en carga.
+  \item \textbf{Comprobar la rigidez, no solo la tensión.} El criterio no es que
+        no rompa: es que no flecte lo suficiente como para cambiar el $\MR$.
+  \item \textbf{Comprobar el recorrido completo}, incluidos los topes, para que
+        el balancín no se pase de punto muerto.
+\end{itemize}
+
+% ---------------------------------------------------------------------
 \section{Diseño para el montaje}
 \label{sec:componentes_suspension:06}
-\pendiente{Pendiente de redactar.}
+\index{DFA}
+
+Todo lo anterior puede estar perfecto y aun así producir un coche que no se
+puede montar, o que no se puede ajustar sin desmontar medio eje. Las preguntas
+que hay que hacerse pieza por pieza son las del capítulo \ref{ch:dfm_dfa},
+aplicadas aquí:
+
+\begin{itemize}
+  \item ¿Entra la llave? ¿Y con la rueda puesta?
+  \item ¿Se puede cambiar un muelle sin sacar la mangueta?
+  \item ¿Se puede ajustar la caída sin aflojar el tirante y descuadrar la
+        convergencia?
+  \item ¿Se puede montar al revés? Si sí, ¿cómo se impide o cómo se detecta?
+  \item ¿Se puede purgar el freno con la rueda montada?
+  \item ¿Las piezas de izquierda y derecha son distinguibles a simple vista?
+\end{itemize}
+
+\begin{clave}
+El momento de la verdad de este capítulo no es el design event: es la primera
+noche de montaje. Una pieza que obliga a desmontar tres para ajustar una cota
+se va a ajustar mal, o no se va a ajustar. Y en competición, donde se cambian
+reglajes entre mangas con el tiempo contado, esto decide cuántas
+configuraciones se pueden probar de verdad.
+\end{clave}
 
 % ---------------------------------------------------------------------
-%  Cierre del capítulo: los cuatro recuadros son obligatorios.
+%  Cierre del capítulo
 % ---------------------------------------------------------------------
 
-\begin{caso}
-\redactar{Qué hicimos nosotros: decisión tomada, datos de partida, resultado en pista y qué haríamos distinto.}
+\begin{caso}[Comprar lo que es materia prima, fabricar donde se aprende]
+Tenemos una regla explícita para decidir entre comprar y fabricar, y conviene
+enunciarla porque contesta media docena de preguntas del design event de una
+sola vez: \textbf{compramos lo que es un producto de catálogo y crítico para la
+seguridad; fabricamos donde aprendemos algo o donde no existe la pieza
+adecuada}.
+
+Aplicada a este bloque:
+
+\begin{itemize}
+  \item \textbf{Manguetas mecanizadas de aluminio}, con geometría
+        deliberadamente simple ---sin vaciados complicados--- para abaratar el
+        mecanizado. Se descartó la chapa de acero soldada porque deforma y
+        cuesta mantener la tolerancia del alojamiento del rodamiento, y la
+        fabricación aditiva metálica por cara y poco conocida para nosotros.
+  \item \textbf{Anclaje de dirección atornillado e intercambiable} en la
+        mangueta delantera, para poder mover longitud y altura del brazo de
+        dirección sin fabricar una mangueta nueva.
+  \item \textbf{Rótulas del tirante en doble cortadura}, para quitar flexión de
+        la unión y reducir holguras.
+\end{itemize}
+
+\medskip
+\otrodia[Falta confirmar la aleación real de las manguetas con el proveedor y
+anotar el coste de mecanizado por unidad, que es lo que sostiene la decisión de
+comprar frente a fabricar.]
 \end{caso}
 
 \begin{ojo}
 \begin{itemize}
-  \item \redactar{Error que repetimos cada temporada en este tema.}
+  \item Dimensionar un trapecio a resistencia en vez de a pandeo.
+  \item Usar la longitud del tubo en vez de la distancia entre centros de
+        rótula, o calcular en la posición nominal en vez de en la más sacada.
+  \item Montar rótulas en simple cortadura donde cabía doble.
+  \item Fiarse de un inserto pegado sin haber roto uno a propósito.
+  \item Escribir una designación de aleación sin confirmarla.
+  \item Comprobar la mangueta a tensión y no a rigidez.
+  \item Montar rodamientos sin precarga definida y sin dejarla escrita.
+  \item Diseñar un ajuste que obliga a desmontar otra cosa para tocarlo.
+  \item Hacer las piezas de izquierda y derecha indistinguibles.
 \end{itemize}
 \end{ojo}
 
 \begin{entregable}
-\redactar{Qué produce el lector al terminar: plantilla, hoja de cálculo, checklist o apartado del informe.}
+\begin{enumerate}
+  \item La \textbf{hoja de dimensionado de trapecios}: diámetro, espesor,
+        longitud entre rótulas, carga crítica y coeficiente frente a la carga
+        del capítulo \ref{ch:casos_carga}, en la posición más desfavorable de
+        ajuste.
+  \item El \textbf{informe de la mangueta}: interfaces, material y proceso
+        confirmados, FEA con convergencia y comprobación de envolvente con la
+        llanta.
+  \item La \textbf{selección de rodamientos} con carga equivalente, vida
+        estimada en kilómetros y precarga especificada.
+  \item El \textbf{informe de ensayo de inserto}, con montaje, carga de rotura y
+        modo de fallo.
+  \item La \textbf{lista de comprobación de montabilidad}, rellenada pieza a
+        pieza antes de fabricar.
+\end{enumerate}
 \end{entregable}
 
 \begin{juez}
 \begin{enumerate}
-  \item \redactar{Pregunta tipo del design event sobre este capítulo.}
+  \item ¿Qué limita este trapecio: resistencia, rigidez o pandeo?
+  \item ¿Con qué longitud habéis calculado el pandeo?
+  \item ¿Habéis ensayado la unión del tubo con la rótula?
+  \item ¿Por qué esta aleación y no otra?
+  \item ¿Cuánto flecta el balancín a carga máxima y cuánto cambia eso el $\MR$?
+  \item ¿Cómo habéis definido la precarga del rodamiento?
+  \item ¿Cuánto se tarda en cambiar un muelle?
+  \item ¿Comprobasteis que todo cabe dentro de la llanta a tope de volante?
 \end{enumerate}
 \end{juez}
